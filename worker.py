@@ -519,7 +519,6 @@ def send_meaning(message):
                              reply_to_message_id=message.message_id,
                              parse_mode='Markdown')
             return
-
     from functions import d as d0
     order = [1, '3']
     def by_rule(kid):
@@ -562,11 +561,21 @@ def send_meaning(message):
         bot.send_message(chat_id, msg)
     else:
         rtext = r.text
-        rtext_part = rtext[rtext.find('Значения'):]
-        rtext_part = rtext_part[:rtext_part.index('</div>')]
-        finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
-            # 1-st item — a header or what?
-        assert finds
+        _rtext_part = rtext[rtext.find('Значения'):]
+        try:  # great?
+            rtext_part = _rtext_part
+            rtext_part = rtext_part[:rtext_part.index('</div>')]
+            finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
+                # 1-st item — a header?
+            assert finds
+        except AssertionError:
+            rtext_part = _rtext_part
+            rtext_part = rtext_part[:rtext_part.index('</ul>')]
+            finds = re.findall(r'<li>(.*?)</li>', rtext_part)
+            if not finds:
+                bot_inform(
+                    f"A <b>great</b> error occured: haven't found a meaning\
+                    for {word!r}.", parse_mode='HTML')
         res = random.choice(finds)
 
         bot.send_message(chat_id, res,
