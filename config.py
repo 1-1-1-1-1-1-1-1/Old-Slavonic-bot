@@ -1,12 +1,16 @@
 # Adding env. variables at 2021-02-17T21:05:
 import os
 
+import configparser
+
+import telebot
+
+
 print("Parsing the beginning of configs' file.")
 
 
-get = os.getenv  # OR: os.environ.get
+get = os.environ.get
 
-# --- Test - Adding at 17:27 of 18.02.2021.
 ON_HEROKU = get('ON_HEROKU', False)
 
 
@@ -72,11 +76,8 @@ def password(uid, time=None, *, test_mode=False):
         return res
 
 
-try:
-    from tokens import *
-except ImportError:
-    TOKEN_TEST = get('TOKEN_TEST')
-    TOKEN_INIT = get('TOKEN_INIT')
+TOKEN_TEST = get('TOKEN_TEST')
+TOKEN_INIT = get('TOKEN_INIT')
 
 if not TOKEN_TEST or not TOKEN_INIT:
     raise SystemExit("No tokens found.")
@@ -111,7 +112,7 @@ if PROD:
     CACHE_TIME = 120
 
 LOGGING_ENABLED = True
-LOG_FILENAME = join("files_and_meta", "autologs.txt")  #!
+LOG_FILENAME = join("locals", "autologs.txt")
 
 CONSONANTS = ["б", "в", "г", "д", "ж", "з", "к", "л", "м", "н", "п", "р",
               "с", "т", "ф", "х", "ц", "ч", "ш", "щ"]
@@ -131,16 +132,36 @@ HELP_URL = "https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28"
 
 A_CYRYLLIC = \
 "https://i.ibb.co/N9Vznhx/F67-C56-DB-732-C-468-B-BC4-B-81-FCCBEEE37-D.jpg"
-# "https://i.ibb.co/dWWGVNn/761-CAC86-A008-47-CD-AC0-C-EED91-B363066.jpg"
-# "https://i.ibb.co/d4BXwxN/416-AA3-ED-6440-4047-9-ACB-C7-BE3-C818661.jpg"
 A_GLAGOLIC = \
 "https://i.ibb.co/DzwcQpr/16482-EB9-9-FF9-405-C-BD76-06-FFDD0613-C2.jpg"
 A_LATER_GLAGOLIC = \
 "https://i.ibb.co/2SS7nP7/3-FA71-E14-25-A0-4-B7-C-B8-F1-EDB9-DC8118-AF.jpg"
 
-# "https://i.ibb.co/9ZbkK7N/44197119-AADE-442-A-976-F-A90-B9-E39-F3-B2.jpg"
-
 # A dictionary of `name: (replacement, uid)`
 NAMES_REPLACE = eval(get('NAMES_REPLACE'))
 
+NoSectionError = configparser.NoSectionError
+
+# chats
+CHANNEL = -1001285323449
+TEST_CHAT = -1001341084640
+SPEAK_CHAT = -1001370491506
+HEAD_CHAT = -1001172242526
+
+UIDS_BASE = join("data", 'users.txt')
+GAME_WORDS_DATA = join("locals", 'words.ini')
+
+WORDS_GAME_PATTERN = r"(?is)!?\s?([-а-яё]+)(?:\s*\(.+\))?"
+
+INLINE_EXAMPLES = [
+    "Пример текста. 12 — число",
+    "Тест. Вот-вот. Знаки иногда не писал... Число: 1",
+    "Текст, выражающий в примере. 1 — число, 2 — также. Тест-тест"
+    ]
+
 del join
+
+bot = telebot.TeleBot(TOKEN)
+
+BOT_ID = TOKEN[:TOKEN.index(':')]
+BOT_USERNAME = bot.get_me().username

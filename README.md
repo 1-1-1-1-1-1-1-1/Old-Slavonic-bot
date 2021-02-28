@@ -10,6 +10,9 @@
 # Contents
  + [About](#about)
  + [Usage](#usage)
+ + [Files](#files)
+ + [Translating scheme](#translating_scheme)
+ + [References](#references)
 
 # About
 <a id="about"></a>
@@ -22,10 +25,63 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28
 
 # Usage
 <a id="usage"></a>
-![переводчик](files_and_meta/media/usage-trans.jpg)  <!-- !!! -->
+![переводчик](meta/media/usage-trans.jpg)
 
 # Files & folders
 <a id="files"></a>
 Some data: [data/](data/)
 
+# Translating scheme
+<a id="translating_scheme"></a>
+
+```
+   word (Russian, russian letters)-----------------------|
+     |                                                   |
+   translation to Old Slavonic (with russian letters)    |
+ /     |                  \                              |
+ | transliteration to ... |                              |
+ |    /          \        |                translation to Old Slavonic    
+ \ cyryllic    glagolic   /                     /                   \ 
+                                        with cyr. letters      glagolic letters
+```
+
+# References
+<a id="references"></a>
+General
+-------
+ * https://www.ponomar.net/files/gama2/p002.htm (Название: "§2. Употребление и произношение букв")
+ * Про inline: https://core.telegram.org/bots/inline
+ * https://core.telegram.org/bots/api
+ * Про числа: http://lukianpovorotov.narod.ru/Folder_Pravoslavie/tserkovnoslavyanskiye_chisla.html
+ * Про inline: https://mastergroosha.github.io/telegram-tutorial/docs/lesson_07/,
+   https://mastergroosha.github.io/telegram-tutorial/docs/lesson_08/
+   <з
+ * Some about numbers (5): ! http://konorama.ru/servisy/slacy/
+ * http://info-7.ru/Titlo/Titlo.shtml (link to this was at Wikipedia, see prev. source)
+ * Git docs, partial: https://git-scm.com/book/ru/v2/Основы-Git-Создание-Git-репозитория/
+
+Heroku
+------
+ * Deployment: https://devcenter.heroku.com/categories/deployment
+ * Creating a 'Deploy to Heroku' Button: https://devcenter.heroku.com/articles/heroku-button
+
+Telegram API
+------------
+ * About InlineKeyboardMarkup:
+ > Note: This will only work in Telegram versions released after 9 April, 2016.
+
+ (from the [Telegram Bot API])
+
+ * Query's text: 
+ > Text of the query (up to 256 characters)
+
+ (from the [Telegram Bot API])
+
+Another
+-------
+ * https://pypi.org/project/python-dotenv/
+ * http://www.fabfile.org/ link to it was at prev. (dotenv.)
+ 
 [up to top](#top)
+
+[Telegram Bot API]: https://core.telegram.org/bots/api

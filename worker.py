@@ -5,38 +5,30 @@ import re
 from os.path import join
 
 import requests
-import configparser
 
-from config import TOKEN, CACHE_TIME, NAMES_REPLACE
-from config import ADMINS, LOGGING_CHAT, HELP_URL
-from config import A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC
+from config import (
+    TOKEN, CACHE_TIME, NAMES_REPLACE, UIDS_BASE,
+    # pics:
+    A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC,
+    # techical
+    ADMINS, LOGGING_CHAT, HELP_URL,
+    PROD, PASSWORD_ENABLED, ON_HEROKU, CHAT_LOGS_MODE_ALL,
+    # configparser:
+    configparser, NoSectionError,
+    # chats:
+    CHANNEL, TEST_CHAT, SPEAK_CHAT, HEAD_CHAT,
+    # other:
+    bot, BOT_ID, BOT_USERNAME,
+    WORDS_GAME_PATTERN,
+    INLINE_EXAMPLES,
+    GAME_WORDS_DATA,
+    TOKEN_INIT
+    )
 from functions import translation, glagolic_transliterate
 
 
-CHANNEL = -1001285323449
-TEST_CHAT = -1001341084640
-SPEAK_CHAT = -1001370491506
-HEAD_CHAT = -1001172242526
+edit_date = '@day-08.03.2021'  # dummy, to check for updates while running.
 
-WORDS_GAME_PATTERN = r"(?is)!?\s?([-а-яё]+)(?:\s*\(.+\))?"
-
-edit_date = '@evening-06.03.2021'  # dummy, to check for updates while running.
-
-
-INLINE_EXAMPLES = [
-    "Пример текста. 12 — число",
-    "Тест. Вот-вот. Знаки иногда не писал... Число: 1",
-    "Текст, выражающий в примере. 1 — число, 2 — также. Тест-тест"
-    ]
-
-
-from config import PROD, PASSWORD_ENABLED
-
-
-bot = telebot.TeleBot(TOKEN)
-
-
-from config import ON_HEROKU, CHAT_LOGS_MODE_ALL
 
 def bot_inform(msg, chat_id=LOGGING_CHAT, type_=None, **kwargs):
     if type_ is not None and type_ not in CHAT_LOGS_MODE_ALL:
@@ -51,12 +43,6 @@ Is on Heroku: <u>{str(ON_HEROKU).lower()}</u>.
 """, type_="launch", parse_mode='HTML')
 
 del ON_HEROKU
-
-
-BOT_USERNAME = bot.get_me().username
-
-
-NoSectionError = configparser.NoSectionError
 
 
 def _cmd_pattern(cmd, *, flags='i'):  # Internal
@@ -87,7 +73,7 @@ def _chatMember(user_id, of):
         return types.ChatMember(*([None]*4 + [False]*12))
 
 def is_participant(user_id, of=HEAD_CHAT):
-    """User is participant of `of` (chat), returns bool."""
+    """User is participant of chat `of`, returns bool."""
     return _chatMember(user_id, of).status in [
             "creator",
             "administrator",
@@ -96,8 +82,8 @@ def is_participant(user_id, of=HEAD_CHAT):
         ]
 
 def _add_user(user_id):
-    # Internal, add ID to the base. Comments are allowed.
-    filename = join('data', 'users.txt')
+    # Add ID to the base. Comments are allowed.
+    filename = UIDS_BASE
     with open(filename, 'a') as f:
         pass
     with open(filename, 'r', encoding='utf8') as f:
@@ -117,7 +103,7 @@ def full_name(user):
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
 def user_text_mention(user, fill_as=None):
-    # `fill_as` — a text to insert at mention.
+    # fill_as: text to insert at mention
     if fill_as is None:
         filling = full_name(user)
     else:
@@ -125,8 +111,7 @@ def user_text_mention(user, fill_as=None):
     return f'<a href="tg://user?id={user.id}">{filling}</a>'
 
 def load_users():
-    # Allowed comments.
-    with open(join('data', 'users.txt'), encoding='utf-8') as f:
+    with open(UIDS_BASE, encoding='utf-8') as f:
         users = map(eval, f.read().strip().split('\n'))
     return users
 
@@ -174,7 +159,7 @@ def make_move(chat_id, message, letter, mentioned):
         msg = answer + ' (' + description + ')'
         return answer, msg
     except AssertionError:
-        maxn = 4  # Should it be so?
+        maxn = 4  # perfect?
         possible = list(range(1, maxn))
         res_word = None
 
@@ -223,7 +208,7 @@ def play_words(chat_id, message, current=0):
 
     c = configparser.ConfigParser()
     chat_id = str(chat_id)
-    filename = "words.ini"
+    filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
         msg = "Ошибка: не найдено игру."
@@ -265,7 +250,7 @@ def play_words(chat_id, message, current=0):
 это слово значит? (Ход не засчитан. Потом либо напиши ответом на это \
 сообщение толкование слова, я его в словарь запишу, либо назови другое \
 слово. И вообще, это not implemented ещё{dot})"*feature_exists('teach_word')
-            bot.send_message(chat_id, answer_msg, 
+            bot.send_message(chat_id, answer_msg,
                 reply_to_message_id=message.message_id)
             return
         if word.casefold() in map(lambda s: s.casefold(), mentioned):
@@ -279,7 +264,7 @@ def play_words(chat_id, message, current=0):
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
-        if str(order[current]) == TOKEN[:TOKEN.index(':')]:
+        if str(order[current]) == BOT_ID:
             print("Bot's move at game `words`")  # test-log
             
             try:
@@ -304,7 +289,7 @@ def play_words(chat_id, message, current=0):
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
 
-r''' # uncomment for tests:
+r'''
 @bot.message_handler(commands=['test_start'])
 def test_start_message(message):
     if message.from_user.id not in ADMINS:
@@ -335,7 +320,7 @@ def do_action(message):
     if message.from_user.id not in ADMINS:
         return
 
-    filename = join("data", "do_logs.log")
+    filename = join("locals", "do_logs.log")
     mid = "{},{}".format(message.chat.id, message.message_id)
 
     import os
@@ -381,12 +366,17 @@ def do_action(message):
         action = 'eval'
     action0 = action
     action = eval(action)
-    if action is eval:
-        res = eval(code)
-        bot.send_message(message.chat.id, str(res),
+    try:
+        if action is eval:
+            res = eval(code)
+            bot.send_message(message.chat.id, str(res),
+                reply_to_message_id=message.message_id)
+        elif action is exec:
+            exec(code)
+    except Exception as e:
+        msg = f"Ошибка. {e}"
+        bot.send_message(message.chat.id, msg,
             reply_to_message_id=message.message_id)
-    elif action is exec:
-        exec(code)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -475,7 +465,7 @@ def send_help_msg(message):
 def words_skip_move(message):
     c = configparser.ConfigParser()
     chat_id = str(message.chat.id)
-    filename = "words.ini"
+    filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
         msg = "Игра не найдена"
@@ -489,7 +479,7 @@ def words_skip_move(message):
     current %= len(order)
     section["current"] = str(current)
 
-    if str(order[current]) == TOKEN[:TOKEN.index(':')]:
+    if str(order[current]) == BOT_ID:
         mentioned = eval(section["mentioned"])
         cur_letter = section["letter"]
         letter = cur_letter
@@ -602,7 +592,7 @@ def send_meaning(message):
                          reply_to_message_id=message.message_id)
         
 @bot.message_handler(commands=['words'])
-def reg_game_words(message):
+def react_game_words(message):
     chat = message.chat
     # Processing further actions may take a great amount of time.
     bot.send_chat_action(chat.id, 'typing')
@@ -620,7 +610,7 @@ def reg_game_words(message):
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
            msg = "Игра не найдена."
@@ -641,7 +631,7 @@ def reg_game_words(message):
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
            c.remove_section(chat_id)
@@ -662,7 +652,7 @@ def reg_game_words(message):
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
             bot.send_message(chat.id,
@@ -687,9 +677,9 @@ def reg_game_words(message):
 Начало игры
 `-----------`
 В личной переписке: /words `[начать|start]` `[single]` (single — игра самому)
-В группе: /words пользователь\_1 ...
-    Имена пользователей — упоминанием
-    Своё имя можно не указывать, тогда оно первое в очереди
+В группе: `/words пользователь\_1 ...`
+◽️Имена пользователей — упоминанием
+◽️Своё имя можно не указывать, тогда оно первое в очереди
 
 Хода
 `----`
@@ -698,12 +688,12 @@ def reg_game_words(message):
 
 Другие:
 `-------`
-`/words приостановить|pause` — остановка игры
-`/words хватит|удалить игру|stop` — прекратить игру и удалить
+`/words pause``|``приостановить` — остановка игры
+`/words stop``|``хватит|удалить игру` — прекратить игру и удалить
 `/words skip` — пропуск хода
-`/words очередь|порядок|order` — порядок ходов, текущий игрок
-`/words правила|инструкция|команды|help` — это сообщение
-`/words продолжить|continue` — продолжение (после `pause`)
+`/words order``|``очередь|порядок` — порядок ходов, текущий игрок
+`/words help``|``правила|инструкция|команды` — это сообщение
+`/words continue``|``продолжить` — продолжение (после `pause`)
 """
         bot.send_message(chat.id, msg, parse_mode='Markdown')
         return
@@ -713,7 +703,7 @@ def reg_game_words(message):
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if (c.has_option(chat_id, 'status') and 
             c[chat_id]['status'] == 'paused'):
@@ -731,13 +721,13 @@ def reg_game_words(message):
         if 'single' in message.text:
             order = [message.from_user.id]
         else:
-            order = [message.from_user.id, eval(TOKEN[:TOKEN.index(':')])]
+            order = [message.from_user.id, eval(BOT_ID)]
         current = 0
         mentioned = []
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
             if not re.search('(?:начать|start)', message.text):
@@ -784,7 +774,7 @@ def reg_game_words(message):
 
         c = configparser.ConfigParser()
         chat_id = str(chat.id)
-        filename = "words.ini"
+        filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
             c.add_section(chat_id)
@@ -800,9 +790,6 @@ def reg_game_words(message):
         bot.send_message(chat_id, "Done. Registered.")
 
 
-#  ---
-
-
 @bot.message_handler(content_types=['new_chat_members'])
 def greet_new_chat_member(message):
     user = message.new_chat_members[0]
@@ -812,7 +799,7 @@ def greet_new_chat_member(message):
     _add_user(user.id)
 
     if chat.id == SPEAK_CHAT \
-    and TOKEN == __import__("config").TOKEN_INIT:  #!
+    and TOKEN == TOKEN_INIT:  # !
         if not is_participant(user.id):
             until_date = 0
             bot.send_message(chat.id, "Сюда можно онли участникам чата курса. Сóри.",
@@ -822,10 +809,8 @@ def greet_new_chat_member(message):
 
         dash = "—"  # m-dash  # <- ?
         is_test_msg = False
-        day = __import__("datetime").datetime.now()
         till = (
-            "28.02.2021, 06.03.2021" #
-            # day.strftime("%d.%m.%Y")
+            "28.02.2021, 06.03.2021, 07.03.2021"
             )
 
         msg = f"""{"[Это тест.]"*is_test_msg}
@@ -857,7 +842,7 @@ def greet_new_chat_member(message):
         bot.send_message(message.chat.id, msg, parse_mode='HTML')
 
 
-@bot.inline_handler(func=lambda query: 0 < len(query.query) <= 256)  # Or 255?
+@bot.inline_handler(func=lambda query: 0 < len(query.query) <= 255)  # Or 256?
 def answer_query(query):
     print('user_id:', query.from_user.id)  # test
     
@@ -942,16 +927,13 @@ def answer_empty_query(query):
     _add_user(query.from_user.id)
 
     try:
-        thumb_url = \
-        A_LATER_GLAGOLIC
-
+        thumb_url = A_LATER_GLAGOLIC
         r = types.InlineQueryResultArticle(
             id='1',
             title="Перевод на славянские языки: кириллица, глаголица.",
             input_message_content=types.InputTextMessageContent(
                 message_text="..."
                 ),
-            url=HELP_URL,
             thumb_url=thumb_url, thumb_width=48, thumb_height=48,
             description="Введи текст для перевода, жми на нужный для отправки"
             )
@@ -966,10 +948,10 @@ def answer_message(message):
 
     c = configparser.ConfigParser()
     chat_id = str(message.chat.id)
-    filename = "words.ini"
+    filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
-        # Answering can be performed only if that section exists.
+        # Аnswer can be performed only if section exists.
         return
     section = c[chat_id]
     order = eval(section["order"])

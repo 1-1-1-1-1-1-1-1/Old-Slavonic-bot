@@ -1,0 +1,17 @@
+Procfile — for the GitHub launch  # needed?
+runtime.txt — for the GitHub launch. Required 3.8+, as using ":="
+
+Some commands, were possible at the Heroku
+------------------------------------------
+ - Here APP_NAME is the name of app at the Heroku.
+ - Can be launched at GitHub by using the command at CLI:
+   `heroku run:detached python worker.py (-a|--app=)APP_NAME` (see also: log.log also)
+ - Stop the bot's running:
+   `heroku stop DYNO --app APP_NAME`
+ - Check the logs:
+   `heroku logs --app APP_NAME --dyno DYNO`
+   ex.: DYNO=run.5741
+   can be found after the launch via `heroku run:detached`.
+ - Set the config variable at Heroku:
+   `heroku config:set VAR_NAME=VAR_VALUE VAR_2_NAME=VAR_2_VALUE ...`
+   OR: `heroku config:set VAR_NAME="VAR_VALUE" ...`

@@ -226,6 +226,10 @@ def cyryllic_trans_of_number(number: str) -> "str or None":
     _res = []
 
     d = data["cyryllic"]["numbers"]  # Mind name.
+    def get_num(base_number: str) -> str:
+        # Other — 6ther versions.
+        return d[base_number].split('|')[0]
+
     def _number_under_1000(number: str):
         if not number:
             return ""
@@ -235,16 +239,16 @@ def cyryllic_trans_of_number(number: str) -> "str or None":
         req = list(range(length))
         if length > 1 and number[-2] == one:
             n1 = number[-1]
-            ten = d['10']
+            ten = get_num('10')  # d['10']
             if n1 == zero:
                 res.append(ten)
             else:
-                res.append(ten + d[n1])
+                res.append(ten + get_num(n1))
             del req[:2]
         for i, item in enumerate(reversed(number)):
             item = int(item)
             if item and i in req:
-                transliterated = d[str(item*10**i)]
+                transliterated = get_num(str(item*10**i))
                 res.append(transliterated)
         return "".join(res)
     
@@ -281,14 +285,18 @@ def cyryllic_trans_of_number(number: str) -> "str or None":
     while pos < len(res):
         if do_local() == 0:
             break
-    res[-pos] = (item := res[-pos])[0], item[1] + t
+    omega = get_num('800')
+    letter_i = get_num('10')
+    with_no_titlo = (omega, letter_i)
+    res[-pos] = (item := res[-pos])[0], item[1]+ t*(
+        item[1] not in with_no_titlo)
 
     return mdot + "".join(''.join(item) for item in res) + mdot
 '''
 run_test()("12")
+run_test()("10")
 '''
-# run_test()("10")
-run_test()("1001")
+run_test()("1871")
 '''
 run_test()("3")
 run_test()("1")

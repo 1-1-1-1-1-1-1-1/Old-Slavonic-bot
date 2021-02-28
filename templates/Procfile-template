@@ -1,0 +1,4 @@
+# is not required, if via `run:detached...`
+# name it: `Procfile` (at the root directory). No newlines, 1 line only.
+# Docs: https://devcenter.heroku.com/articles/procfile
+web: python worker.py

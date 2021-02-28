@@ -1,5 +1,0 @@
-Procfile -- for the GitHub launch  # needed?
-runtime.txt -- for the GitHub launch. Required 3.8+, as using ":="
-
-Can be launched at GitHub by using the command at CLI:
-`heroku run:detached python worker.py -a translation-test-2` (see log.log)
