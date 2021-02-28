@@ -100,3 +100,7 @@ after the try to launch 2 get-updates at one time.
 Was inactive... Isn't correct?
 
 [02/27/21T17:15:16] detected the bot as failed, relaunched it just now.
+
+[2021-03-07T00:55]
+Changed:
+at `runtime.txt`: `3.8.7`->`3.8.8` (was warned via CLI)

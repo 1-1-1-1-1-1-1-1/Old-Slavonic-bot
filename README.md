@@ -17,10 +17,8 @@
 
 Переводчик на старославянский язык.
 
-Статья в Telegraph: 
+Статья в Telegraph:
 https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28
-<!-- tests: -->
-<!-- https://telegra.ph/Test-02-20-154 -->
 
 # Usage
 <a id="usage"></a>

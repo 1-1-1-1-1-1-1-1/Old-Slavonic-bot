@@ -22,5 +22,5 @@ Another
  * https://pypi.org/project/python-dotenv/
  * http://www.fabfile.org/ link to it was at prev. (dotenv.)
 
- !! Query's test: `Text of the query (up to 256 characters)` (from the ~api.telegram.org)
+ !! Query's text: `Text of the query (up to 256 characters)` (from the ~api.telegram.org)
   [2021-02-19T11:42] Adding not more then 256 symb. at inline...

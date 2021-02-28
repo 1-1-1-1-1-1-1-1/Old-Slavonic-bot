@@ -8,7 +8,8 @@ import requests
 import configparser
 
 from config import TOKEN, CACHE_TIME, NAMES_REPLACE
-from config import ADMINS, LOGGING_CHAT
+from config import ADMINS, LOGGING_CHAT, HELP_URL
+from config import A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC
 from functions import translation, glagolic_transliterate
 
 
@@ -19,7 +20,7 @@ HEAD_CHAT = -1001172242526
 
 WORDS_GAME_PATTERN = r"(?is)!?\s?([-а-яё]+)(?:\s*\(.+\))?"
 
-edit_date = '06.03.2021'  # dummy, to check for updates at the server
+edit_date = '@evening-06.03.2021'  # dummy, to check for updates while running.
 
 
 INLINE_EXAMPLES = [
@@ -255,7 +256,7 @@ def play_words(chat_id, message, current=0):
             answer_msg = f"На букву {cur_letter!r}{dot}"
             bot.send_message(chat_id, answer_msg, 
                 reply_to_message_id=message.message_id)
-            return  #~
+            return
         if requests.get(f"https://loopy.ru/?word={word}&def=").status_code \
             == 404:
             answer_msg = f"Вау. Кажется, я не знаю этого слова. Хотя, \
@@ -266,15 +267,15 @@ def play_words(chat_id, message, current=0):
 слово. И вообще, это not implemented ещё{dot})"*feature_exists('teach_word')
             bot.send_message(chat_id, answer_msg, 
                 reply_to_message_id=message.message_id)
-            return  #~
+            return
         if word.casefold() in map(lambda s: s.casefold(), mentioned):
             answer_msg = f"Слово {word!r} уже было в этой игре{dot}"
             bot.send_message(chat_id, answer_msg, 
                 reply_to_message_id=message.message_id)
-            return  #~
+            return
         mentioned.append(word)
         res = word.lower().rstrip('ь')
-        assert re.fullmatch("(?i)[-а-яё]+", res)  #~
+        assert re.fullmatch("(?i)[-а-яё]+", res)  # really required?
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
@@ -303,6 +304,7 @@ def play_words(chat_id, message, current=0):
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
 
+r''' # uncomment for tests:
 @bot.message_handler(commands=['test_start'])
 def test_start_message(message):
     if message.from_user.id not in ADMINS:
@@ -323,6 +325,7 @@ def test_start_message(message):
         ])
     bot.send_message(message.chat.id, msg, reply_markup=keyboard)
     pass
+'''
 
 # examples for it:
 # /do -password=pw -action=eval code
@@ -389,7 +392,7 @@ def start_message(message):
     chat_id = message.chat.id
 
     header = "\[test]"*test
-    # ~0:01 at 2021-08-02: once said "can't parse ent.",
+    # ~0:01 at 2021-02-08: once said "can't parse ent.",
     # after reload — with some extra ent. ...
     # Then — without (one '"'' was rem.), but wrong, not working.
     # Then — again once "can't ..." (byte offset ?552)
@@ -407,7 +410,7 @@ def start_message(message):
     allow_to_all = False
     if allow_to_all or is_participant(user_id):
         def invite_link(chat_id_):
-            # No `export_chat_invite_link`!
+            # No `export_chat_invite_link`.
             try:
                 link = bot.get_chat(chat_id_).invite_link
             except:
@@ -446,12 +449,21 @@ def send_help_msg(message):
  слово "@""" + BOT_USERNAME.replace('_', r'\_') + """\
 \" и, после пробела, — текст для перевода.
 Для отправки текста из списка нажать на тот текст.
+Очень много символов за раз бот не может отправить, только около 220.
 `*` Возможные ошибки: недописывание символов.
 
-Ещё: игра в слова (см. /words help). Значение слова: \
+Ещё: игра в слова (см. `/words help`). Значение слова: \
 см. /meaning help.
 """
-    bot.send_message(message.chat.id, msg, parse_mode='Markdown')
+    help_message = types.InlineKeyboardButton(
+        text="Руководство",
+        url=HELP_URL)
+    keyboard = types.InlineKeyboardMarkup(
+        [[help_message]]
+        )
+    bot.send_message(message.chat.id, msg, parse_mode='Markdown',
+        reply_markup=keyboard,
+        )
 
 
 def words_skip_move(message):
@@ -806,7 +818,7 @@ def greet_new_chat_member(message):
         is_test_msg = False
         day = __import__("datetime").datetime.now()
         till = (
-            "28.02.2021"
+            "28.02.2021, 06.03.2021" #
             # day.strftime("%d.%m.%Y")
             )
 
@@ -891,7 +903,8 @@ def answer_query(query):
             title="Перевод на кириллицу",
             description=text_cyr,
             input_message_content=types.InputTextMessageContent(
-                message_text=text_cyr)
+                message_text=text_cyr),
+            thumb_url=A_CYRYLLIC, thumb_width=48, thumb_height=48,
             )
         
         text_gla = translation(text, dest="glagolic")
@@ -900,7 +913,8 @@ def answer_query(query):
             title="Перевод на глаголицу",
             description=text_gla,
             input_message_content=types.InputTextMessageContent(
-                message_text=text_gla)
+                message_text=text_gla),
+            thumb_url=A_GLAGOLIC, thumb_width=48, thumb_height=48,
             )
         
         text_transliterated_gla = glagolic_transliterate(text)
@@ -909,7 +923,8 @@ def answer_query(query):
             title="Транслитерация на глаголицу",
             description=text_transliterated_gla,
             input_message_content=types.InputTextMessageContent(
-                message_text=text_transliterated_gla)
+                message_text=text_transliterated_gla),
+            thumb_url=A_LATER_GLAGOLIC, thumb_width=48, thumb_height=48,
             )
         answers = [cyr, gla, transliterated_gla] + answers
         bot.answer_inline_query(query.id, answers, cache_time=CACHE_TIME)
@@ -921,11 +936,17 @@ def answer_empty_query(query):
     _add_user(query.from_user.id)
 
     try:
+        thumb_url = \
+        A_LATER_GLAGOLIC
+
         r = types.InlineQueryResultArticle(
             id='1',
             title="Перевод на славянские языки: кириллица, глаголица.",
             input_message_content=types.InputTextMessageContent(
-                message_text="..."),
+                message_text="..."
+                ),
+            url=HELP_URL,
+            thumb_url=thumb_url, thumb_width=48, thumb_height=48,
             description="Введи текст для перевода, жми на нужный для отправки"
             )
         bot.answer_inline_query(query.id, [r], cache_time=CACHE_TIME)

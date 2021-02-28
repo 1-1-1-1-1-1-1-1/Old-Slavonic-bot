@@ -127,6 +127,19 @@ ADMINS = [  # Not used yet
 699642076
 ]
 
+HELP_URL = "https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28"
+
+A_CYRYLLIC = \
+"https://i.ibb.co/N9Vznhx/F67-C56-DB-732-C-468-B-BC4-B-81-FCCBEEE37-D.jpg"
+# "https://i.ibb.co/dWWGVNn/761-CAC86-A008-47-CD-AC0-C-EED91-B363066.jpg"
+# "https://i.ibb.co/d4BXwxN/416-AA3-ED-6440-4047-9-ACB-C7-BE3-C818661.jpg"
+A_GLAGOLIC = \
+"https://i.ibb.co/DzwcQpr/16482-EB9-9-FF9-405-C-BD76-06-FFDD0613-C2.jpg"
+A_LATER_GLAGOLIC = \
+"https://i.ibb.co/2SS7nP7/3-FA71-E14-25-A0-4-B7-C-B8-F1-EDB9-DC8118-AF.jpg"
+
+# "https://i.ibb.co/9ZbkK7N/44197119-AADE-442-A-976-F-A90-B9-E39-F3-B2.jpg"
+
 # A dictionary of `name: (replacement, uid)`
 NAMES_REPLACE = eval(get('NAMES_REPLACE'))
 
