@@ -1,0 +1,283 @@
+[At 04-05.02.2021:]
+[2021-02-04T16:59:30] Skipping `i=0`, already at the file.
+[2021-02-04T16:59:30] Skipping `i=1`, already at the file.
+[2021-02-04T16:59:30] Skipping `i=2`, already at the file.
+[2021-02-04T16:59:30] Skipping `i=3`, already at the file.
+[2021-02-04T16:59:30] Skipping `i=4`, already at the file.
+[2021-02-04T16:59:30] Starting the action with `i=5`.
+[2021-02-04T17:34:37] Ended writing to file with i=5. Verified.
+[2021-02-04T17:34:37] Starting the action with `i=6`.
+[2021-02-04T17:54:55] Ended writing to file with i=6. Verified.
+[2021-02-04T17:54:55] Starting the action with `i=7`.
+[2021-02-04T17:55:20] Ended writing to file with i=7. Verified.
+[2021-02-04T17:55:20] Starting the action with `i=8`.
+[2021-02-04T17:55:43] Ended writing to file with i=8. Verified.
+[2021-02-04T17:55:43] Starting the action with `i=9`.
+[2021-02-04T18:10:19] Ended writing to file with i=9. Verified.
+[2021-02-04T18:10:19] Starting the action with `i=10`.
+[2021-02-04T18:45:28] Ended writing to file with i=10. Verified.
+[2021-02-04T18:45:28] Starting the action with `i=11`.
+[2021-02-04T18:56:25] Ended writing to file with i=11. Verified.
+[2021-02-04T18:56:25] Starting the action with `i=12`.
+[2021-02-04T18:56:52] Ended writing to file with i=12. Verified.
+[2021-02-04T18:56:52] Starting the action with `i=13`.
+[2021-02-04T18:57:27] Ended writing to file with i=13. Verified.
+[2021-02-04T18:57:27] Starting the action with `i=14`.
+[2021-02-04T19:22:11] Ended writing to file with i=14. Verified.
+[2021-02-04T19:22:11] Starting the action with `i=15`.
+[2021-02-04T19:57:18] Ended writing to file with i=15. Verified.
+[2021-02-04T19:57:18] Starting the action with `i=16`.
+[2021-02-04T19:58:06] Ended writing to file with i=16. Verified.
+[2021-02-04T19:58:06] Starting the action with `i=17`.
+[2021-02-04T19:58:32] Ended writing to file with i=17. Verified.
+[2021-02-04T19:58:32] Starting the action with `i=18`.
+[2021-02-04T19:58:57] Ended writing to file with i=18. Verified.
+[2021-02-04T19:58:57] Starting the action with `i=19`.
+[2021-02-04T20:33:43] Ended writing to file with i=19. Verified.
+[2021-02-04T20:33:43] Starting the action with `i=20`.
+[2021-02-04T20:59:14] Ended writing to file with i=20. Verified.
+[2021-02-04T20:59:14] Starting the action with `i=21`.
+[2021-02-04T20:59:49] Ended writing to file with i=21. Verified.
+[2021-02-04T20:59:49] Starting the action with `i=22`.
+[2021-02-04T21:00:26] Ended writing to file with i=22. Verified.
+[2021-02-04T21:00:26] Starting the action with `i=23`.
+[2021-02-04T21:14:07] Ended writing to file with i=23. Verified.
+[2021-02-04T21:14:07] Starting the action with `i=24`.
+[2021-02-04T21:49:14] Ended writing to file with i=24. Verified.
+[2021-02-04T21:49:14] Starting the action with `i=25`.
+[2021-02-04T22:01:14] Ended writing to file with i=25. Verified.
+[2021-02-04T22:01:14] Starting the action with `i=26`.
+[2021-02-04T22:01:54] Ended writing to file with i=26. Verified.
+[2021-02-04T22:01:54] Starting the action with `i=27`.
+[2021-02-04T22:02:46] Ended writing to file with i=27. Verified.
+[2021-02-04T22:02:46] Starting the action with `i=28`.
+[2021-02-04T22:58:44] Ended writing to file with i=28. Verified.
+[2021-02-04T22:58:44] Starting the action with `i=29`.
+[2021-02-04T23:03:44] Ended writing to file with i=29. Verified.
+[2021-02-04T23:03:44] Starting the action with `i=30`.
+[2021-02-04T23:04:29] Ended writing to file with i=30. Verified.
+[2021-02-04T23:04:29] Starting the action with `i=31`.
+[2021-02-04T23:05:12] Ended writing to file with i=31. Verified.
+[2021-02-04T23:05:12] Starting the action with `i=32`.
+[2021-02-04T23:35:28] Ended writing to file with i=32. Verified.
+[2021-02-04T23:35:28] Starting the action with `i=33`.
+[2021-02-05T00:05:43] Ended writing to file with i=33. Verified.
+[2021-02-05T00:05:43] Starting the action with `i=34`.
+[2021-02-05T00:07:51] Ended writing to file with i=34. Verified.
+[2021-02-05T00:07:51] Starting the action with `i=35`.
+[2021-02-05T00:09:36] Ended writing to file with i=35. Verified.
+[2021-02-05T00:09:36] Starting the action with `i=36`.
+[2021-02-05T00:10:50] Ended writing to file with i=36. Verified.
+[2021-02-05T00:10:50] Starting the action with `i=37`.
+[2021-02-05T00:11:15] Ended writing to file with i=37. Verified.
+[2021-02-05T00:11:15] Starting the action with `i=38`.
+[2021-02-05T00:11:38] Ended writing to file with i=38. Verified.
+[2021-02-05T00:11:38] Starting the action with `i=39`.
+[2021-02-05T00:24:15] Ended writing to file with i=39. Verified.
+[2021-02-05T00:24:15] Starting the action with `i=40`.
+...
+
+Approximately at 4:01: the PC: placing it with the connection to proxy with:
+address: 159.89.121.225
+port: 8080
+
+...
+[2021-02-05T00:59:20] Ended writing to file with i=40. Verified.
+[2021-02-05T00:59:20] Starting the action with `i=41`.
+[2021-02-05T01:12:15] Ended writing to file with i=41. Verified.
+[2021-02-05T01:12:15] Starting the action with `i=42`.
+[2021-02-05T01:12:40] Ended writing to file with i=42. Verified.
+[2021-02-05T01:12:40] Starting the action with `i=43`.
+[2021-02-05T01:13:03] Ended writing to file with i=43. Verified.
+[2021-02-05T01:13:03] Starting the action with `i=44`.
+[2021-02-05T01:34:16] Ended writing to file with i=44. Verified.
+[2021-02-05T01:34:16] Starting the action with `i=45`.
+[2021-02-05T02:09:22] Ended writing to file with i=45. Verified.
+[2021-02-05T02:09:22] Starting the action with `i=46`.
+[2021-02-05T02:13:34] Ended writing to file with i=46. Verified.
+[2021-02-05T02:13:34] Starting the action with `i=47`.
+[2021-02-05T02:13:58] Ended writing to file with i=47. Verified.
+[2021-02-05T02:13:58] Starting the action with `i=48`.
+[2021-02-05T02:14:20] Ended writing to file with i=48. Verified.
+[2021-02-05T02:14:20] Starting the action with `i=49`.
+[2021-02-05T02:45:16] Ended writing to file with i=49. Verified.
+[2021-02-05T02:45:16] Starting the action with `i=50`.
+[2021-02-05T03:14:27] Ended writing to file with i=50. Verified.
+[2021-02-05T03:14:27] Starting the action with `i=51`.
+[2021-02-05T03:14:51] Ended writing to file with i=51. Verified.
+[2021-02-05T03:14:51] Starting the action with `i=52`.
+[2021-02-05T03:15:13] Ended writing to file with i=52. Verified.
+[2021-02-05T03:15:13] Starting the action with `i=53`.
+[2021-02-05T03:20:28] Ended writing to file with i=53. Verified.
+[2021-02-05T03:20:28] Starting the action with `i=54`.
+[2021-02-05T03:56:56] Ended writing to file with i=54. Verified.
+[2021-02-05T03:56:56] Starting the action with `i=55`.
+[2021-02-05T03:59:24] Ended writing to file with i=55. Verified.
+[2021-02-05T03:59:24] Starting the action with `i=56`.
+[2021-02-05T04:01:08] Ended writing to file with i=56. Verified.
+[2021-02-05T04:01:08] Starting the action with `i=57`.
+[2021-02-05T04:02:13] Ended writing to file with i=57. Verified.
+[2021-02-05T04:02:13] Starting the action with `i=58`.
+[2021-02-05T04:03:04] Ended writing to file with i=58. Verified.
+[2021-02-05T04:03:04] Starting the action with `i=59`.
+[2021-02-05T04:03:54] Ended writing to file with i=59. Verified.
+[2021-02-05T04:03:54] Starting the action with `i=60`.
+[2021-02-05T04:06:34] Ended writing to file with i=60. Verified.
+[2021-02-05T04:06:34] Starting the action with `i=61`.
+...
+
+It seems to work quite faster right now.
+
+...
+
+Seems not to work actually.
+
+[~4:15] Changing back to `not using proxy at the PC`.
+But... Seems to be, here the ...?
+
+...
+[2021-02-05T04:08:15] Ended writing to file with i=61. Verified.
+[2021-02-05T04:08:15] Starting the action with `i=62`.
+[2021-02-05T04:09:55] Ended writing to file with i=62. Verified.
+[2021-02-05T04:09:55] Starting the action with `i=63`.
+[2021-02-05T04:11:34] Ended writing to file with i=63. Verified.
+[2021-02-05T04:11:34] Starting the action with `i=64`.
+[2021-02-05T04:13:15] Ended writing to file with i=64. Verified.
+[2021-02-05T04:13:15] Starting the action with `i=65`.
+[2021-02-05T04:15:38] Ended writing to file with i=65. Verified.
+[2021-02-05T04:15:38] Starting the action with `i=66`.
+[2021-02-05T04:16:00] Ended writing to file with i=66. Verified.
+[2021-02-05T04:16:00] Starting the action with `i=67`.
+[2021-02-05T04:16:23] Ended writing to file with i=67. Verified.
+[2021-02-05T04:16:23] Starting the action with `i=68`.
+[2021-02-05T04:24:45] Ended writing to file with i=68. Verified.
+[2021-02-05T04:24:45] Starting the action with `i=69`.
+[Cancelled]
+
+
+<...>
+
+[05.02.2021T12:09] Is it better to change the proxy quite often?
+Does it works here than? (To load the r. page cor.)
+
+...
+<...>
+...
+[2021-02-05T21:14:31] Starting the action with `i=78`.
+[2021-02-05T21:16:23] Ended writing to file with i=78. Verified.
+[2021-02-05T21:16:23] Starting the action with `i=79`.
+[2021-02-05T21:17:46] Ended writing to file with i=79. Verified.
+[2021-02-05T21:17:46] Starting the action with `i=80`.
+[2021-02-05T21:19:07] Ended writing to file with i=80. Verified.
+[2021-02-05T21:19:07] Starting the action with `i=81`.
+[2021-02-05T21:20:25] Ended writing to file with i=81. Verified.
+[2021-02-05T21:20:25] Starting the action with `i=82`.
+[2021-02-05T21:21:39] Ended writing to file with i=82. Verified.
+[2021-02-05T21:21:39] Starting the action with `i=83`.
+[2021-02-05T21:25:20] Ended writing to file with i=83. Verified.
+[2021-02-05T21:25:20] Starting the action with `i=84`.
+
+<...>
+[2021-02-05T21:31:49] Starting the action with `i=84`.
+[2021-02-05T21:32:19] Ended writing to file with i=84. Verified.
+<...>
+
+...
+Less then or eq. when i=125: already set `raise SystemExit if the response's code is not 200`
+
+---
+...
+[2021-02-07T14:49:13] Skipping `i=200`, already at the file.
+[2021-02-07T14:49:13] Starting the action with `i=201`.
+[2021-02-07T15:16:26] Ended writing to file with i=201. Verified.
+[2021-02-07T15:16:26] Starting the action with `i=202`.
+[2021-02-07T15:46:05] Ended writing to file with i=202. Verified.
+[2021-02-07T15:46:05] Starting the action with `i=203`.
+[2021-02-07T16:16:29] Ended writing to file with i=203. Verified.
+[2021-02-07T16:16:29] Starting the action with `i=204`.
+[2021-02-07T16:48:53] Ended writing to file with i=204. Verified.
+[2021-02-07T16:48:53] Starting the action with `i=205`.
+[2021-02-07T17:21:54] Ended writing to file with i=205. Verified.
+[2021-02-07T17:21:54] Starting the action with `i=206`.
+[2021-02-07T17:54:31] Ended writing to file with i=206. Verified.
+[2021-02-07T17:54:31] Starting the action with `i=207`.
+[2021-02-07T18:28:44] Ended writing to file with i=207. Verified.
+[2021-02-07T18:28:44] Starting the action with `i=208`.
+[2021-02-07T19:03:09] Ended writing to file with i=208. Verified.
+[2021-02-07T19:03:09] Starting the action with `i=209`.
+[2021-02-07T19:35:32] Ended writing to file with i=209. Verified.
+[2021-02-07T19:35:32] Starting the action with `i=210`.
+[2021-02-07T20:07:29] Ended writing to file with i=210. Verified.
+[2021-02-07T20:07:29] Starting the action with `i=211`.
+[2021-02-07T20:39:49] Ended writing to file with i=211. Verified.
+[2021-02-07T20:39:49] Starting the action with `i=212`.
+[2021-02-07T21:22:48] Ended writing to file with i=212. Verified.
+[2021-02-07T21:22:48] Starting the action with `i=213`.
+[2021-02-07T21:54:11] Ended writing to file with i=213. Verified.
+[2021-02-07T21:54:11] Starting the action with `i=214`.
+[2021-02-07T22:21:07] Ended writing to file with i=214. Verified.
+[2021-02-07T22:21:07] Starting the action with `i=215`.
+[2021-02-07T22:51:51] Ended writing to file with i=215. Verified.
+[2021-02-07T22:51:51] Starting the action with `i=216`.
+[2021-02-07T23:21:13] Ended writing to file with i=216. Verified.
+[2021-02-07T23:21:13] Starting the action with `i=217`.
+[2021-02-07T23:54:56] Ended writing to file with i=217. Verified.
+[2021-02-07T23:54:56] Starting the action with `i=218`.
+[2021-02-08T00:28:26] Ended writing to file with i=218. Verified.
+[2021-02-08T00:28:26] Starting the action with `i=219`.
+[2021-02-08T01:00:47] Ended writing to file with i=219. Verified.
+[2021-02-08T01:00:47] Starting the action with `i=220`.
+... [reloaded, same IP and PORT at data of proxy]
+[2021-02-08T01:06:10] Starting the action with `i=220`.
+[2021-02-08T01:36:25] Ended writing to file with i=220. Verified.
+[2021-02-08T01:36:25] Starting the action with `i=221`.
+
+This (mentioned here, just here) seems and may be really verified.
+Same to ~150-(~<this).
+
+[2:07:] reloaded, using there an another proxy-server.
+
+[2021-02-08T02:07:27] Starting the action with `i=221`.
+
+...
+[2021-02-08T11:58:10] Skipping `i=220`, already at the file.
+[2021-02-08T11:58:10] Starting the action with `i=223`.
+[2021-02-08T12:33:14] Ended writing to file with i=223. Verified.
+[2021-02-08T12:33:14] Starting the action with `i=224`.
+[2021-02-08T13:08:19] Ended writing to file with i=224. Verified.
+[2021-02-08T13:08:19] Starting the action with `i=225`.
+[2021-02-08T13:43:23] Ended writing to file with i=225. Verified.
+[2021-02-08T13:43:23] Starting the action with `i=226`.
+[2021-02-08T14:18:28] Ended writing to file with i=226. Verified.
+[2021-02-08T14:18:28] Done with all!
+
+Rechecking, surely verifiing:
+<...>
+
+...
+[2021-02-10T01:29:57] Starting the action with `i=4`.
+[2021-02-10T09:04:38] Ended writing to file with i=4. Verified.
+[2021-02-10T09:04:38] Starting the action with `i=5`.
+[2021-02-10T09:39:42] Ended writing to file with i=5. Verified.
+[2021-02-10T09:39:42] Starting the action with `i=6`.
+[2021-02-10T10:14:47] Ended writing to file with i=6. Verified.
+...
+
+...
+[2021-02-10T10:56:18] Starting the action with `i=7`.
+[2021-02-10T10:56:36] Ended writing to file with i=7. Verified.
+[2021-02-10T10:56:36] Starting the action with `i=8`.
+[2021-02-10T10:56:54] Ended writing to file with i=8. Verified.
+[2021-02-10T10:56:54] Starting the action with `i=9`.
+[2021-02-10T10:57:15] Ended writing to file with i=9. Verified.
+[2021-02-10T10:57:15] Starting the action with `i=10`.
+[2021-02-10T10:57:33] Ended writing to file with i=10. Verified.
+...
+
+...
+[2021-02-10T11:13:55] Starting the action with `i=11`.
+[2021-02-10T11:14:11] Ended writing to file with i=11. Verified.
+[2021-02-10T11:14:11] Starting the action with `i=12`.
+[2021-02-10T11:14:26] Ended writing to file with i=12. Verified.
+[2021-02-10T11:14:26] Starting the action with `i=13`.
+...

@@ -1,0 +1,1 @@
+That's about getting the word, which starts with an exact letter, and its def.

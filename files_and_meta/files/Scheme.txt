@@ -1,0 +1,22 @@
+   word (Russian, russian letters)-----------------------|
+     |                                                   |
+   translation to Old Slavonic (with russian letters)    |
+ [      |      ]                                         |
+   transliteration to ...                                |
+    /         \                          translation to Old Slavonic    
+  cyryllic    glagolic                     /                     \ 
+                                        with cyr. letters      glagolic letters
+
+Possible scheme:
+"(1)" — when both translation and transliteration are required
+"(2)" — only translation is required
+"(3)" — only transliteration is required
+(1) -> 1. Try to make a translation with transliteration,
+          using dictionary. If fails, go 2, then 4.
+(2) -> 2. Try to make a translation without a transliteration.
+          If fails, go 3.
+       3. Return a phrase as it *was*.
+(3) -> 4. Try to make a transliteration, using dictionary.
+          If fails, just do transliteration by the rule.
+          + In glagolic: seems to be, transliteration by the rule
+            can be done correctly always.

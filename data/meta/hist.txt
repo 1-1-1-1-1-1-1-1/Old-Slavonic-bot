@@ -1,0 +1,7 @@
+[30.01.2021 11:53]
+Just a few sec. ago: renaming '_1.txt' to '1-1.txt', '1.txt' to '1-2.txt'.
+1.txt -- some logs are done with no "[added]" comment, just as forms of EXISTED there words.
+Example: "ПЛОТЬ - тело" -> + "ПЛОТСКИЙ - телесный"
+
+[12:50]
+Starting an attempt to dump all availaible word's translations from http://www.orthodic.org/word/... (insert a number at "...") 

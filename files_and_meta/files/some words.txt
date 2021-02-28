@@ -1,0 +1,15 @@
+Possible (maybe, not availaible here):
+ * translation with no transliteration
+ * just transliteration
+   numbers
+   -------
+   + with no numbers' transliteration
+   + ... or with it.
+   alphabeth
+   ---------
+   + cyryllic
+   + glagolic
+ * initial language is not Russian
+   (can be translated to Russian firstly, then see other parts of this)
+
+See `Scheme.txt`.

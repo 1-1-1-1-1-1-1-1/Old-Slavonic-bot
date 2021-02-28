@@ -1,0 +1,1 @@
+That's folder to store files, collected in the higher folder.
