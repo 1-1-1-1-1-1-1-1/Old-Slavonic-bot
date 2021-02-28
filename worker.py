@@ -93,7 +93,7 @@ def _add_user(user_id):
         data_ += '\n'
     if (s := str(user_id)) not in data:
         bot_inform('New user: \
-            <a href="tg://user?id={0}>{1}</a>\nuser_id: {0}'.format(
+<a href="tg://user?id={0}">{1}</a>\nuser_id: {0}'.format(
                 user_id, "User"), type_='new user', parse_mode='HTML')
         data_ += s + '\n'
     with open(filename, 'a', encoding='utf8') as f:

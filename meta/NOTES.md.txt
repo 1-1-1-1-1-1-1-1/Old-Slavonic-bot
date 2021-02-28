@@ -9,7 +9,7 @@ Some commands, were possible at the Heroku
  - Stop the bot's running:
    `heroku stop DYNO --app APP_NAME`
  - Check the logs:
-   `heroku logs --app APP_NAME --dyno DYNO`
+   `heroku logs --app APP_NAME [--dyno DYNO]`
    ex.: DYNO=run.5741
    can be found after the launch via `heroku run:detached`.
  - Set the config variable at Heroku:

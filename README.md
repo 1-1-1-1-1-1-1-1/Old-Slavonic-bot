@@ -11,7 +11,6 @@
  + [About](#about)
  + [Usage](#usage)
  + [Files](#files)
- + [Translating scheme](#translating_scheme)
  + [References](#references)
 
 # About
@@ -25,25 +24,11 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28
 
 # Usage
 <a id="usage"></a>
-![переводчик](meta/media/usage-trans.jpg)
+![Пример перевода слова](meta/media/usage-trans.jpg)
 
 # Files & folders
 <a id="files"></a>
 Some data: [data/](data/)
-
-# Translating scheme
-<a id="translating_scheme"></a>
-
-```
-   word (Russian, russian letters)-----------------------|
-     |                                                   |
-   translation to Old Slavonic (with russian letters)    |
- /     |                  \                              |
- | transliteration to ... |                              |
- |    /          \        |                translation to Old Slavonic    
- \ cyryllic    glagolic   /                     /                   \ 
-                                        with cyr. letters      glagolic letters
-```
 
 # References
 <a id="references"></a>
