@@ -311,7 +311,7 @@ def test_start_message(message):
         return
 
     msg = "some msg.\n\n\
-Тут можно попробовать ввод в режиме inline (перевод):"
+Ввод в режиме inline (перевод):"
     choices = INLINE_EXAMPLES
     HELP_URL = "https://telegra.ph/Test-02-20-154"  # test
     example = random.choice(choices)
@@ -337,16 +337,22 @@ def do_action(message):
 
     filename = join("data", "do_logs.log")
     mid = "{},{}".format(message.chat.id, message.message_id)
+
+    import os
+    if not 'data' in os.listdir():
+        os.mkdir('data')
+    del os
+
     try:  # to let the polls tracker go further
         with open(filename, 'rt', encoding='utf-8') as f:
             _data = f.read().split('\n')
         if mid in _data:
             return
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(e)
     finally:
-        os = __import__("os")
-        if not 'data' in os.listdir():
-            os.mkdir("data")
-        del os
         with open(filename, 'at', encoding='utf-8') as f:
             f.write(mid)
             f.write('\n')
