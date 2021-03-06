@@ -8,6 +8,11 @@
  * http://info-7.ru/Titlo/Titlo.shtml (link to this was at Wikipedia, see prev. source)
  * .. https://git-scm.com/book/ru/v2/Основы-Git-Создание-Git-репозитория/
 
+Heroku
+------
+ * Deployment: https://devcenter.heroku.com/categories/deployment
+ * Creating a 'Deploy to Heroku' Button: https://devcenter.heroku.com/articles/heroku-button
+
 Telegram API
 --------
  * About InlineKeyboardMarkup:
@@ -19,8 +24,3 @@ Another
 
  !! Query's test: `Text of the query (up to 256 characters)` (from the ~api.telegram.org)
   [2021-02-19T11:42] Adding not more then 256 symb. at inline...
-
-Heroku
-------
- * Deployment: https://devcenter.heroku.com/categories/deployment
- * Creating a 'Deploy to Heroku' Button: https://devcenter.heroku.com/articles/heroku-button

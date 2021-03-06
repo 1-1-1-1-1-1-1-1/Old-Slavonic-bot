@@ -19,6 +19,8 @@ HEAD_CHAT = -1001172242526
 
 WORDS_GAME_PATTERN = r"(?is)!?\s?([-а-яё]+)(?:\s*\(.+\))?"
 
+edit_date = '06.03.2021'  # dummy, to check for updates at the server
+
 
 INLINE_EXAMPLES = [
     "Пример текста. 12 — число",
@@ -804,7 +806,7 @@ def greet_new_chat_member(message):
         is_test_msg = False
         day = __import__("datetime").datetime.now()
         till = (
-            "26.02.2021"
+            "28.02.2021"
             # day.strftime("%d.%m.%Y")
             )
 
