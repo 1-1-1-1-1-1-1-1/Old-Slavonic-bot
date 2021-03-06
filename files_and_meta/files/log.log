@@ -104,3 +104,6 @@ Was inactive... Isn't correct?
 [2021-03-07T00:55]
 Changed:
 at `runtime.txt`: `3.8.7`->`3.8.8` (was warned via CLI)
+
+[01:48]
+Doing pull --rebase via Fork. Cheated: after the rebase's start just copied and inserted the required files to the folder. Rebase was `successfull`. Is it really great? Tested (a bit) the local bot, errors not found.
