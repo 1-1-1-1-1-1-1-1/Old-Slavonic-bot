@@ -81,6 +81,7 @@ def word_replace(word):
             return word
         nums = list(word)
         d = data["glagolic"]["numbers"]
+        dobreak = False
         def do_step(m):
             nonlocal nums
             if not int(nums[-m]): return
@@ -88,8 +89,15 @@ def word_replace(word):
                 nums[-m] = d[str(10**(m-1)*int(nums[-m]))]
             else:
                 nums[:-3] = [d['1000']*(n // 1000)]
+                nonlocal dobreak
+                dobreak = True
         for m in range(1, len(word) + 1):
+            if dobreak:
+                break
             do_step(m)
+
+        if len(nums) > 1:
+            nums = nums[:-2] + [nums[-1], nums[-2]]
 
         return '·'.join(filter(lambda t: t != '0', nums))
 

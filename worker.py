@@ -11,6 +11,7 @@ from config import (
     # pics:
     A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC,
     # techical
+    ANY_LETTER,
     ADMINS, LOGGING_CHAT, HELP_URL,
     PROD, PASSWORD_ENABLED, ON_HEROKU, CHAT_LOGS_MODE_ALL,
     # configparser:
@@ -27,7 +28,8 @@ from config import (
 from functions import translation, glagolic_transliterate
 
 
-edit_date = '@day-08.03.2021'  # dummy, to check for updates while running.
+edit_date = '@day-08.03.2021->12.05.2021'
+  # dummy, to check for updates while running.
 
 
 def bot_inform(msg, chat_id=LOGGING_CHAT, type_=None, **kwargs):
@@ -46,7 +48,6 @@ del ON_HEROKU
 
 
 def _cmd_pattern(cmd, *, flags='i'):  # Internal
-    """See code to view the example of it."""
     if flags:
         _flags_add = r'(?' + flags + r')'
     else:
@@ -436,6 +437,17 @@ def start_message(message):
                      disable_web_page_preview=True)
 
 
+@bot.message_handler(commands=["add_user", "add_users"])
+def add_user_by_hand(message):
+    if (m := message.reply_to_message):
+        uid = m.from_user.id
+        add_user(uid)
+
+    _add_user(message.from_user.id)
+
+    bot.send_message(chat.id, "Пользователь добавлен.")
+
+
 @bot.message_handler(commands=["help"])
 def send_help_msg(message):
     _add_user(message.from_user.id)
@@ -676,10 +688,10 @@ def react_game_words(message):
         msg = """\
 Начало игры
 `-----------`
-В личной переписке: /words `[начать|start]` `[single]` (single — игра самому)
+В личной переписке: /words `[начать|start]` `[single]` (`single` — игра самому)
 В группе: `/words пользователь\_1 ...`
-◽️Имена пользователей — упоминанием
-◽️Своё имя можно не указывать, тогда оно первое в очереди
+◽️Имена пользователей — упоминанием;
+◽️Если своё имя не указывать, оно первое в очереди
 
 Хода
 `----`
@@ -741,12 +753,12 @@ def react_game_words(message):
         section = c[chat_id]
         section["order"] = str(order)
         section["current"] = str(current)
-        section["letter"] = '.'  # Any
+        section["letter"] = ANY_LETTER
         section["mentioned"] = str(mentioned)
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
 
-        print("Done.")
+        print("Registered. chat_id: " + chat_id)
         bot.send_message(chat_id, "Done. Registered.")
     elif 'group' in chat.type:
         def user_id_(e):
@@ -754,21 +766,21 @@ def react_game_words(message):
                 return e.user.id
             elif e.type == 'mention':
                 users = load_users()
+                # +1: Skips `@`
+                uname = message.text[e.offset + 1 : e.offset + e.length]
                 for user_id in users:
-                    # +1: Skips `@`
-                    uname = message.text[e.offset + 1: e.offset + e.length]
-                    if _chatMember(user_id, of=chat.id).user.username \
-                        == uname:
+                    if (_user := _chatMember(user_id, of=chat.id).user) \
+                        and _user.username == uname:
                         return user_id
                 msg = f"Unknown user: @{uname}"
                 bot.send_message(chat.id, msg,
                     reply_to_message_id=message.message_id)
 
         order = [user_id_(e) for e in message.entities[1:]]
-        if (n := message.from_user.id) not in order:
-            order = [n] + order
         if None in order:
             return
+        if (n := message.from_user.id) not in order:
+            order = [n] + order
         current = 0
         mentioned = []
 
@@ -781,12 +793,12 @@ def react_game_words(message):
         section = c[chat_id]
         section["order"] = str(order)
         section["current"] = str(current)
-        section["letter"] = '.'  # Any
+        section["letter"] = ANY_LETTER
         section["mentioned"] = str(mentioned)
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
         
-        print("Done. chat_id: " + chat_id)
+        print("Registered. chat_id: " + chat_id)
         bot.send_message(chat_id, "Done. Registered.")
 
 
@@ -810,7 +822,7 @@ def greet_new_chat_member(message):
         dash = "—"  # m-dash  # <- ?
         is_test_msg = False
         till = (
-            "28.02.2021, 06.03.2021, 07.03.2021"
+            "28.02.2021, 06.03.2021, 07.03.2021, 12.05.2021, 13.05.2021"
             )
 
         msg = f"""{"[Это тест.]"*is_test_msg}

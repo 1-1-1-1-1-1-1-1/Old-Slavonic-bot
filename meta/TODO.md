@@ -101,8 +101,9 @@ Maybe-TODO:
      + translating
  * At the auto-insert at chat (at the inline):
  add the change of query's query at the click on it (after).
+ * Make the process of adding users' ids to the bases more strict and exact, multifunctional.
 
-Delete dispansable!!!
+Delete dispansable!
 
 Exceptions at code: what it the better part and better at all?
 

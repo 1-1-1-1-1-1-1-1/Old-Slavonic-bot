@@ -93,6 +93,7 @@ else:
     TEST_MODE = True  #~  # ADDED THEN  #! Launching 2 bots at the same time -- ?
         # Corrected at 19.02.2021T17:33: `or` -> `and`
     # [17:42] .. it as `if-else`
+
 if PROD:
     TEST_MODE = False
 
@@ -113,6 +114,8 @@ if PROD:
 
 LOGGING_ENABLED = True
 LOG_FILENAME = join("locals", "autologs.txt")
+
+ANY_LETTER = '.'
 
 CONSONANTS = ["б", "в", "г", "д", "ж", "з", "к", "л", "м", "н", "п", "р",
               "с", "т", "ф", "х", "ц", "ч", "ш", "щ"]

@@ -136,5 +136,7 @@ __pacache__/
 tokens.py
 controll.*
 *!private*
+!\!private-launcher*
 !*.log
 do_logs.log
+\!private-logs.log
