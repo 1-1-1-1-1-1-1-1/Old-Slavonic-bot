@@ -1,15 +1,30 @@
-import asyncio
+# Adding env. variables at 2021-02-17T21:05:
 import os
 
 import configparser
-from telethon.sync import TelegramClient
-from telethon.tl.types import DocumentAttributeImageSize
 
-from globalconfig import get, ON_HEROKU
-from _disconnector import disconnect
+import telebot
 
 
-print("Parsing the beginning of configs' file...")
+print("Parsing the beginning of configs' file.")
+
+
+get = os.environ.get
+
+ON_HEROKU = get('ON_HEROKU', False)
+
+
+if not ON_HEROKU:
+    from dotenv import load_dotenv
+
+
+    BASEDIR = os.path.abspath(os.path.dirname(__file__))
+
+    dotenv_path = os.path.join(BASEDIR, '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path, encoding='utf-8', interpolate=True)
+
+# ---
 
 
 def password(uid, time=None, *, test_mode=False):
@@ -18,7 +33,7 @@ def password(uid, time=None, *, test_mode=False):
 
     if time is not None:
         maxdelta = 3*60
-        def number(s: str) -> int:
+        def number(s: str):
             zero = '0'
             return int(res) if (res := s.lstrip(zero)) else 0
         minute, second = map(number, time)
@@ -70,10 +85,8 @@ if not TOKEN_TEST or not TOKEN_INIT:
 del os
 PASSWORD_ENABLED = False
 
-# Whether the production version:
-PROD_UNDEPLOYED = True  # ! (for tests)
-PROD = ON_HEROKU or PROD_UNDEPLOYED
 
+PROD = False  # Whether the production version.  #!
 if ON_HEROKU:
     TEST_MODE = False
 else:
@@ -107,15 +120,14 @@ ANY_LETTER = '.'
 CONSONANTS = ["б", "в", "г", "д", "ж", "з", "к", "л", "м", "н", "п", "р",
               "с", "т", "ф", "х", "ц", "ч", "ш", "щ"]
 
-# logs data
+
 LOGGING_CHAT = -1001495851235
 CHAT_LOGS_MODE_ALL = [
 # 'launch',
-'new user',
-'bot-exception'
+'new user'
 ]
 
-ADMINS = [
+ADMINS = [  # Not used yet
 699642076
 ]
 
@@ -133,7 +145,7 @@ NAMES_REPLACE = eval(get('NAMES_REPLACE'))
 
 NoSectionError = configparser.NoSectionError
 
-# chats and channels
+# chats
 CHANNEL = -1001285323449
 TEST_CHAT = -1001341084640
 SPEAK_CHAT = -1001370491506
@@ -146,36 +158,13 @@ WORDS_GAME_PATTERN = r"(?is)!?\s?([-а-яё]+)(?:\s*\(.+\))?"
 
 INLINE_EXAMPLES = [
     "Пример текста. 12 — число",
-    "Тест. Слова: вот-вот, сразу, жизнь. Это бот. Число: 1",
-    "Текст, выражающий действие бота в примере. 1 — число, 2 — также. Тест-тест",
-    "Бот-переводчик на старославянский язык.",
-    "Тестовая фраза. Если можно, иди делать дело.",  # test
-    '"1 в поле не воин."',
-    "7 раз отмерь, 1 раз отреж. Успехов."
+    "Тест. Вот-вот. Бот знаки иногда не писал... Число: 1.",
+    "Текст, выражающий в примере. 1 — число, 2 — также. Тест-тест"
     ]
 
+del join
 
-session_name = 'translator-bot' if not TEST_MODE else 'translator-bot-test'
-api_id = eval(get('API_ID'))
-api_hash = get('API_HASH')
+bot = telebot.TeleBot(TOKEN)
 
-
-disconnect()  # to prevent the situation when another client was connected
-
-# connect to Telegram:
-bot = TelegramClient(session_name, api_id, api_hash).start(bot_token=TOKEN_INIT)
-
-# now it is connected, get some data
-bot_data = bot.get_me()
-BOT_ID = bot_data.id
-BOT_USERNAME = bot_data.username
-
-_THUMB_CONFIG = {
-    'common': {
-    'size': 300,
-    'mime_type': 'image/jpeg',
-    'attributes': DocumentAttributeImageSize(48, 48)
-    }
-}
-
-COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
+BOT_ID = TOKEN[:TOKEN.index(':')]
+BOT_USERNAME = bot.get_me().username

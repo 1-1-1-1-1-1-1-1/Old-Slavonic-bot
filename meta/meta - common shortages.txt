@@ -1,0 +1,16 @@
+meta - common shortages
+
+some common shortages at this code
+----------------------------------
+
+ - cid = chat_id
+ - sid = sender_id
+ - uid (?) = user_id
+ - msg = message
+ - cmd = command
+ - prod = production
+ - :uncommon:
+     + mid, pw: ..
+     + fid = feature's id
+ - s = ~'string'
+ - u = ~'user'

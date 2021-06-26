@@ -62,8 +62,8 @@ def stop_prev(dyno):
 
 def get_p(command):
     p = subprocess.Popen(command, universal_newlines=True, 
-    shell=True, stdout=subprocess.PIPE, 
-    stderr=subprocess.PIPE)
+        shell=True, stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE)
     return p
 
 def info_json():

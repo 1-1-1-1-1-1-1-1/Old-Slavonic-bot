@@ -14,26 +14,30 @@
 ### Translating
 <a id="translating"></a>
 TODO:
-* Great dictionaries. As a part, the dict., named there `2` once.
+
+ * Great dictionaries. As a part, the dict., named there `2` once.
 
 ### Transliterating
 <a id="translating"></a>
 TODO:
-* Maybe: add some dictionary transliterations (if required).
-* <u>Numbers' transliteration</u>
-    + Transliterating to glagolic — ?. Was strange, see at `./media`.
-    + Transliterating to cyryllic.
-        - Can add: parts of symbols for 10^5, ..., 9 (?).
-        - Can add: `от` instead of `омега`, putting titlo only at some cases.
-          Not putting at `омега`, `і`.
-        - Make it great.
+
+ * Maybe: add some dictionary transliterations (if required).
+ * <u>Numbers' transliteration</u>
+     + Transliterating to glagolic — ?. Was strange, see at `./media`.
+     + Transliterating to cyryllic.
+         - Can add: parts of symbols for 10^5, ..., 9 (?).
+         - Can add: `от` instead of `омега`, putting titlo only at some cases.
+           Not putting at `омега`, `і`.
+         - Make it great.
 
 ### Using inline-mode
 Tasks:
-* What do happens with symbols there, i. e. how should the bot be done in order to put them greatly?
-* Using it with replacing names: what is the correct? (E. g., can be at query's start only)
+
+ * What do happens with symbols there, i. e. how should the bot be done in order to put them greatly?
+ * Using it with replacing names: the prefered way — ? (E. g., it can be at query's *start* only)
 
 Notes:
+
 * Should be enabled at a bot via @BotFather?
 
 ## Game `words`
@@ -47,18 +51,21 @@ Possible TODO:
  * [ ] + transliterate.
 
 Notes:
-* Bot moves in a row (if it is put in order twice in a row) — ?
 
-## Hosting
+ * Bot moves in a row (if it is put in order twice in a row) — ?
+
+## Hosting & deploying
 <a id="hosting"></a>
 
 Possible places:
-* at https://www.pythonanywhere.com (1)
-* at https://heroku.com
+
+ * at https://www.pythonanywhere.com (1)
+ * at https://heroku.com
 
 ## Other notes
 <a id="other_notes"></a>
 Possible (maybe, not availaible here):
+
  * translation with no transliteration
  * just transliteration
    numbers
@@ -73,7 +80,7 @@ Possible (maybe, not availaible here):
 See `Scheme.txt`.
 ----
 
-`tokens.py` may be added in a such way, that it is absent in the code storage, where the main part is taken from (considering `GitHub` as it). ? Hosting at (1), it can be added to the files there.  Hosting at the Heroku, may be added as config vars.
+`tokens.py` may be added in a such way, that it is absent in the code storage, where the main part is taken from (considering `GitHub` as it). (?->no) Hosting at (1), it can be added to the files there.  Deploying at the Heroku, may be added via config vars.
 
  * Restricting user requires in the group some enough rights.
  * Permission to use functions/commands — !
@@ -87,10 +94,12 @@ See `Scheme.txt`.
  * Parse at `_2 col` and find all there.
 
 TODO:
- [ ] Write great docstrings.
- [ ] Add `meaning` as a single function, can be used at here: command `meaning`, checking for the word, whether exists at game words' play.
+
+ * [ ] Write great docstrings.
+ * [ ] Add `meaning` as a single function, can be used at here: command `meaning`, checking for the word, whether exists at game words' play.
 
 Maybe-TODO:
+
  * Possible: add great logs and logging system.
  * Possible: add the great sctructure.
  * Possible: delete all dispansable files.

@@ -140,3 +140,5 @@ controll.*
 !*.log
 do_logs.log
 \!private-logs.log
+*.session
+*.session-journal

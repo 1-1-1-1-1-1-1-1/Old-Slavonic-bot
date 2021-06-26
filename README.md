@@ -70,3 +70,6 @@ Another
 [up to top](#top)
 
 [Telegram Bot API]: https://core.telegram.org/bots/api
+
+---
+[![UNLICENSE](noc.png)](UNLICENSE)
