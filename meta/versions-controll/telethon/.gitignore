@@ -128,22 +128,17 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# --------------------------------
 # following is appended by hand
 
 # required:
 __pacache__/
-*.env
+.env
 tokens.py
 controll.*
 *!private*
+!\!private-launcher*
 !*.log
 do_logs.log
 \!private-logs.log
-
-# appeared when running the telethon version
 *.session
 *.session-journal
-
-# PyCharm project files
-.idea/
