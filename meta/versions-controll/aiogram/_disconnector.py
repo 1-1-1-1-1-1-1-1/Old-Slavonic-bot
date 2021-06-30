@@ -1,5 +1,5 @@
-# Simple tool to disconnect from Telegram by hand
-# ===============================================
+# Simple tool to disconnect from Telegram manually
+# ================================================
 
 import os
 
@@ -19,7 +19,7 @@ api_id = _get('API_ID')
 api_hash = _get('API_HASH')
 
 
-def main():
+def disconnect():
     try:
         TelegramClient(session_name, api_id, api_hash).log_out()
         print('Disconnected from Telegram')
@@ -28,6 +28,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-
-disconnect = main
+    disconnect()

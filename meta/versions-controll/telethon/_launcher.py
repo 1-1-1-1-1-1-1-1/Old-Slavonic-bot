@@ -1,8 +1,17 @@
+# Util to help with launching the bot.  Used 1-ly at telebot version, other --
+# yet untested.
+# ============================================================================
+
 from datetime import datetime, timedelta
 try:
     import tkinter
 except ImportError:
-    raise SystemExit("No `tkinter` module found. Exiting.")
+    raise SystemExit("""No `tkinter` module found. Exiting.
+------------------------------------------------------------------------------
+NOTE: Consider this error may be caused by the impossibility of this module's
+existing in the Python's lib on your OS.  This code may work partially still
+without the tkinter module, only with limited responsibilites.  Try commenting
+some lines/code parts (required the `tkinter`) and launch the app again.""")
 import os
 import re
 import json
@@ -13,12 +22,14 @@ import tkinter.messagebox as mbox
 
 import configparser
 
-# import multi
+from globalconfig import load_env, get
 
 
-DATA = os.path.join("locals", "!private-launcher_configs.ini")
+load_env('bot')
+
+DATA = os.path.join("locals", "_launcher.ini")
 RUN = "worker.py"
-APP_NAME = "old-slavonic-bot"
+APP_NAME = get('APP_NAME')
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 

@@ -472,8 +472,7 @@ def send_help_msg(message):
         [[help_message]]
         )
     bot.send_message(message.chat.id, msg, parse_mode='Markdown',
-        reply_markup=keyboard,
-        )
+        reply_markup=keyboard)
 
 
 def words_skip_move(message):

@@ -1,4 +1,10 @@
-# main (init) file, written preferely with PEP8, required modules/libraries
+# THIS CODE AND APP ARE FREE FOR USAGE AND DISTRIBUTED UNDER THE TERMS OF 
+# MIT License. (ALSO FREE FOR COPY, CHANGE, AND THE CODE's SHARING.)
+# ---------------
+# NOTE ALSO: The terms, under which the product is distributed, may be edited
+# or changed at the future.  See the file LICENSE for info.
+# =============================================================================
+# main (init) file, written preferably with PEP8, required modules/libraries
 # are in requirements.txt.
 # -----------------------------------------------------------------------------
 # See also:
@@ -10,36 +16,41 @@
 # set the required version at runtime.txt (see also: runtime info at [1])
 # 
 # [1]: https://devcenter.heroku.com/articles/python-runtimes#supported-runtime-versions
+# -----------------------------------------------------------------------------
+# Since 27.06.2021 -- rewriting to aiogram
+# NOTE: telethon version may be still here, also devepeloped and created
+# *marks* dev
+# - here 2 files are edited simultaneously: this and with telethon version. See
+#   to merge (main difference/to merge -- all this notes, at the beg. of file)
+# - configparser.ConfigParser() is sometimes created exactly at the function's
+#   call, which is to work correctly, if several users use a bot simultaneously
+# - TODO: test: triggers to start, words
+# - meta at this file (dev): note, question/questions (different), mark (only
+#   previous), checked, to test/to check, test, TODO, meta, OR, task
+#    + these are not case-sensitive
 
 import random
 import re
 from os.path import join
 import asyncio
-import typing
-import logging
 
 import requests
-import telethon
-from telethon import sync  # (maybe not required, but let it be)
-
-from telethon.tl.types import InputWebDocument
-from telethon import errors
-from telethon.tl.functions.messages import ExportChatInviteRequest
-from telethon.tl.custom.button import Button
-from telethon.tl.types import (
-    MessageEntityUnknown,  # what is it?
-    MessageEntityMention,
-    MessageEntityMentionName,
-    InputMessageEntityMentionName
+import aiogram  # processing...  #?
+from aiogram import types
+from aiogram.types import (
+    # inline keyboard:
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    # inline bot results:
+    InputTextMessageContent,
+    InlineQueryResultArticle
     )
-from telethon import events
-from telethon.events.inlinequery import InlineQuery
 
 from config import (
     TOKEN, CACHE_TIME, NAMES_REPLACE, UIDS_BASE,
     # pics:
     A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC,
-    # technical
+    # technical:
     ANY_LETTER,
     ADMINS, LOGGING_CHAT, HELP_URL,
     PROD, PASSWORD_ENABLED, ON_HEROKU, CHAT_LOGS_MODE_ALL,
@@ -58,29 +69,24 @@ from config import (
 from functions import translation, glagolic_transliterate
 
 
-logformat = '[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s'
-logging.basicConfig(format=logformat,
-                    level=logging.WARNING)
-
-
-edit_date = '@day-08.03.2021->12.05.2021->16.06.2021+(?)..22.06.'
+edit_date = ...  # ''  # '@day-08.03.2021->12.05.2021->16.06.2021+(?)..22.06.'
 # ^ dummy, to check for updates while running.
 
-
+# checked
 async def bot_inform(text, chat_id=LOGGING_CHAT, type_=None, **kwargs):
     if type_ is not None and type_ not in CHAT_LOGS_MODE_ALL:
         return
     await bot.send_message(chat_id, text, **kwargs)
 
-
+# TODO, +applications
 class BotException(Exception):
     def __init__(self, *args, extra={}, kwargs={}):
         super(BotException, self).__init__(*args, **kwargs)
         self.extra = extra
         chat_id = extra.get('chat_id')
-        sender = extra.get('sender')
-        sender.id = sender.id if 'id' in dir(sender) else sender.user_id
-        # sender = telethon.utils.get_peer(peer)
+        from_user = extra.get('from_user')
+        # from_user.id = from_user.id if 'id' in dir(from_user) else from_user.user_id
+        # 'another version': sender = telethon.utils.get_peer(peer)
         if args:
             exception = self.args[0]
         else:
@@ -89,17 +95,18 @@ class BotException(Exception):
         text = f"""\
 **An exception occured**
  - `chat_id`: __{chat_id}__
- - `sender.id`: __{sender.id}__
+ - `from_user.id`: __{from_user.id}__
  - `exception`: __{exception}__
 """
 
-        future = bot_inform(text, type_='bot-exception', parse_mode='md')
+        future = bot_inform(text, type_='bot-exception', parse_mode='MarkdownV2')
         asyncio.get_event_loop().run_until_complete(future)
 
-# d = dict(chat_id='chat_id', sender=telethon.tl.types.PeerUser(0))
-# raise BotException('test', extra=d)  # test
+# test
+# d = dict(chat_id='chat_id', user_id=0)
+# raise BotException('test', extra=d)
 
-
+# checked; *question*: loop
 loop = asyncio.get_event_loop()
 prod_word = "" if PROD else 'not '
 on_heroku = 'yes' if ON_HEROKU else 'no'
@@ -108,14 +115,14 @@ Launched the bot.
 Is <u>{prod_word}the production</u> version.
 Is whether on Heroku: <u>{on_heroku}</u>.
 """
-future = bot_inform(text, type_="launch", parse_mode='html')
+future = bot_inform(text, type_="launch", parse_mode='HTML')
 loop.run_until_complete(future)
 
 del text, ON_HEROKU, on_heroku, future, loop
 
 
-def _cmd_pattern(cmd: str, *, flags: typing.Union[None, 'empty', str] = 'i') \
-        -> str:  # Internal
+# checked
+def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     if flags:
         _flags_add = r'(?' + flags + r')'
     else:
@@ -124,8 +131,8 @@ def _cmd_pattern(cmd: str, *, flags: typing.Union[None, 'empty', str] = 'i') \
     return cmd_pattern
 
 
-def commands(*cmds, flags: typing.Union[None, 'empty', str] = None) \
-        -> str:  # Internal
+# checked
+def commands(*cmds, flags=None) -> str:  # Internal
     if flags is not None:
         kwargs = {'flags': flags}
     else:
@@ -136,24 +143,24 @@ def commands(*cmds, flags: typing.Union[None, 'empty', str] = None) \
         cmd_styled = r'(?:' + '|'.join(cmds) + r')'
     return _cmd_pattern(cmd_styled, **kwargs)
 
-
+# checked
 def feature_exists(fid):  # Internal
     d = {
-    'teach_word': False
+        'teach_word': False
     }
     if fid in d:
         return d[fid]
     return False
 
-
+# checked; *question*: if not chat member -- ?
 async def is_participant(user_id, of=HEAD_CHAT):
     """User is participant of chat `of`, returns bool."""
-    try:
-        return not (await bot.get_permissions(of, user_id)).has_left
-    except (ValueError, errors.UserNotParticipantError):
-        return False
+    return (await bot.get_chat_member(of, user_id)).is_chat_member()
+print(is_participant(ADMINS[0]))  # test
+raise SystemExit
 
 
+# checked
 async def _add_user(user_id):
     """Add ID to the base. Comments are allowed."""
     filename = UIDS_BASE
@@ -168,18 +175,20 @@ async def _add_user(user_id):
         text = 'New user: \
 <a href="tg://user?id={0}">{1}</a>\nuser_id: {0}'.format(
             user_id, "User")
-        await bot_inform(text, type_='new user', parse_mode='html')
+        await bot_inform(text, type_='new user', parse_mode='HTML')
         data_ += s + '\n'
     with open(filename, 'a', encoding='utf8') as f:
         f.write(data_)
 
 
+# checked
 def full_name(user):
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
-
+# checked
 def user_text_mention(user, fill=None):
-    # `fill` : text to insert at mention
+    """Text mention of a user."""
+    # :param fill: text to insert at mention
     if fill is None:
         filling = full_name(user)
     else:
@@ -187,16 +196,28 @@ def user_text_mention(user, fill=None):
     return f'<a href="tg://user?id={user.id}">{filling}</a>'
 
 
+# checked
+def is_private(message):
+    return message.chat.type == 'private'
+
+# checked
+def is_group(message):
+    return 'group' in message.chat.type
+    # OR: `..type in ['group', 'supergroup']`  #?
+
+
+# checked
 def load_users():
     # NOTE: Return is a generator object!
     with open(UIDS_BASE, encoding='utf-8') as f:
         users = map(eval, f.read().strip().split('\n'))
     return users
 
-# mark: workplace
-async def make_move(event, letter, mentioned):
-    chat_id = event.chat.id
-    bot.action(chat_id, 'typing')
+
+# checked
+async def make_move(message, letter, mentioned):
+    chat_id = message.chat.id
+    await bot.send_chat_action(chat_id, 'typing')
     try:
         from functions import d as _d
         try:
@@ -230,7 +251,7 @@ async def make_move(event, letter, mentioned):
         finally:
             del _d, d
 
-        possible = list(vars_.items())  # Should be here?
+        possible = list(vars_.items())  # (*question*) Should be here?
         i = random.choice(range(len(possible)))
 
         answer = _answer(i).capitalize()
@@ -276,23 +297,24 @@ async def make_move(event, letter, mentioned):
             msg = \
             "Wow! How can it happen? I had found any words for it."
             "Game is stopped. Realise move's skip to continue"  #!
-            await event.reply(msg)  # continuing game -- ?
+            await message.reply(msg)  # *question*: continuing game -- ?
             return
         msg = res_word + ' (' + meaning + ')'
 
         return res_word, msg  # test st.  <- #?
 
 
-async def play_words(event, current=0):
+# checked
+async def play_words(message, current=0):
     # """Да, тут считают, что е и ё -- одна буква."""
 
     c = configparser.ConfigParser()
-    chat_id = str(event.chat.id)
+    chat_id = str(message.chat.id)
     filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
         msg = "Ошибка: не найдено игру."
-        await event.reply(msg)
+        await message.reply(msg)
         raise NoSectionError
     section = c[chat_id]
     order = eval(section["order"])
@@ -301,25 +323,23 @@ async def play_words(event, current=0):
     mentioned = eval(section["mentioned"])
 
     dot = '.' * (random.choice([0, 1, 2]) < 1)
-    if (n := event.sender.id) in order and \
-        (match := re.fullmatch(WORDS_GAME_PATTERN, event.text)):
-        # if  and not
-        if event.is_private and not (
-            #... != ... (comp. ids) -- whether not a priv. chat
-            re.fullmatch(r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?", event.text) or
-            (get_reply_message(event) and  #(?)
-            get_reply_message(event).from_user.id == order[current - 1])):
+    if (n := message.from_user.id) in order and \
+        (match := re.fullmatch(WORDS_GAME_PATTERN, message.text)):
+        if is_private(message) and not (
+            re.fullmatch(r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?", message.text) or
+            (message.reply_to_message and
+            message.reply_to_message.from_user.id == order[current - 1])):
             return
         if n != order[current]:
-            answer_msg = f"Не твой сейчас ход{dot}"  # " Ход игрока "
-            # user_text_mention(user)!
-            await event.reply(answer_msg)
-            return  #~
+            answer_msg = f"Не твой сейчас ход{dot}"  # \ 
+            # f" Ход игрока {user_text_mention(user)}!"
+            await message.reply(answer_msg)
+            return  #~  *question:* why `~`?
         word = match.group(1)
         print(word)  # test
         if cur_letter != "." and word[0].lower().replace('ё', 'е') != cur_letter:
             answer_msg = f"На букву {cur_letter!r}{dot}"
-            await event.reply(answer_msg)
+            await message.reply(answer_msg)
             return
         if requests.get(f"https://loopy.ru/?word={word}&def=").status_code \
             == 404:
@@ -329,15 +349,16 @@ async def play_words(event, current=0):
 это слово значит? (Ход не засчитан. Потом либо напиши ответом на это \
 сообщение толкование слова, я его в словарь запишу, либо назови другое \
 слово. И вообще, это not implemented ещё{dot})"*feature_exists('teach_word')
-            await event.reply(answer_msg)
+            await message.reply(answer_msg)
             return
         if word.casefold() in map(lambda s: s.casefold(), mentioned):
             answer_msg = f"Слово {word!r} уже было в этой игре{dot}"
-            await event.reply(answer_msg)
+            await message.reply(answer_msg)
             return
         mentioned.append(word)
         res = word.lower().rstrip('ь')
-        assert re.fullmatch("(?i)[-а-яё]+", res)  # really required?
+        assert re.fullmatch("(?i)[-а-яё]+", res)
+        # ^ *question: such*: is/are required?
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
@@ -345,7 +366,7 @@ async def play_words(event, current=0):
             print("Bot's move at game `words`")  # test
 
             try:
-                answer, msg = await make_move(event, letter, mentioned)
+                answer, msg = await make_move(message, letter, mentioned)
             except Exception as e:
                 print(e)
                 return
@@ -358,7 +379,7 @@ async def play_words(event, current=0):
             if next_let == 'ё': next_let = 'е'
             section["letter"] = next_let
 
-            await event.reply(msg)
+            await message.reply(msg)
 
         section["current"] = str(current)
         section["mentioned"] = str(mentioned)
@@ -366,24 +387,12 @@ async def play_words(event, current=0):
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
 
-    raise events.StopPropagation
 
-
-@bot.on(InlineQuery)
-@bot.on(events.NewMessage)
-async def add_user(event):
-    # add all users from either `NewMessage` or `InlineQuery`
-    uids = []
-    uids.append(event.sender.id)
-    for uid in uids:
-        await _add_user(uid)
-
-
-r'''
 # test-start, may be used for tests
 # see the `start` command
-async def test_start_message(event):
-    if event.sender.id not in ADMINS:
+r'''
+async def test_start_message(message: types.Message):
+    if message.from_user.id not in ADMINS:
         return
 
     msg = "some msg.\n\n\
@@ -391,32 +400,35 @@ async def test_start_message(event):
     choices = INLINE_EXAMPLES
     HELP_URL = "https://telegra.ph/Test-02-20-154"  # test
     example = random.choice(choices)
-    switch_cur_chat_button = types.InlineKeyboardButton(
-        text="Да", switch_inline_query_current_chat=example)
-    go_to_help_message = types.InlineKeyboardButton(
-        text="Open help", url=HELP_URL)
-    keyboard = types.InlineKeyboardMarkup([
+    switch_cur_chat_button = InlineKeyboardButton(
+        text="Да", switch_inline_query_current_chat=example
+    )
+    go_to_help_message = InlineKeyboardButton(
+        text="Open help", url=HELP_URL
+    )
+    keyboard = InlineKeyboardMarkup([
         [switch_cur_chat_button],
         [go_to_help_message]
         ])
-    event.respond(msg, reply_markup=keyboard)
+    await message.answer(msg, reply_markup=keyboard)
     pass
 '''
 
+# checked
 # examples for it:
 # /do -password=pw -action=eval code
 # /do -password=pw -time=mm:ss -action=eval code
-@bot.on(events.NewMessage(pattern=commands('do')))
-async def do_action(event):
+@dp.message_handler(regexp=commands('do') + '.*')
+async def do_action(message: types.Message):
     # NOTE:
     # Some imports were made exactly here,
     # as this function's call is uncommon
-    sid = event.sender.id
+    sid = message.from_user.id
     if sid not in ADMINS:
         return
 
     filename = join("locals", "do_logs.log")
-    mid = "{},{}".format(event.chat.id, event.id)
+    mid = "{},{}".format(message.chat.id, message.id)
 
     import os
     if not 'data' in os.listdir():
@@ -442,7 +454,7 @@ async def do_action(event):
         + r"(?:\s+-time=(\d{,2}:\d{,2}))?"
         + r"(?:\s+-action=(exec|eval))?"
         + r"\s+(.+)")
-    string = event.text
+    string = message.text
     if not (match := re.fullmatch(pattern, string)):
         print(pattern, string)
         return
@@ -463,32 +475,34 @@ async def do_action(event):
     try:
         if action is eval:
             res = eval(code)
-            await event.reply(str(res))
+            await message.reply(str(res))
         elif action is exec:
             exec(code)
     except Exception as e:
         msg = f"Ошибка. __{e}__"  # to test
-        await event.reply(msg, parse_mode='md')
+        await message.reply(msg, parse_mode='MarkdownV2')
 
-    raise events.StopPropagation
 
-# mark: to test
-@bot.on(events.NewMessage(pattern=commands('start')))
-async def start(event):
+# ckeched
+@dp.message_handler(regexp=commands('start') + '.*')
+async def start(message):
+    """Start message (`/start` or `/start ...`)."""
+    await _add_user(message.from_user.id)
     p = commands('start') + r'\s+[-=]?test'
-    if 'test_start_message' in globals() and re.fullmatch(p, event.text):
-        await test_start_message(event)
+    if 'test_start_message' in globals() and re.fullmatch(p, message.text):
+        await test_start_message(message)
         return
-    sid = event.sender.id
+    sid = message.from_user.id
+    chat = message.chat
 
     test = False
 
-    cid = event.chat.id
+    cid = chat.id
 
     header = "\[test]"*test
     # NOTES on happened:
     # ~0:01 at 2021-02-08: once said "can't parse ent.",
-    # after reload — with some extra ent. ...
+    # after reload — with some extra entities ...
     # Then — without (one '"'' was rem.), but wrong, not working.
     # Then — again once "can't ..." (byte offset ?552)
     msg = f"""\
@@ -502,18 +516,19 @@ async def start(event):
 `Перевод текста`
 См. /help.
 """
-    allow_to_all = False
-    if allow_to_all or await is_participant(sid):
+    allow_links_to_all = False
+    if allow_links_to_all or await is_participant(sid):
         async def invite_link(chat_id_):
-            try:
-                _link = await bot(ExportChatInviteRequest(chat_id_))
-                link = _link.link
+            # may be helpful: `export_chat_invite_link`
+            try:  # test it (task)
+                # link = (await bot.get_chat(chat_id_)).invite_link
+                link = await chat.get_url()
             except:
                 link = "не найдено"
             return link
 
-        channel = await invite_link(CHANNEL)
-        chat = await invite_link(HEAD_CHAT)
+        channel_link = await invite_link(CHANNEL)
+        chat_link = await invite_link(HEAD_CHAT)
 
         msg += f"""
 Ссылки на материалы по курсу:
@@ -525,29 +540,31 @@ async def start(event):
 """
     choices = INLINE_EXAMPLES
     example = random.choice(choices)
-    switch_button = Button.switch_inline("Да", example, same_peer=True)
-    # ^ test it
-    await event.respond(msg, parse_mode='md',
-        buttons=switch_button,
-        link_preview=True)
 
-    raise events.StopPropagation
+    button = InlineKeyboardButton(
+        text="Да", switch_inline_query_current_chat=example)
+    keyboard = InlineKeyboardMarkup([[button]])
+    await message.answer(msg, parse_mode='MarkdownV2',
+        reply_markup=keyboard,
+        disable_web_page_preview=True)
 
-
-@bot.on(events.NewMessage(pattern=commands("add_user", "add_users")))
-async def add_user_via_message(event):
-    sids = []
-    if (m := get_reply_message(event)):
-        sid = m.sender.id
+    
+# checked
+@dp.message_handler(regexp=commands("add_user", "add_users") + ".*")
+async def add_user_via_message(message):
+    """Add the reply-to-message sender's ID to the IDs base."""
+    await _add_user(message.from_user.id)
+    if (m := message.reply_to_message):
+        sid = m.from_user.id
         await _add_user(sid)
-        await event.respond("Пользователь добавлен.")
-    else:
-        pass
-    raise events.StopPropagation
+        await message.answer("Пользователь добавлен.") 
+
 
 # checked
-@bot.on(events.NewMessage(pattern=commands('help')))
-async def send_help_msg(event):
+@dp.message_handler(regexp=commands('help') + ".*")
+async def send_help_msg(message):
+    """Help message (i. e. `/help` or the same with parameters)."""
+    await _add_user(message.from_user.id)
     msg = f"""\
 Переводчик на старославянский язык. Правило перевода: ввести в чате\
  слово "@{BOT_USERNAME}\
@@ -563,19 +580,20 @@ async def send_help_msg(event):
 """
     h_text = "Руководство"
     h_url = HELP_URL
-    help_message = Button.url(h_text, url=h_url)
-    await event.respond(msg, parse_mode='md', buttons=help_message)
-    raise events.StopPropagation
+    help_message = InlineKeyboardButton(text=h_text, url=h_url)
+    keyboard = InlineKeyboardMarkup([[help_message]])
+    await message.answer(msg, parse_mode='MarkdownV2', reply_markup=keyboard)
 
-# 1
-async def words_skip_move(event):
+
+# checked
+async def words_skip_move(message: types.Message):
     c = configparser.ConfigParser()
-    chat_id = str(event.chat.id)
+    chat_id = str(message.chat.id)
     filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
         msg = "Игра не найдена"
-        await event.reply(msg)
+        await message.reply(msg)
         return
     section = c[chat_id]
     order = eval(section["order"])
@@ -591,7 +609,7 @@ async def words_skip_move(event):
 
         print("Bot's move")  # test
 
-        answer, msg = await make_move(event, letter, mentioned)
+        answer, msg = await make_move(message, letter, mentioned)
 
         current = (current + 1) % len(order)
 
@@ -602,36 +620,42 @@ async def words_skip_move(event):
         section["letter"] = next_let
         section["mentioned"] = str(mentioned)
 
-        await event.reply(msg)
+        await message.reply(msg)
     else:
         msg = "Ход пропущен."
-        await event.reply(msg)
+        await message.reply(msg)
     with open(filename, 'w', encoding='utf-8') as f:
         c.write(f)
 
     print('Performed skip of move.')  # test
 
-# 3
-@bot.on(events.NewMessage(pattern=commands('meaning')))
-async def send_meaning(event):
-    """Priority to search for a word:
-    dict. 1 -> dict. '3' -> in the exact place at the I-net.
+
+# checked
+@dp.message_handler(regexp=commands('meaning') + ".*")
+async def send_meaning(message):
+    """Send meaning of a word.  See help for syntax.
+
+    Syntax: either `/meaning word`, or `/meaning` in reply to the message with
+    the word the meaning searched for.  Priority to search at the reply.
     """
-    chat_id = event.chat.id
-    bot.action(chat_id, 'typing')
+    # *note:* Priority to search for a word:
+    # dict. 1 -> dict. '3' -> in the exact place at the I-net.
+    await _add_user(message.from_user.id)
+    chat_id = message.chat.id
+    await bot.send_chat_action(chat_id, 'typing')
 
     try:
         cmd_pattern = _cmd_pattern('meaning')
-        text = event.text
+        text = message.text
         word = re.fullmatch(cmd_pattern + r'\s*([-а-яё]+)', text).group(1)
     except:
         try:
-            text = get_reply_message(event).text
+            text = message.reply_to_message.text
             word = re.fullmatch(WORDS_GAME_PATTERN, text).group(1)
         except:
             msg = "Не распознано слово. Напиши либо в ответ на сообщение, \
 где искомое слово, либо `/meaning слово`."
-            await event.reply(msg, parse_mode='markdown')
+            await message.reply(msg, parse_mode='MarkdownV2')
             return
     from functions import d as d0
     order = [1, '3']
@@ -644,13 +668,13 @@ async def send_meaning(event):
                 a = map(lambda ph: ph.strip(), a)
 
                 if word.lower() in a:
-                    await event.reply(q)
+                    await message.reply(q)
                     return 0
         elif kid == '3':
             for k in d:
                 if k.lower() == word.lower():
                     meaning = d[k]
-                    await event.reply(meaning)
+                    await message.reply(meaning)
                     return 0
     for k in order:
         try:
@@ -667,18 +691,18 @@ async def send_meaning(event):
 
     if (sc := (r := requests.get(url)).status_code) == 404:
         msg = f"Слово {word!r} не найдено в словаре."
-        await event.respond(msg)
+        await message.answer(msg)
     elif sc != 200:
         msg = f"Непонятная ошибка. Код ошибки: {sc}."
-        await event.respond(msg)
+        await message.answer(msg)
     else:
         rtext = r.text
         _rtext_part = rtext[rtext.find('Значения'):]
-        try:  # great?
+        try:  # *question*: great?
             rtext_part = _rtext_part
             rtext_part = rtext_part[:rtext_part.index('</div>')]
             finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
-            # ^ 1-st item here — a header?
+            # ^ *question*: 1-st item here — a header?
             assert finds
         except AssertionError:
             rtext_part = _rtext_part
@@ -688,75 +712,76 @@ async def send_meaning(event):
                 text = \
                 f"A <b>great</b> error occured: haven't found a meaning"
                 " for {word!r}."
-                await bot_inform(text, parse_mode='html')
+                await bot_inform(text, parse_mode='HTML')
         res = random.choice(finds)
 
-        await event.reply(res)
+        await message.reply(res)
 
-    raise events.StopPropagation
 
-# 5
-async def _react_game_words(event):
-    chat = event.chat
-    text = event.text
+# checked
+@dp.message_handler(regexp=commands('words') + ".*")
+async def react_game_words(message):
+    """React commands and triggers at game 'words'."""
+    await _add_user(message.from_user.id)
+    chat = message.chat
+    text = message.text
+    scid = str(chat.id)  # scid --- string chat_id
+    chat_id = scid  # be careful
 
     # Processing further actions may take a significant amount of time.
-    bot.action(chat.id, 'typing')
+    await bot.send_chat_action(chat.id, 'typing')
 
     cmd_pattern = _cmd_pattern('words')
     help_pattern = cmd_pattern \
         + r'\s(?:[-—\s:]*)(?:правила|инструкция|команды|help)\s*\??'
 
     if re.fullmatch(cmd_pattern + r'.*?\s+[-!]?skip', text):
-        await words_skip_move(event)
+        await words_skip_move(message)
         return
     if re.fullmatch(cmd_pattern + r'\s+(?:приостановить|pause)', text):
-        bot.action(chat.id, 'typing')
+        await bot.send_chat_action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
            msg = "Игра не найдена."
-           await event.reply(msg)
+           await message.reply(msg)
            return
         c[chat_id]['status'] = 'paused'
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
         dot = '.' * (random.random() > 1/2)
         msg = f"Игра приостановлена. Продолжение: /words continue{dot}"
-        await event.reply(msg)
+        await message.reply(msg)
 
         return
     if re.fullmatch(cmd_pattern + r'\s+(?:хватит|удалить игру|stop)', text):
-        bot.action(chat.id, 'typing')
+        await bot.send_chat_action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
            c.remove_section(chat_id)
         else:
             msg = "Игра не найдена."
-            await event.reply(msg)
+            await message.reply(msg)
             return
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
         dot = '.' * (random.random() > 1/2)
         msg = f"Текущая игра убрана{dot}"
-        await event.reply(msg)
+        await message.reply(msg)
         return
     if re.fullmatch(cmd_pattern + r'\s+(?:очередь|порядок|order)', text):
-        bot.action(chat.id, 'typing')
+        await bot.send_chat_action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
-            await event.respond("Игра в этом чате не найдена.")
+            await message.answer("Игра в этом чате не найдена.")
             return
         section = c[chat_id]
         order = eval(section["order"])
@@ -764,10 +789,13 @@ async def _react_game_words(event):
         uid = order[current]
 
         async def get_user(uid_):
-            async for user in bot.iter_participants(chat.id):
-                if user.id == uid_:
+            try:
+                user = (await bot.get_chat_member(chat.id, uid_)).user
+                if user:
                     return user
-            raise BotException('not found')  # TODO
+            except:
+                pass
+            raise BotException('not found')
         u = await get_user(uid)
         order_ = ', '.join(map(
             full_name,
@@ -776,11 +804,11 @@ async def _react_game_words(event):
         text_mention = user_text_mention(u, fill=None)
         msg = f"""Последовательность: {order_}
 Сейчас ходит: {text_mention}"""
-        await event.respond(msg, parse_mode='html')
+        await message.answer(msg, parse_mode='HTML')
         return
     if re.fullmatch(help_pattern, text):
-        bot.action(chat.id, 'typing')
-        mark_item_point = ' `-` '  # '◽️'
+        await bot.send_chat_action(chat.id, 'typing')
+        mark_item_point = ' `-` '  # OR: '◽️'
         msg = f"""\
 Начало игры
 `-----------`
@@ -803,14 +831,13 @@ async def _react_game_words(event):
 `/words help``|``правила|инструкция|команды` — это сообщение
 `/words continue``|``продолжить` — продолжение (после `pause`)
 """
-        await event.respond(msg, parse_mode='markdown')
+        await message.answer(msg, parse_mode='MarkdownV2')
         return
 
     if re.fullmatch(cmd_pattern + r'\s+(?:продолжить|continue)', text):
-        bot.action(chat.id, 'typing')
+        await bot.send_chat_action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if (c.has_option(chat_id, 'status') and
@@ -820,27 +847,26 @@ async def _react_game_words(event):
                 c.write(f)
             dot = '.' * (random.random() > 1/2)
             msg = f"Игра продолжена{dot}"
-            await event.reply(msg)
+            await message.reply(msg)
 
             return
 
-    if event.is_private:
+    if is_private(message):
         if 'single' in text:
-            order = [event.sender.id]
+            order = [message.from_user.id]
         else:
-            order = [event.sender.id, BOT_ID]
+            order = [message.from_user.id, BOT_ID]
         current = 0
         mentioned = []
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
             if not re.search('(?:начать|start)', text):
                 msg = "Игра уже есть. Новая игра: /words начать|start. " \
                       "Также см.: /words help."
-                await event.reply(msg)
+                await message.reply(msg)
                 return  # Do the game being not registered then.
         if not c.has_section(chat_id):
             c.add_section(chat_id)
@@ -853,48 +879,39 @@ async def _react_game_words(event):
             c.write(f)
 
         print("Registered. chat_id: " + chat_id)  # test
-        await event.respond("Done. Registered.")
-    elif event.is_group:
+        await message.answer("Done. Registered.")
+    elif is_group(message):
         if re.fullmatch(cmd_pattern, text):
             return
         group = chat.id
-        # can be helpful here: `bot.get_participants(group)`
-        async def user_id_(e: 'Entity') -> int:  # TODO: do it
-            # expectable:
-            # - MessageEntityUnknown,  # what?
-            # - MessageEntityMention,
-            # - MessageEntityMentionName,
-            # - InputMessageEntityMentionName
-
-            other = (
-                MessageEntityUnknown,
-                InputMessageEntityMentionName
-                )
-            if isinstance(e, MessageEntityMention):
-                index = e.offset
-                # +1: Skips `@`
-                text = event.text
-                uname = text[index + 1 : index + e.length]
-                return (await bot.get_entity(uname)).id
-            elif isinstance(e, MessageEntityMentionName):
-                return e.user_id
-            elif isinstance(e, other):
-                text = f'Unexpected! Type of entity (reg. game):'
-                bot_inform(text + ' ' + str(e))
-                print(text, e)
+        # maybe another v.: can be helpful here: `bot.get_participants(group)`
+        async def user_id_(e: 'Entity') -> int:
+            if e.type == 'text_mention':
+                return e.user.id
+            elif e.type == 'mention':
+                users = load_users()
+                # :note: +1: Skips `@`
+                uname = message.text[e.offset + 1 : e.offset + e.length]
+                for user_id in users:
+                    #! TODO test, do it first
+                    if (_user := (await get_chat_member(user_id,
+                                                        of=chat.id)).user) \
+                    and _user.username == uname:
+                        return user_id
+                msg = f"Unknown user: @{uname}"
+                await bot.reply(msg)
 
         order: list = []
-        for e in event.entities[1:]:
+        for e in message.entities[1:]:
             order.append(await user_id_(e))
         if None in order:
             return
-        if (n := event.sender.id) not in order:
+        if (n := message.from_user.id) not in order:
             order = [n] + order
         current = 0
         mentioned = []
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
@@ -908,38 +925,22 @@ async def _react_game_words(event):
             c.write(f)
 
         print("Game registered. chat_id: " + chat_id)  # test
-        await event.respond("Done. Game registered.")
-
-# 4
-@bot.on(events.NewMessage(pattern=commands('words')))  # mark:editing
-async def react_game_words(event):
-    """React commands and triggers at game 'words'."""
-    await _react_game_words(event)
-    raise events.StopPropagation
+        await message.answer("Done. Game registered.")
 
 
-@bot.on(events.ChatAction(func=lambda event: \
-                          event.user_joined or event.user_added))
-async def greet_new_chat_members(event):
+# checked
+@dp.message_handler(func=lambda message: message.new_chat_members)
+async def greet_new_chat_members(message: types.Message):
     """Welcome every new user"""
-    # print(event)  # test
+    # print(message)  # test
+    await _add_user(message.from_user.id)
     should_greet_all = False
-    if event.user_joined:
-        user_id = event.action_message.from_id  # peer
-        user = await bot.get_entity(user_id)
-        users = [user]
-    elif event.user_added:
-        user = event.action_message.from_id
-        permissions = await bot.get_permissions(event.chat, user)
-        if permissions.is_admin:
-        # if event.action_message.inviter_id.is_admin:
-            should_greet_all = True
-        uids = event.action_message.action.users
-        users = [await bot.get_entity(uid) for uid in uids]
-    else:
-        return
+    members = message.new_chat_members
 
-    chat_id = event.chat.id
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    if (await bot.get_chat_member(chat_id, user_id)).is_admin():
+        should_greet_all = True
 
     uids = [u.id for u in users]
     for uid in uids:
@@ -953,12 +954,9 @@ async def greet_new_chat_members(event):
                     should_ban.append(user)
 
         if should_ban:
-            await event.reply("Сюда можно онли участникам чата курса. Сóри.")
+            await message.reply("Сюда можно онли участникам чата курса. Сóри.")
             for u in should_ban:
-                await bot.edit_permissions(chat_id, u.id,
-                    view_messages=False  # i. e. banning
-                    )
-                # ref: (1)
+                await bot.restrict(chat.id, user.id, until_date=0)
 
         should_greet = [user for user in users if user not in should_ban]
         if not should_greet:
@@ -968,10 +966,11 @@ async def greet_new_chat_members(event):
         is_test_msg = False
         till = (
             "28.02.2021, 06.03.2021, 07.03.2021, 12.05.2021, 13.05.2021"
+            ", 16.06.2021" + f"{mdash}30.06.2021"
             )
 
         mentions = [user_text_mention(user) for user in should_greet]
-        mentions = ", ".join(mentions) #  [1:-1]
+        mentions = ", ".join(mentions)
         msg = f"""{"[Это тест.]"*is_test_msg}
 Привет, {mentions}!
 Этот чат — флудилка. Ссылка на основной чат находится в \
@@ -980,7 +979,7 @@ async def greet_new_chat_members(event):
 
 © Anonym, 27.01.2021{mdash}{till}
 """
-        await event.respond(msg, parse_mode='html')
+        await message.answer(msg, parse_mode='HTML')
     elif chat_id == HEAD_CHAT:
         msg = f"""\
 Здравствуй, <a href="tg://user?id={user.id}">\
@@ -990,7 +989,7 @@ async def greet_new_chat_members(event):
 язык, транслитерацией в старославянские алфавиты. Инструкция: \
 см. /help@{BOT_USERNAME}.
 """
-        await event.respond(msg, parse_mode='html')
+        await message.answer(msg, parse_mode='HTML')
     elif chat_id == TEST_CHAT:
         msg = f"""\
 {user_text_mention(user)}
@@ -998,26 +997,27 @@ async def greet_new_chat_members(event):
 /start
 /help@{BOT_USERNAME}.
 """
-        await event.respond(msg, parse_mode='html')
+        await message.answer(msg, parse_mode='HTML')
 
-# TODO: place all styled as `_add_user`, if possible, to another handler.
-@bot.on(InlineQuery(func=lambda event: 0 < len(event.text) <= 255))
-async def answer_query(event):
-    print('user_id:', event.sender.id)  # test  #?
 
+# checked
+@dp.inline_handler(func=lambda inline_query: 0 < len(inline_query.query) <= 255)
+async def answer_query(inline_query: types.InlineQuery):
+    """Answer a non-empty query, but not big.
+    
+    See https://core.telegram.org/bots/api#inlinequery."""
+    await _add_user(inline_query.from_user.id)
     try:
         answers = []
-        text = event.text
+        text = inline_query.query
         print('query:', text)  # test
-
-        builder = event.builder
 
         if any(text.startswith(k) for k in NAMES_REPLACE):
             show_text = text
             pairs = {
-            '<': "&lt;",
-            '>': "&gt;",
-            '&': "&amp;"
+                '<': "&lt;",
+                '>': "&gt;",
+                '&': "&amp;"
             }
             def _repl(s_part):
                 return pairs[s_part]
@@ -1037,139 +1037,141 @@ async def answer_query(event):
             zero_title = "Смена слов"
             zero_description = show_text
             zero_text = text
-            parse_mode = 'html'  #?
+            parse_mode = 'HTML'  # *question:here* pretty nice?
 
-            r_1 = builder.article(zero_title, zero_description,
-                text=zero_text, parse_mode=parse_mode)
-            answers.append(r_1)
+            zero_input_content = InputTextMessageContent(zero_text)
+            item_0 = InlineQueryResultArticle(
+                    id='0',
+                    title=zero_title,
+                    description=zero_description,
+                    input_message_content=zero_input_content,
+                    parse_mode=parse_mode
+            )
+            answers.append(item_0)
 
-        text = event.text
+        text = message.text
 
+        # *question*
         # Parse mode here — ?
         # And sending the text in HTML/Markdown.
 
-        thumb_config = COMMON_THUMB_CONFIG
-        size = thumb_config['size']
-        mime_type = thumb_config['mime_type']
-        attributes = [thumb_config['attributes']]
+        # *note*: Shortages here:
+        #  - c, g -- cyryllic, glagolic
+        #  - trg -- transliterated (to) glagolic
 
         # thumb configs:
         c_url = A_CYRYLLIC
         g_url = A_GLAGOLIC
         trg_url = A_LATER_GLAGOLIC
-        c_thumb = InputWebDocument(c_url, size, mime_type, attributes)
-        g_thumb = InputWebDocument(g_url, size, mime_type, attributes)
-        trg_thumb = InputWebDocument(trg_url, size, mime_type, attributes)
-        # *note*: Shortages for `^` (upper):
-        #  - c, g -- cyryllic, glagolic
-        #  - trg -- transliterated (to) glagolic
-        # Same may be stated for other notations at nearly this code
-        # (at exactly this part of it).
 
-        # input messages:
+        # title, text, description:
+        c_title = "Перевод на кириллицу"
         c_text = translation(text, dest="cyryllic")
-        g_text = translation(text, dest="glagolic")
-        trg_text = glagolic_transliterate(text)
-
-        # title, description, text:
-        c_title = bytes("Перевод на кириллицу", encoding='utf-8')
         c_description = c_text
-        # c_text = c_text
-        g_title = bytes("Перевод на глаголицу", encoding='utf-8')
+        # ^ cyryllic
+        g_title = "Перевод на глаголицу"
+        g_text = translation(text, dest="glagolic")
         g_description = g_text
-        # g_text = g_text
-        trg_title = bytes("Транслитерация на глаголицу", encoding='utf-8')
+        # ^ glagolic
+        trg_title = "Транслитерация на глаголицу"
+        trg_text = glagolic_transliterate(text)
         trg_description = trg_text
-        # trg_text = trg_text
+        # ^ transliterated to glagolic
+
+        # input contents:
+        c_input_content = InputTextMessageContent(c_text)
+        g_input_content = InputTextMessageContent(g_text)
+        trg_input_content = InputTextMessageContent(trg_text)
+
+        # result ids':
+        result_id_1 = '1'
+        result_id_2 = '2'
+        result_id_3 = '3'
+
+        common_thumb_kwargs = dict(
+            thumb_width=COMMON_THUMB_CONFIG['width'],
+            thumb_height=COMMON_THUMB_CONFIG['height'],
+        )
 
         # results:
-        r_c = builder.article(c_title, c_description,
-            text=c_text, thumb=c_thumb)
-        r_g = builder.article(g_title, g_description,
-            text=g_text, thumb=g_thumb)
-        r_trg = builder.article(trg_title, trg_description,
-            text=trg_text, thumb=trg_thumb)
+        item_1 = InlineQueryResultArticle(
+                id=result_id_1,
+                title=c_title,
+                description=c_description,
+                input_message_content=c_input_content,
+                thumb_url=c_url,
+                **common_thumb_kwargs
+        )
+        item_2 = InlineQueryResultArticle(
+                id=result_id_2,
+                title=g_title,
+                description=g_description,
+                input_message_content=c_input_content,
+                thumb_url=g_url,
+                **common_thumb_kwargs
+        )
+        item_3 = InlineQueryResultArticle(
+                id=result_id_3,
+                title=trg_title,
+                description=trg_description,
+                input_message_content=trg_input_content,
+                thumb_url=trg_url,
+                **common_thumb_kwargs
+        )
 
-        answers = [r_c, r_g, r_trg] + answers
-
-        '''
-        r1 = builder.article('Be nice', text='Have a nice day')
-        r2 = builder.article('Be bad', text="I don't like you")
-        
-
-        r1 = builder.article('Be nice', text_cyr, text='Have a nice day',
-            thumb=...)
-        cyr = types.InlineQueryResultArticle(
-            id='1',
-            title="Перевод на кириллицу",
-            description=text_cyr,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_cyr),
-            thumb_url=A_CYRYLLIC, thumb_width=48, thumb_height=48,
-            )
-        
-        
-        gla = types.InlineQueryResultArticle(
-            id='2',
-            title="Перевод на глаголицу",
-            description=text_gla,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_gla),
-            thumb_url=A_GLAGOLIC, thumb_width=48, thumb_height=48,
-            )
-        
-        
-        transliterated_gla = types.InlineQueryResultArticle(
-            id='3',
-            title="Транслитерация на глаголицу",
-            description=text_transliterated_gla,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_transliterated_gla),
-            thumb_url=A_LATER_GLAGOLIC, thumb_width=48, thumb_height=48,
-            )
-        #TODO: answers = [cyr, gla, transliterated_gla] + answers
-        '''
-        await event.answer(answers, cache_time=CACHE_TIME)
+        # answer
+        answers = [item_1, item_2, item_3] + answers
+        await bot.answer_inline_query(answers, cache_time=CACHE_TIME)
     except Exception as e:
         print(type(e), ': ', e, sep='')
 
 
-# 7 (requires test)
-# TODO: test
-@bot.on(InlineQuery(func=lambda event: not event.text))
-async def answer_empty_query(event):
-    await _add_user(event.sender.id)
-
+# checked
+@dp.inline_handler(func=lambda inline_query: not inline_query.query)
+async def answer_empty_inline_query(inline_query: types.InlineQuery):
+    """Answer any empty inline query."""
+    await _add_user(inline_query.from_user.id)
     try:
-        title = bytes("Перевод на славянские языки: кириллица, глаголица.",
-            encoding='utf8')
+        # general
+        title = "Перевод на славянские языки: кириллица, глаголица."
         description = "Введи текст для перевода, жми на нужный для отправки"
-        # thumb data:
-        thumb_config = COMMON_THUMB_CONFIG
+        
+        # other
+        text = 'no text'
+        input_content = InputTextMessageContent(text)
+        url = A_LATER_GLAGOLIC  # thumb url
+        common_thumb_kwargs = dict(
+            thumb_width=COMMON_THUMB_CONFIG['width'],
+            thumb_height=COMMON_THUMB_CONFIG['height'],
+        )
 
-        url = A_LATER_GLAGOLIC
-        size = thumb_config['size']
-        mime_type = thumb_config['mime_type']
-        attributes = [thumb_config['attributes']]
-        thumb = InputWebDocument(url, size, mime_type, attributes)
-
-        builder = event.builder
-        r = builder.article(title, description, text='no text', thumb=thumb)
-
-        answer = await event.answer([r], cache_time=CACHE_TIME)
+        item = InlineQueryResultArticle(
+                id='0',  # id -- dummy ('any' string)
+                title=title,
+                description=description,
+                input_message_content=input_content,
+                thumb_url=url,
+                **common_thumb_kwargs
+        )
+        await bot.answer_inline_query([item], cache_time=CACHE_TIME)
     except Exception as e:
         print(e)
 
-# 6
-@bot.on(events.NewMessage)
-async def answer_message(event):
-    # Answer message, realises a game words play, actually.
+
+# checked
+@dp.message_handler()
+async def answer_message(message: types.Message):
+    """Answer the text message.
+
+    Actually, realises a move at game words.
+    """
+    await _add_user(message.from_user.id)
     c = configparser.ConfigParser()
-    chat_id = str(event.chat.id)
+    chat_id = str(message.chat.id)
     filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
-        # Аnswer can be performed only if section exists.
+        # *note* Аnswer can be performed only if section exists
         return
     section = c[chat_id]
     order = eval(section["order"])
@@ -1178,22 +1180,17 @@ async def answer_message(event):
         c.get(chat_id, 'status') == 'paused'):
         return
 
-    if event.is_private:
+    if is_private(message):
         pattern = r'(?i)(!)?[-а-яё]+'
-        if (s := re.fullmatch(pattern, event.text)):
-            await play_words(event)
+        if (s := re.fullmatch(pattern, message.text)):
+            await play_words(message)
     else:
         pattern = WORDS_GAME_PATTERN
-        if re.fullmatch(pattern, event.text):
-            await play_words(event)
-
-
-def main():
-    """Run the bot."""
-    asyncio.run(bot.run_until_disconnected())
+        if re.fullmatch(pattern, message.text):
+            await play_words(message)
 
 
 if __name__ == '__main__':
-    with bot:
-        print("Running main... (the bot)")
-        main()
+    with bot:  # *question*: what?
+        print('Starting polling... (aiogram version)')
+        executor.start_polling(dp, skip_updates=False)
