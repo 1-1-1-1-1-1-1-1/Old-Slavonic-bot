@@ -1,4 +1,4 @@
-# main (init) file, written preferely with PEP8, required modules/libraries
+# main (init) file, written preferably with PEP8, required modules/libraries
 # are in requirements.txt.
 # -----------------------------------------------------------------------------
 # See also:
@@ -16,6 +16,7 @@
 #   `raise events.StopPropagation`
 # - see *questions*/*question*
 # - see *mark* (maybe), and also: file metalog
+# - see the `aiogram` version worker[.py] for info
 
 
 import random

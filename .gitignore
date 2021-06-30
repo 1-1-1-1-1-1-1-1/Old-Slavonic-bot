@@ -132,10 +132,10 @@ dmypy.json
 # following is appended by hand
 
 # required:
-__pacache__/
+__pycache__/
 *.env
+# optional one:
 tokens.py
-controll.*
 *!private*
 !*.log
 do_logs.log

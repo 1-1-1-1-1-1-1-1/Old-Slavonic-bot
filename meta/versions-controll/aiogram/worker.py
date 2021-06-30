@@ -18,16 +18,16 @@
 # [1]: https://devcenter.heroku.com/articles/python-runtimes#supported-runtime-versions
 # -----------------------------------------------------------------------------
 # Since 27.06.2021 -- rewriting to aiogram
-# NOTE: telethon version may be still here, also devepeloped and created
+# NOTE: telethon/teleb. version may be still here, also devepeloped and created
 # *marks* dev
 # - here 2 files are edited simultaneously: this and with telethon version. See
 #   to merge (main difference/to merge -- all this notes, at the beg. of file)
 # - configparser.ConfigParser() is sometimes created exactly at the function's
 #   call, which is to work correctly, if several users use a bot simultaneously
 # - TODO: test: triggers to start, words
-# - meta at this file (dev): note, question/questions (different), mark (only
-#   previous), checked, to test/to check, test, TODO, meta, OR, task
-#    + these are not case-sensitive
+# - meta at this file (dev): note, *question*/*questions* (different), mark
+#   (only previous), checked, to test/to check, test, TODO, meta, OR, task
+#    + these are sometimes not case-sensitive
 
 import random
 import re

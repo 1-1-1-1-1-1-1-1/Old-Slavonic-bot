@@ -2,3 +2,15 @@
 telethon and aiogram, maybe undone and untested.
 
 # version appear since the 14's commit #
+
+
+files
+-----
+config, requirements, worker, [:optional file: README-libname.md[.*]]
+
+
+log
+===
+
+1.0.0 -- telebot, aiogram and telethon versions exists, maybe undone fully / 
+         untested yet

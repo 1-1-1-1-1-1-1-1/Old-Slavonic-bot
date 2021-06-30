@@ -1,5 +1,5 @@
-# globalconfig file, used at config.py and _disconnector.py
-# =========================================================
+# global-config file, used at config.py and _disconnector.py
+# ==========================================================
 # history
 #   Added env. variables at 2021-02-17T21:05.
 

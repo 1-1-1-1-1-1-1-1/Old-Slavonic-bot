@@ -1,5 +1,6 @@
 # Simple tool to disconnect from Telegram manually
 # ================================================
+# *note*: telebot and aiogram usage do not require this file
 
 import os
 
@@ -24,7 +25,7 @@ def disconnect():
         TelegramClient(session_name, api_id, api_hash).log_out()
         print('Disconnected from Telegram')
     except ConnectionError:
-        print('Connection error raised: already disconnected from Telegram')
+        print('[Connection error raised: already disconnected from Telegram]')
 
 
 if __name__ == '__main__':
