@@ -212,11 +212,15 @@ def load_users():
         users = map(eval, f.read().strip().split('\n'))
     return users
 
+# to test, assumed to be ready
+async def get_info_by_rule(pattern: str, kid, mentioned=[]):
+    """get word and meaning from the given dict
 
-async def _by_rule(pattern: str, kid, mentioned=[]):
-    """get word and meaning from the given dict"""
+    :return: tuple (..) if found; None when not found
+    """
     if kid == 1:
         # meta: `answer, question`
+        possible = []
         for a, q in d.items():
             a = a.replace(')', '')
             a = a.replace('(', ',')
@@ -225,21 +229,25 @@ async def _by_rule(pattern: str, kid, mentioned=[]):
             filter_ = lambda k: k.lower() not in \
                 (item.lower() for item in mentioned) and \
                     re.fullmatch(r'[-\w]+', k)
-            a = tuple(filter(
+            a = list(filter(
                 filter_,
                 a
             ))
 
             if any(re.fullmatch(pattern.lower(), a_part) for a_part in a):
-                word = random.choice(a)
-                return word, q
+                possible.extend(a)
+        word = random.choice(possible)
+        return word, q
                 # await message.reply(q)
                 # return 0
     elif kid == '3':
+        searched = []
         for k in d:
             if re.fullmatch(pattern.lower(), k.lower()):
                 meaning = d[k]
-                return k, meaning
+                searched += (k, meaning)
+        k, meaning = random.choice(searched)
+        return k, meaning
                 # await message.reply(meaning)
                 # return 0
 
@@ -247,20 +255,39 @@ async def _by_rule(pattern: str, kid, mentioned=[]):
 async def get_word_and_meaning(word_pattern: 'str or dict',
                                message: types.Message,
                                mentioned=[]):
-    """Get a word, matches patter, and meaning of a word."""
-    if type(word_pattern) is dict:
-        if len(word_pattern) != 1:
-            raise BotException("Incorrect type of input: length is not 1")
-        letter = word_pattern
-        func = lambda n: letter + '*'*(n-1)
+    """Get a word, which matches pattern, and meaning of a word."""
+    if type(word_pattern) is str:
+        # if not word_pattern:  # TODO great | TODO: check all this
+            # raise BotException("Incorrect type of input: length is 0")
+        # letter = word_pattern  # (TODO)
+        func = lambda n: word_pattern + '*'*(n-1)
         word_pattern = {
             # versions (required):
-            'normal': letter + r'.*',
+            'normal': word_pattern + r'.*',
             'site': func
         }
     try:
         from functions import d as _d
+        order = [1, '3']
         word_pattern_ = word_pattern['normal']
+        word, meaning = None, None
+        for k in order:
+            try:
+                d = d0[k]
+                result = await get_info_by_rule(word_pattern_, k, mentioned)
+                if not result:
+                    continue
+                word, meaning = result
+                break
+            except:
+                continue
+            del d
+        assert word
+        assert meaning
+
+        word = word.capitalize()
+        '''
+        del d0, order
         try:
             d = _d[1]
             vars_ = {k: d[k] for k in d
@@ -297,6 +324,7 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
 
         word = _answer(i).capitalize()
         meaning = _description(i)
+        '''
     except AssertionError:
         maxn = 4  # perfect?
         possible = list(range(1, maxn))
@@ -713,7 +741,15 @@ async def send_meaning(message):
             return
     from functions import d as d0
     order = [1, '3']
-    ...  # go to function meaning
+    # _, meaning =   # go to function meaning
+    # async def by_rule(kid): ..return await get_info_by_rule()
+    try:
+        _, meaning = get_info_by_rule(...)
+        await message.reply(meaning)
+        return
+    except:
+        pass
+
     for k in order:
         try:
             d = d0[k]
