@@ -213,17 +213,26 @@ def load_users():
     return users
 
 
-# checked
-async def make_move(message, letter, mentioned):
-    """Make move at a game, checking for a word, whether exists."""
-    chat_id = message.chat.id
-    await bot.send_chat_action(chat_id, 'typing')
+def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
+                         mentioned=[]):
+    """Get a word, matches patter, and meaning of a word."""
+    if type(word_pattern) is dict:
+        if len(word_pattern) != 1:
+            raise BotException("Uncorrect type of input: length is not 1")
+        letter = word_pattern
+        func = lambda n: letter + '*'*(n-1)
+        word_pattern = {
+            # versions (required):
+            'normal': letter + r'.*',
+            'site': func
+        }
     try:
         from functions import d as _d
+        word_pattern_ = word_pattern['normal']
         try:
             d = _d[1]
             vars_ = {k: d[k] for k in d
-                if k.lower().startswith(letter) and
+                if re.fullmatch(_word_pattern, k.lower()) and
                 k.lower() not in (item.lower() for item in mentioned) and
                 re.fullmatch(r'[-\w]+', k)}
             assert vars_
@@ -237,7 +246,7 @@ async def make_move(message, letter, mentioned):
         except AssertionError:
             d = _d['3']
             vars_ = {k: d[k] for k in d
-                if k.lower().startswith(letter) and
+                if re.fullmatch(_word_pattern, k.lower()) and
                 k.lower() not in (item.lower() for item in mentioned) and
                 re.fullmatch(r'[-\w]+', k)}
             assert vars_
@@ -254,7 +263,7 @@ async def make_move(message, letter, mentioned):
         possible = list(vars_.items())  # (*question*) Should be here?
         i = random.choice(range(len(possible)))
 
-        answer = _answer(i).capitalize()
+        word = _answer(i).capitalize()
         description = _description(i)
 
         msg = answer + ' (' + description + ')'
@@ -267,7 +276,8 @@ async def make_move(message, letter, mentioned):
         while not res_word and maxn <= 20:
             possible.append(maxn)
             n = possible.pop(random.choice(range(len(possible))))
-            url = "https://loopy.ru/?word={}{}&def=".format(letter, '*'*(n-1))
+            format_ = word_pattern['site'](n)  # _letter + '*'*(n-1)
+            url = "https://loopy.ru/?word={}&def=".format(format_)
             r = requests.get(url)  # not yet existed function: meaning
             text = r.text
 
@@ -302,6 +312,16 @@ async def make_move(message, letter, mentioned):
         msg = res_word + ' (' + meaning + ')'
 
         return res_word, msg  # test st.  <- # *question*: what?
+    meaning = ...
+    return meaning
+
+# checked
+async def make_move(message, letter, mentioned):
+    """Make move at a game, checking for a word, whether exists."""
+    chat_id = message.chat.id
+    await bot.send_chat_action(chat_id, 'typing')
+    word, meaning = get_word_and_meaning(letter, message, mentioned=mentioned)
+    return word, meaning  #?
 
 
 # checked
