@@ -213,12 +213,44 @@ def load_users():
     return users
 
 
-def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
-                         mentioned=[]):
+async def _by_rule(pattern: str, kid, mentioned=[]):
+    """get word and meaning from the given dict"""
+    if kid == 1:
+        # meta: `answer, question`
+        for a, q in d.items():
+            a = a.replace(')', '')
+            a = a.replace('(', ',')
+            a = a.lower().split(',')
+            a = map(lambda ph: ph.strip(), a)
+            filter_ = lambda k: k.lower() not in \
+                (item.lower() for item in mentioned) and \
+                    re.fullmatch(r'[-\w]+', k)
+            a = tuple(filter(
+                filter_,
+                a
+            ))
+
+            if any(re.fullmatch(pattern.lower(), a_part) for a_part in a):
+                word = random.choice(a)
+                return word, q
+                # await message.reply(q)
+                # return 0
+    elif kid == '3':
+        for k in d:
+            if re.fullmatch(pattern.lower(), k.lower()):
+                meaning = d[k]
+                return k, meaning
+                # await message.reply(meaning)
+                # return 0
+
+
+async def get_word_and_meaning(word_pattern: 'str or dict',
+                               message: types.Message,
+                               mentioned=[]):
     """Get a word, matches patter, and meaning of a word."""
     if type(word_pattern) is dict:
         if len(word_pattern) != 1:
-            raise BotException("Uncorrect type of input: length is not 1")
+            raise BotException("Incorrect type of input: length is not 1")
         letter = word_pattern
         func = lambda n: letter + '*'*(n-1)
         word_pattern = {
@@ -232,7 +264,7 @@ def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
         try:
             d = _d[1]
             vars_ = {k: d[k] for k in d
-                if re.fullmatch(_word_pattern, k.lower()) and
+                if re.fullmatch(word_pattern_, k.lower()) and
                 k.lower() not in (item.lower() for item in mentioned) and
                 re.fullmatch(r'[-\w]+', k)}
             assert vars_
@@ -246,7 +278,7 @@ def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
         except AssertionError:
             d = _d['3']
             vars_ = {k: d[k] for k in d
-                if re.fullmatch(_word_pattern, k.lower()) and
+                if re.fullmatch(word_pattern_, k.lower()) and
                 k.lower() not in (item.lower() for item in mentioned) and
                 re.fullmatch(r'[-\w]+', k)}
             assert vars_
@@ -264,10 +296,7 @@ def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
         i = random.choice(range(len(possible)))
 
         word = _answer(i).capitalize()
-        description = _description(i)
-
-        msg = answer + ' (' + description + ')'
-        return answer, msg
+        meaning = _description(i)
     except AssertionError:
         maxn = 4  # perfect?
         possible = list(range(1, maxn))
@@ -297,31 +326,29 @@ def get_word_and_meaning(word_pattern: 'str or dict', message: types.Message,
                 if _word not in mentioned:
                     res_word = _word
                     meaning = random.choice(meanings(item))
-
-                    mentioned.append(_word)
-
+                    # *note*: mind adding _word to the mentioned
                     break
 
             maxn += 1
         if res_word is None:
-            msg = \
-            "Wow! How can it happen? I had found any words for it."
-            "Game is stopped. Realise move's skip to continue"  #!
+            msg = (
+            "Wow!😮 How can it happen? I had found no words for this pattern."
+            "❌Game is stopped. Realise move's skip to continue"  #!
+            )
             await message.reply(msg)  # *question*: continuing game -- ?
             return
-        msg = res_word + ' (' + meaning + ')'
-
-        return res_word, msg  # test st.  <- # *question*: what?
-    meaning = ...
-    return meaning
+        word = res_word
+    return word, meaning
 
 # checked
 async def make_move(message, letter, mentioned):
     """Make move at a game, checking for a word, whether exists."""
     chat_id = message.chat.id
     await bot.send_chat_action(chat_id, 'typing')
-    word, meaning = get_word_and_meaning(letter, message, mentioned=mentioned)
-    return word, meaning  #?
+    word, meaning = await \
+        get_word_and_meaning(letter, message, mentioned=mentioned)
+    msg = word + ' (' + meaning + ')'
+    return word, msg
 
 
 # checked
@@ -686,23 +713,7 @@ async def send_meaning(message):
             return
     from functions import d as d0
     order = [1, '3']
-    async def by_rule(kid):
-        if kid == 1:
-            for a, q in d.items():
-                a = a.replace(')', '')
-                a = a.replace('(', ',')
-                a = a.lower().split(',')
-                a = map(lambda ph: ph.strip(), a)
-
-                if word.lower() in a:
-                    await message.reply(q)
-                    return 0
-        elif kid == '3':
-            for k in d:
-                if k.lower() == word.lower():
-                    meaning = d[k]
-                    await message.reply(meaning)
-                    return 0
+    ...  # go to function meaning
     for k in order:
         try:
             d = d0[k]
