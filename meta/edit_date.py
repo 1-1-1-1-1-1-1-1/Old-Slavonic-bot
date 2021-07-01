@@ -20,7 +20,7 @@ full_date = f'{full_start}{mdash}{full_till}'
 
 # short date form --- begin
 def get_year(string: str) -> str:
-    pattern = r'\d+\.\d+.(.\d+)'
+    pattern = r'\d+\.\d+\.(\d+)'
     try:
         return re.fullmatch(pattern, string).group(1)
     except:
@@ -34,7 +34,7 @@ def get_year(string: str) -> str:
 short_start = get_year(full_start)
 _short_date = sorted(
     set(
-        map(get_year, _full_till)
+        map(get_year, full_date.split(', '))
     )
 )
 short_date = ', '.join(_short_date)

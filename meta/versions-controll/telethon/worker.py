@@ -71,7 +71,7 @@ logging.basicConfig(format=logformat,
                     level=logging.WARNING)
 
 
-edit_date = '@day-08.03.2021->12.05.2021->16.06.2021+(?)..22.06.'
+edit_note = r"end of June, 2021: 30.06.2021"
 # ^ dummy, to check for updates while running.
 
 
@@ -88,7 +88,7 @@ class BotException(Exception):
         chat_id = extra.get('chat_id')
         sender = extra.get('sender')
         sender.id = sender.id if 'id' in dir(sender) else sender.user_id
-        # sender = telethon.utils.get_peer(peer)
+        # sender = telethon.utils.get_peer(peer)  # *question*: helpful?
         if args:
             exception = self.args[0]
         else:

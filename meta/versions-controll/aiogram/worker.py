@@ -24,7 +24,7 @@
 #   to merge (main difference/to merge -- all this notes, at the beg. of file)
 # - configparser.ConfigParser() is sometimes created exactly at the function's
 #   call, which is to work correctly, if several users use a bot simultaneously
-# - TODO: test: triggers to start, words
+# - TODO: test: triggers to start, words, BotException (see comments)
 # - meta at this file (dev): note, *question*/*questions* (different), mark
 #   (only previous), checked, to test/to check, test, TODO, meta, OR, task
 #    + these are sometimes not case-sensitive
@@ -35,7 +35,6 @@ from os.path import join
 import asyncio
 
 import requests
-import aiogram  # processing...  #?
 from aiogram import types
 from aiogram.types import (
     # inline keyboard:
@@ -47,6 +46,7 @@ from aiogram.types import (
     )
 
 from config import (
+    # some bot-connected constants:
     TOKEN, CACHE_TIME, NAMES_REPLACE, UIDS_BASE,
     # pics:
     A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC,
@@ -67,9 +67,10 @@ from config import (
     COMMON_THUMB_CONFIG
     )
 from functions import translation, glagolic_transliterate
+from meta.edit_date import short_cright, full_cright  # <- meta
 
 
-edit_date = ...  # ''  # '@day-08.03.2021->12.05.2021->16.06.2021+(?)..22.06.'
+edit_note = r"end of June, 2021: 30.06.2021"
 # ^ dummy, to check for updates while running.
 
 # checked
@@ -78,15 +79,13 @@ async def bot_inform(text, chat_id=LOGGING_CHAT, type_=None, **kwargs):
         return
     await bot.send_message(chat_id, text, **kwargs)
 
-# TODO, +applications
+# *comments* (task): do, +applications
 class BotException(Exception):
     def __init__(self, *args, extra={}, kwargs={}):
         super(BotException, self).__init__(*args, **kwargs)
         self.extra = extra
         chat_id = extra.get('chat_id')
         from_user = extra.get('from_user')
-        # from_user.id = from_user.id if 'id' in dir(from_user) else from_user.user_id
-        # 'another version': sender = telethon.utils.get_peer(peer)
         if args:
             exception = self.args[0]
         else:
@@ -216,6 +215,7 @@ def load_users():
 
 # checked
 async def make_move(message, letter, mentioned):
+    """Make move at a game, checking for a word, whether exists."""
     chat_id = message.chat.id
     await bot.send_chat_action(chat_id, 'typing')
     try:
@@ -268,7 +268,7 @@ async def make_move(message, letter, mentioned):
             possible.append(maxn)
             n = possible.pop(random.choice(range(len(possible))))
             url = "https://loopy.ru/?word={}{}&def=".format(letter, '*'*(n-1))
-            r = requests.get(url)
+            r = requests.get(url)  # not yet existed function: meaning
             text = r.text
 
             base = re.finditer(r'<div class="wd">(?:.|\n)+?</div>', text)
@@ -301,7 +301,7 @@ async def make_move(message, letter, mentioned):
             return
         msg = res_word + ' (' + meaning + ')'
 
-        return res_word, msg  # test st.  <- #?
+        return res_word, msg  # test st.  <- # *question*: what?
 
 
 # checked
@@ -334,7 +334,7 @@ async def play_words(message, current=0):
             answer_msg = f"Не твой сейчас ход{dot}"  # \ 
             # f" Ход игрока {user_text_mention(user)}!"
             await message.reply(answer_msg)
-            return  #~  *question:* why `~`?
+            return  #~  # <- *question:* why `~`?
         word = match.group(1)
         print(word)  # test
         if cur_letter != "." and word[0].lower().replace('ё', 'е') != cur_letter:
@@ -358,7 +358,7 @@ async def play_words(message, current=0):
         mentioned.append(word)
         res = word.lower().rstrip('ь')
         assert re.fullmatch("(?i)[-а-яё]+", res)
-        # ^ *question: such*: is/are required?
+        # ^ *question about assertions like this*: is/are required?
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
@@ -520,7 +520,7 @@ async def start(message):
     if allow_links_to_all or await is_participant(sid):
         async def invite_link(chat_id_):
             # may be helpful: `export_chat_invite_link`
-            try:  # test it (task)
+            try:  # to test: test it (task)
                 # link = (await bot.get_chat(chat_id_)).invite_link
                 link = await chat.get_url()
             except:
@@ -557,7 +557,7 @@ async def add_user_via_message(message):
     if (m := message.reply_to_message):
         sid = m.from_user.id
         await _add_user(sid)
-        await message.answer("Пользователь добавлен.") 
+        await message.answer("Пользователь добавлен.")
 
 
 # checked
@@ -565,18 +565,25 @@ async def add_user_via_message(message):
 async def send_help_msg(message):
     """Help message (i. e. `/help` or the same with parameters)."""
     await _add_user(message.from_user.id)
+    pattern = commands('help') + r'\s+[-+]?full'
+    is_full = re.fullmatch(pattern, message.text)
+    is_not_full = not is_full
     msg = f"""\
 Переводчик на старославянский язык. Правило перевода: ввести в чате\
  слово "@{BOT_USERNAME}\
-\" и, после пробела, — текст для перевода.
-Для отправки текста из списка нажать на тот текст.
+\" и, после пробела, — текст для перевода/транслитерации.
+Для отправки текста из списка нажать на тот текст.{'''
  `-` Очень много символов за раз бот не может отправить, только около 220.
- `-` Возможные ошибки: недописывание символов.
+ `-` Возможные ошибки: недописывание символов.'''*is_full}
 
 Ещё:
- `-` игра в слова (см. `/words help`);
- `-` значение слова: \
+🔸 игра в слова (см. `/words help`);
+🔸 значение слова: \
 см. /meaning help.
+{'''
+`-` Полное сообщение — `/help full`.
+'''*is_not_full}
+{short_cright if is_not_full else full_cright}
 """
     h_text = "Руководство"
     h_url = HELP_URL
@@ -698,11 +705,11 @@ async def send_meaning(message):
     else:
         rtext = r.text
         _rtext_part = rtext[rtext.find('Значения'):]
-        try:  # *question*: great?
+        try:  # *dev question*: great?
             rtext_part = _rtext_part
             rtext_part = rtext_part[:rtext_part.index('</div>')]
             finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
-            # ^ *question*: 1-st item here — a header?
+            # ^ *request question*: 1-st item here — a header?
             assert finds
         except AssertionError:
             rtext_part = _rtext_part
@@ -725,7 +732,7 @@ async def react_game_words(message):
     await _add_user(message.from_user.id)
     chat = message.chat
     text = message.text
-    scid = str(chat.id)  # scid --- string chat_id
+    scid = str(chat.id)  # scid -- string chat_id
     chat_id = scid  # be careful
 
     # Processing further actions may take a significant amount of time.
@@ -884,7 +891,6 @@ async def react_game_words(message):
         if re.fullmatch(cmd_pattern, text):
             return
         group = chat.id
-        # maybe another v.: can be helpful here: `bot.get_participants(group)`
         async def user_id_(e: 'Entity') -> int:
             if e.type == 'text_mention':
                 return e.user.id
@@ -893,7 +899,7 @@ async def react_game_words(message):
                 # :note: +1: Skips `@`
                 uname = message.text[e.offset + 1 : e.offset + e.length]
                 for user_id in users:
-                    #! TODO test, do it first
+                    #! TODO *test*, do it first
                     if (_user := (await get_chat_member(user_id,
                                                         of=chat.id)).user) \
                     and _user.username == uname:
@@ -962,12 +968,7 @@ async def greet_new_chat_members(message: types.Message):
         if not should_greet:
             return
 
-        mdash = chr(8212)  # m-dash: "—"
         is_test_msg = False
-        till = (
-            "28.02.2021, 06.03.2021, 07.03.2021, 12.05.2021, 13.05.2021"
-            ", 16.06.2021" + f"{mdash}30.06.2021"
-            )
 
         mentions = [user_text_mention(user) for user in should_greet]
         mentions = ", ".join(mentions)
@@ -977,7 +978,7 @@ async def greet_new_chat_members(message: types.Message):
 закрепе. Бот может быть полезен аля-переводом текста на старославянский \
 язык. Инструкция: см. /help@{BOT_USERNAME}.
 
-© Anonym, 27.01.2021{mdash}{till}
+{short_cright}
 """
         await message.answer(msg, parse_mode='HTML')
     elif chat_id == HEAD_CHAT:
@@ -1051,11 +1052,11 @@ async def answer_query(inline_query: types.InlineQuery):
 
         text = message.text
 
-        # *question*
+        # parse_mode *question*
         # Parse mode here — ?
         # And sending the text in HTML/Markdown.
 
-        # *note*: Shortages here:
+        # *dev note*: Shortages here:
         #  - c, g -- cyryllic, glagolic
         #  - trg -- transliterated (to) glagolic
 
@@ -1191,6 +1192,6 @@ async def answer_message(message: types.Message):
 
 
 if __name__ == '__main__':
-    with bot:  # *question*: what?
+    with bot:  # *dev question*: what?
         print('Starting polling... (aiogram version)')
         executor.start_polling(dp, skip_updates=False)

@@ -35,8 +35,7 @@ Some data: [data/](data/)
 # References
 <a id="references"></a>
 
-Общие
------
+## Общие
 
 ### По функциям, работе бота
 

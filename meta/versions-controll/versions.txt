@@ -6,11 +6,19 @@ telethon and aiogram, maybe undone and untested.
 
 files
 -----
-config, requirements, worker, [:optional file: README-libname.md[.*]]
+config, requirements, worker, :optional file: README-libname.md[.*]
 
 
 log
 ===
 
+v.    |  description
+      
 1.0.0 -- telebot, aiogram and telethon versions exists, maybe undone fully / 
          untested yet
+1.0.1 -- few fixes done at versions telethon, aiogram; change code's sctructure
+1.0.2 (not implemented) --
+          - aiogram version is considered to be more code-clear, but it still untested;\n
+          - telethon version changed a bit, also 
+          - telebot version is not changed (at least mostly)
+          - change structure of project: see "this file"#files -->
