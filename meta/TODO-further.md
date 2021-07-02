@@ -12,8 +12,8 @@ Possible TODO
 
  - Add a base for storing `help` messages for any chat (e. g. at `.json`)
  - See `TODO` at worker.py or other
- - Add var with storage of edit dates, may be used at `till` at worker.py
-    + possible: may be of 2 types: exact (i. e. total list) and just years
+ - [x] Add var with storage of edit dates, may be used at `till` at worker.py
+    + [x] possible: may be of 2 types: exact (i. e. total list) and just years
 
 from GitHub commit 13
 =============================

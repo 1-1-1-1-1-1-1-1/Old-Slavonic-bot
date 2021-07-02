@@ -116,7 +116,10 @@ Is whether on Heroku: <u>{on_heroku}</u>.
 """
 future = bot_inform(text, type_="launch", parse_mode='HTML')
 loop.run_until_complete(future)
-
+# test
+loop.run_until_complete(
+    bot.send_message(699642076, 'Test #1')
+)
 del text, ON_HEROKU, on_heroku, future, loop
 
 
@@ -213,11 +216,14 @@ def load_users():
     return users
 
 # to test, assumed to be ready
-async def get_info_by_rule(pattern: str, kid, mentioned=[]):
+async def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
     """get word and meaning from the given dict
 
     :return: tuple (..) if found; None when not found
+    pass add_d=object of type dict when d is not given. type(d) is dict
     """
+    if add_d:
+        d = add_d
     if kid == 1:
         # meta: `answer, question`
         possible = []
@@ -254,13 +260,14 @@ async def get_info_by_rule(pattern: str, kid, mentioned=[]):
 
 async def get_word_and_meaning(word_pattern: 'str or dict',
                                message: types.Message,
-                               mentioned=[]):
+                               mentioned=[],
+                               increase_allowed=False):
     """Get a word, which matches pattern, and meaning of a word."""
     if type(word_pattern) is str:
         # if not word_pattern:  # TODO great | TODO: check all this
             # raise BotException("Incorrect type of input: length is 0")
         # letter = word_pattern  # (TODO)
-        func = lambda n: word_pattern + '*'*(n-1)
+        func = lambda n: word_pattern + '*'*(n - max(0, len(word_pattern)))
         word_pattern = {
             # versions (required):
             'normal': word_pattern + r'.*',
@@ -268,12 +275,12 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
         }
     try:
         from functions import d as _d
-        order = [1, '3']
         word_pattern_ = word_pattern['normal']
         word, meaning = None, None
+        order = [1, '3']
         for k in order:
             try:
-                d = d0[k]
+                d = _d[k]
                 result = await get_info_by_rule(word_pattern_, k, mentioned)
                 if not result:
                     continue
@@ -326,16 +333,19 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
         meaning = _description(i)
         '''
     except AssertionError:
-        maxn = 4  # perfect?
+        maxn = 4  # best?
         possible = list(range(1, maxn))
-        res_word = None
+        if not increase_allowed:
+            maxn = len(word_pattern)
+            possible = [maxn - 1]
+        searched = None
 
-        while not res_word and maxn <= 20:
+        while not searched and maxn <= 20:
             possible.append(maxn)
             n = possible.pop(random.choice(range(len(possible))))
-            format_ = word_pattern['site'](n)  # _letter + '*'*(n-1)
+            format_ = word_pattern['site'](n)
             url = "https://loopy.ru/?word={}&def=".format(format_)
-            r = requests.get(url)  # not yet existed function: meaning
+            r = requests.get(url)
             text = r.text
 
             base = re.finditer(r'<div class="wd">(?:.|\n)+?</div>', text)
@@ -350,22 +360,25 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
 
             while base:
                 item = base.pop(random.choice(range(len(base)))).group()
-                _word = word(item)
-                if _word not in mentioned:
-                    res_word = _word
+                word_ = word(item)
+                if word_ not in mentioned:
+                    searched = word_
                     meaning = random.choice(meanings(item))
-                    # *note*: mind adding _word to the mentioned
+                    # *note*: mind adding word_ to the mentioned
                     break
 
-            maxn += 1
-        if res_word is None:
+            if increase_allowed:
+                maxn += 1
+            else:
+                break
+        if searched is None:
             msg = (
             "Wow!😮 How can it happen? I had found no words for this pattern."
             "❌Game is stopped. Realise move's skip to continue"  #!
             )
             await message.reply(msg)  # *question*: continuing game -- ?
             return
-        word = res_word
+        word = searched
     return word, meaning
 
 # checked
@@ -741,14 +754,6 @@ async def send_meaning(message):
             return
     from functions import d as d0
     order = [1, '3']
-    # _, meaning =   # go to function meaning
-    # async def by_rule(kid): ..return await get_info_by_rule()
-    try:
-        _, meaning = get_info_by_rule(...)
-        await message.reply(meaning)
-        return
-    except:
-        pass
 
     for k in order:
         try:
@@ -759,6 +764,15 @@ async def send_meaning(message):
         except:
             continue
         del d
+    # _, meaning = \
+    await get_info_by_rule(...)
+    # await message.reply(meaning)
+    # return
+    if word is not None and meaning is not None:
+        await.message.reply(meaning)
+        return
+
+    
     del d0, order, by_rule
 
     url = f'https://loopy.ru/?word={word}&def='
