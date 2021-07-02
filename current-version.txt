@@ -1,0 +1,17 @@
+.. version::
+
+	:type: at aiogram
+	:name: 6-remaden (is being edited)
+
+added files
+-----------
+
+ * config,
+ * worker, 
+ * requirements
+
+------------------------------------------------------------------------------
+
+See also: at `versions' controll folder`_
+
+.. `versions'constroll folder` folder:: meta/versions-controll/

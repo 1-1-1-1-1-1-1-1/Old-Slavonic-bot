@@ -220,16 +220,12 @@ async def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
     """get word and meaning from the given dict
 
     :return: tuple (..) if found; None when not found
-    when d is not given, pass::
-
-        add_d=object of type dict
-
-    type(d) is dict
+    pass add_d=object of type dict when d is not given. type(d) is dict
     """
     if add_d:
         d = add_d
     if kid == 1:
-        # meta: `*a*nswer, *q*uestion`
+        # meta: `answer, question`
         possible = []
         for a, q in d.items():
             a = a.replace(')', '')
@@ -265,8 +261,7 @@ async def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
 async def get_word_and_meaning(word_pattern: 'str or dict',
                                message: types.Message,
                                mentioned=[],
-                               increase_allowed=False,
-                               strict_level=1):
+                               increase_allowed=False):
     """Get a word, which matches pattern, and meaning of a word."""
     if type(word_pattern) is str:
         # if not word_pattern:  # TODO great | TODO: check all this
@@ -294,11 +289,49 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
             except:
                 continue
             del d
-        del _d
         assert word
         assert meaning
 
         word = word.capitalize()
+        '''
+        del d0, order
+        try:
+            d = _d[1]
+            vars_ = {k: d[k] for k in d
+                if re.fullmatch(word_pattern_, k.lower()) and
+                k.lower() not in (item.lower() for item in mentioned) and
+                re.fullmatch(r'[-\w]+', k)}
+            assert vars_
+
+            def _answer(i):
+                p = possible[i]
+                return p[0]
+            def _description(i):
+                p = possible[i]
+                return p[1]
+        except AssertionError:
+            d = _d['3']
+            vars_ = {k: d[k] for k in d
+                if re.fullmatch(word_pattern_, k.lower()) and
+                k.lower() not in (item.lower() for item in mentioned) and
+                re.fullmatch(r'[-\w]+', k)}
+            assert vars_
+
+            def _answer(i):
+                p = possible[i]
+                return p[0]
+            def _description(i):
+                p = possible[i]
+                return p[1]
+        finally:
+            del _d, d
+
+        possible = list(vars_.items())  # (*question*) Should be here?
+        i = random.choice(range(len(possible)))
+
+        word = _answer(i).capitalize()
+        meaning = _description(i)
+        '''
     except AssertionError:
         maxn = 4  # best?
         possible = list(range(1, maxn))
@@ -307,20 +340,12 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
             possible = [maxn - 1]
         searched = None
 
-        async def one_iteration():
+        while not searched and maxn <= 20:
             possible.append(maxn)
             n = possible.pop(random.choice(range(len(possible))))
             format_ = word_pattern['site'](n)
             url = "https://loopy.ru/?word={}&def=".format(format_)
             r = requests.get(url)
-            if (sc := r.status_code) == 404 and strict_level == 0:
-                msg = f"Слово {word_pattern!r} не найдено в словаре."
-                return 1, msg  # 1 -- status code, meta
-            elif sc != 200 and strict_level == 0:
-                msg = f"Непонятная ошибка. Код ошибки: {sc}."
-                return 1, msg
-            if sc != 200 and strict_level == 1:
-                return 1, "Oh, what? Not found."
             text = r.text
 
             base = re.finditer(r'<div class="wd">(?:.|\n)+?</div>', text)
@@ -340,36 +365,19 @@ async def get_word_and_meaning(word_pattern: 'str or dict',
                     searched = word_
                     meaning = random.choice(meanings(item))
                     # *note*: mind adding word_ to the mentioned
-                    return 0, searched, meaning
+                    break
 
-        if increase_allowed:
-            while not searched and maxn <= 20:
-                code = await one_iteration()
+            if increase_allowed:
                 maxn += 1
-            if code is None:
-                continue
             else:
                 break
-            if s_code == 0:
-                word, meaning = result
-        else:
-            result = one_iteration()
-
-        if code[0] == 0:
-            # s_code, result = code
-            _, word, meaning = result
-        elif code == 1:
-            code, msg = code
-            return msg
-
-        if searched is None and strict_level > 0:
+        if searched is None:
             msg = (
             "Wow!😮 How can it happen? I had found no words for this pattern."
             "❌Game is stopped. Realise move's skip to continue"  #!
             )
-            return 1, msg
-            # was: await message.reply(msg)  # *question*: continuing game -- ?
-            # return
+            await message.reply(msg)  # *question*: continuing game -- ?
+            return
         word = searched
     return word, meaning
 
@@ -760,9 +768,8 @@ async def send_meaning(message):
     await get_info_by_rule(...)
     # await message.reply(meaning)
     # return
-
     if word is not None and meaning is not None:
-        await.message.reply(meaning)
+        await message.reply(meaning)
         return
 
     
@@ -1266,6 +1273,6 @@ async def answer_message(message: types.Message):
 
 
 if __name__ == '__main__':
-    with bot:  # *dev question*: what?
+    # with bot:  # *dev question*: what?
         print('Starting polling... (aiogram version)')
         executor.start_polling(dp, skip_updates=False)

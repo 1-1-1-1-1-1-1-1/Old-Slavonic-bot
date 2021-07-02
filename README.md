@@ -57,7 +57,7 @@ Heroku
 
 Telegram API
 ------------
- * About InlineKeyboardMarkup:
+ * About `InlineKeyboardMarkup`:
  > Note: This will only work in Telegram versions released after 9 April, 2016.
 
  (from the [Telegram Bot API])
