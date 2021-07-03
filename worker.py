@@ -106,6 +106,7 @@ class BotException(Exception):
 # raise BotException('test', extra=d)
 
 # checked; *question*: loop
+asyncio.set_event_loop(asyncio.new_event_loop())
 loop = asyncio.get_event_loop()
 prod_word = "" if PROD else 'not '
 on_heroku = 'yes' if ON_HEROKU else 'no'
@@ -117,6 +118,8 @@ Is whether on Heroku: <u>{on_heroku}</u>.
 future = bot_inform(text, type_="launch", parse_mode='HTML')
 loop.run_until_complete(future)
 # test
+asyncio.set_event_loop(asyncio.new_event_loop())
+loop = asyncio.get_event_loop()
 loop.run_until_complete(
     bot.send_message(699642076, 'Test #1')
 )

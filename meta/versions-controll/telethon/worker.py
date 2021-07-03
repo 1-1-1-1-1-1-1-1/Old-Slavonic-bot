@@ -201,6 +201,48 @@ def load_users():
         users = map(eval, f.read().strip().split('\n'))
     return users
 
+
+# to test, assumed to be ready
+def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
+    """get word and meaning from the given dict
+
+    :return: tuple (..) if found; None when not found
+    when d is not given, pass::
+
+        add_d=object of type dict
+
+    type(d) is dict
+    """
+    if add_d:
+        d = add_d
+    if kid == 1:
+        # meta: `*a*nswer, *q*uestion`
+        possible = []
+        for a, q in d.items():
+            a = a.replace(')', '')
+            a = a.replace('(', ',')
+            a = a.lower().split(',')
+            a = map(lambda ph: ph.strip(), a)
+            filter_ = lambda k: k.lower() not in \
+                (item.lower() for item in mentioned) and \
+                    re.fullmatch(r'[-\w]+', k)
+            a = list(filter(
+                filter_,
+                a
+            ))
+
+            if any(re.fullmatch(pattern.lower(), a_part) for a_part in a):
+                possible.extend(a)
+        word = random.choice(possible)
+        return word, q
+    elif kid == '3':
+        searched = []
+        for k in d:
+            if re.fullmatch(pattern.lower(), k.lower()):
+                meaning = d[k]
+                searched += (k, meaning)
+        k, meaning = random.choice(searched)
+        return k, meaning
 # TODO: check, test
 async def make_move(event, letter, mentioned):
     chat_id = event.chat.id
