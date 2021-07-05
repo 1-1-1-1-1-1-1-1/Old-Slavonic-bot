@@ -25,4 +25,4 @@ v.    |  description
 1.0.3 -- changes at aiogram version, change meaning/get meaning function
   —      etc., some other changes
 1.0.5
-1.0.6 -- introducing...
+1.0.6 -- introducing... (changing/editing etc.)

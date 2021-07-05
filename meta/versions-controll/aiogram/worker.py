@@ -233,7 +233,7 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
     if add_d:
         d = add_d
     if kid == 1:
-        # meta: `*a*nswer`, # *d*efinition  #
+        # meta: `*a*nswer`,  # *d*efinition  #
         #        `*q*uestion`
         possible = []
         for a, q in d.items():
@@ -261,233 +261,10 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
                 searched += (k, meaning)
         k, meaning = random.choice(searched)
         return k, meaning
-                # await message.reply(meaning)
-                # return 0
 
 
-async def get_word_and_meaning(_word_pattern: 'str or dict',
-                               message: types.Message,
-                               mentioned=[],
-                               increase_allowed=True,
-                               search_mode=1):
-    """Get a word, which matches pattern, and meaning of a word."""
-    # :param increase_allowed: deprecated
-    # -----------------------------------------------------------------
-    # *dev note*: this code may be partially strange, see version 1.0.4
-    #             (maybe 1.0.5) or earlier to view the previous
-    # considered to be UNDONE, both at all other similar code-parts
-    keys = set(_word_pattern.keys())
-    if type(_word_pattern) is dict and 'normal' in _word_pattern:
-        _word_pattern['site'] = _word_pattern['normal']
-    supported_search_types = {'dictionary', 'site'}
-    if not keys.issubset(supported_search_types):
-        warnings.warn("Unsupported search type")
-    word_pattern = _word_pattern
-    if type(_word_pattern) is str:
-        # if not word_pattern:  # TODO great | TODO: check all this
-            # raise BotException("Incorrect type of input: length is 0")
-        # letter = word_pattern  # (TODO)
-        func = lambda n: _word_pattern + '*'*(n - max(0,
-                                                      len(word_pattern)))
-        word_pattern = {
-            # versions (required):
-            'normal': _word_pattern + r'.*',
-            'site': func
-        }
-    else:
-        assert {'normal', 'site'}.issubset(set(keys))
-        word_pattern = _word_pattern
+...  # search_word (get_word_and_meaning) def
 
-    def _is_strict_word(word):
-        allowed = r'(?i)[-а-яё]'  # to remove
-        return re.fullmatch(f'{allowed}+', word)
-    if _is_strict_word(word_pattern['site']):
-        search_mode = 0
-
-    assert search_mode in (0, 1)
-    order = [
-        ('dictionary', (None, 1,)),
-        ('dictionary', (None, '3',)),
-        ('site', ("https://loopy.ru/?word={0}&def=",
-                  'word_pattern["site"]')
-        )
-    ]
-    
-    def search_at_dictionary(k, *, _d=_d):
-        word_pattern_ = word_pattern['normal']
-        word, meaning = None, None
-        d = _d[k]
-        result = get_info_by_rule(word_pattern_, k, mentioned)
-        if not result:
-            return
-            # continue
-        word, meaning = result
-        '''break
-        for k in order:
-            try:
-                
-            except:
-                continue
-            del d
-        del _d
-        assert word
-        assert meaning
-
-        return word, meaning'''
-    def search_on_loopy(url, pattern=word_pattern['site']):
-        # search on loopy.ru
-        increase_allowed = _is_strict_word(_word_pattern['site'])
-        if increase_allowed:
-            maxn = 4  # best?
-            possible = list(range(1, maxn))
-        else:
-            maxn = len(word_pattern)
-            possible = [maxn - 1]
-        searched = None
-
-        def one_iteration(url):
-            r = requests.get(url)
-            if search_mode == 'as float':   # search_mode
-                text = r.text
-
-                base = re.finditer(r'<div class="wd">(?:.|\n)+?</div>', text)
-                base = list(base)
-
-                def word(item):
-                    return re.search(
-                        r'<h3>.+?значение слова ([-\w]+).+?</h3>', item).group(1)
-
-                def meanings(item):
-                    return re.findall(r'<p>(.+?)</p>', item)
-
-                while base:
-                    i = random.choice(range(len(base)))
-                    item = base.pop(i).group()
-                    word_ = word(item)
-                    if word_ not in mentioned:
-                        searched = word_
-                        meaning = random.choice(meanings(item))
-                        # *dev note*: mind adding `searched` to the mentioned
-                        return 0, searched, meaning
-
-            elif search_mode == 'as strict':
-                if (sc := r.status_code) == 404:
-                    msg = f"Слово {word_pattern!r} не найдено в словаре."
-                    return {"msg": msg}
-                elif sc != 200:
-                    msg = f"Непонятная ошибка. Код ошибки: {sc}."
-                    return {"msg": msg}
-                rtext = r.text
-                _rtext_part = rtext[rtext.find('Значения'):]
-                try:  # *dev question*: great?  # version 1
-                    rtext_part = _rtext_part
-                    rtext_part = rtext_part[:rtext_part.index('</div>')]
-                    finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
-                    # ^ *request question*: 1-st item here — a header?
-                    assert finds
-                except AssertionError:  # version 2
-                    rtext_part = _rtext_part
-                    rtext_part = rtext_part[:rtext_part.index('</ul>')]
-                    finds = re.findall(r'<li>(.*?)</li>', rtext_part)
-                    if not finds:
-                        text = \
-                        f"A <b>great</b> error occured: haven't found a meaning"
-                        " for {word!r}."
-                        answer_d = {
-                            "bot_inform": text,
-                            'kwargs': dict(parse_mode='HTML')
-                        }
-                        return answer_d
-                res = random.choice(finds)
-                return word_pattern, res
-        if increase_allowed:
-            while not searched and maxn <= 20:
-                possible.append(maxn)
-                n = possible.pop(random.choice(range(len(possible))))
-                format_ = word_pattern['site'](n)
-                url = "https://loopy.ru/?word={}&def=".format(format_)
-                result = one_iteration()
-                maxn += 1
-            if result is None:
-                continue
-            code, result = result
-            elif code == 2:
-                return  # *dev note* as all is done
-            else:
-                break
-        else:
-            word = word_pattern['site']
-            url = f'https://loopy.ru/?word={word}&def='
-            result = one_iteration(url)
-        # -*- part -*- #
-        if code == 0:
-            word, meaning = result
-
-        if code == 0:
-            _, word, meaning = result
-        elif code[0] == 1:  # *question/meta-temporary*
-        # ^ required? see code
-            code, msg = code
-            return msg
-
-        if searched is None and search_mode == 1:
-            msg = (
-            "Wow!😮 How can it happen? I had found no words for this pattern."
-            "❌Game is stopped. Realise move's skip to continue"  #!
-            )  # *question*: continuing game -- ?
-            return {"msg": msg}
-        word = searched
-        return word, meaning
-    def search_at(source_type: str = 'dictionary',
-                  parameters=None,
-                  *,
-                  return_on_fail: 'callable or object to return' = 1):
-        # really this? see code
-        try:
-            if source_type == 'dictionary':
-                dict_, *params = parameters
-                return search_at_dictionary(*params, _d=dict_)
-            elif source_type == 'site':
-                _url, *params = parameters
-                if urllib.parse.urlsplit(url).netloc == "loopy.ru":
-                    result search_on_site(url.format(*map(eval, params)))
-                    if type(result) is dict:
-                        if "msg" in result:
-                            await message.reply(result['msg'])
-                        elif 'bot_inform' in result:
-                            ...
-                        else:
-                            pass
-                    return result
-                else:
-                    raise NotImplementedError
-            else:
-                raise NotImplementedError
-        except Exception as e:
-            if callable(return_on_fail):
-                return return_on_fail(e)    
-            return return_on_fail
-        
-    def whole_search():
-        while order:
-            item = order.pop(0)
-            source_type, parameters = item
-            try:
-                result = search_at(source_type, parameters)
-            except NotImplementedError:
-                continue
-            if result is not None and result != 1:
-                return result
-        return 2  # not found
-    result = whole_search()
-    if result == 2:
-        pass
-    word, meaning = result
-    word = word.capitalize()
-
-    return 0, word, meaning
-    ### here the process ends # see code
-    # was: try-except (not more)
 
 # checked
 async def make_move(message, letter, mentioned):
@@ -520,10 +297,11 @@ async def play_words(message, current=0):
     mentioned = eval(section["mentioned"])
 
     dot = '.' * (random.choice([0, 1, 2]) < 1)
+    local_pattern = r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?"
     if (n := message.from_user.id) in order and \
         (match := re.fullmatch(WORDS_GAME_PATTERN, message.text)):
         if is_private(message) and not (
-            re.fullmatch(r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?", message.text) or
+            re.fullmatch(local_pattern, message.text) or
             (message.reply_to_message and
             message.reply_to_message.from_user.id == order[current - 1])):
             return
