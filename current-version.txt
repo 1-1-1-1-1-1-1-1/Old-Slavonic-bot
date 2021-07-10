@@ -7,11 +7,12 @@ added files
 -----------
 
  * config,
- * worker, 
+ * worker,
  * requirements
 
 ------------------------------------------------------------------------------
 
 See also: at `versions' controll folder`_
 
-.. `versions'constroll folder` folder:: meta/versions-controll/
+.. `versions' controll folder` folder:: meta/versions-controll/
+worker/config/requirements with telethon -- temporary, testing.

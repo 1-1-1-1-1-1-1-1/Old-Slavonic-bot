@@ -3,8 +3,9 @@
     + [translating](#translating)
         * possible: from not Russian
     + [transliterating](#transliterating)
-
- - [Game `words`](#game_words)
+    + [mixed](#tr_mixed)
+ - [inline queries](#inline)
+ - [Game 'words'](#game_words)
  - [Hosting the bot](#hosting)
  - [Other notes](#other_notes)
 
@@ -15,14 +16,13 @@
 <a id="translating"></a>
 TODO:
 
- * Great dictionaries. As a part, the dict., named there `2` once.
+ * Great dictionaries. As a part, the dict., named there '2' once.
 
 ### Transliterating
 <a id="translating"></a>
 TODO:
 
- * Maybe: add some dictionary transliterations (if required).
- * <u>Numbers' transliteration</u>
+ * [ ] <u>Numbers' transliteration</u>
      + Transliterating to glagolic — ?. Was strange, see at `./media`.
      + Transliterating to cyryllic.
          - Can add: parts of symbols for 10^5, ..., 9 (?).
@@ -30,7 +30,30 @@ TODO:
            Not putting at `омега`, `і`.
          - Make it great.
 
-### Using inline-mode
+Maybe TODO:
+
+- add some dictionary transliterations (if required).
+
+### Mixed
+<a id="tr_mixed"></a>
+
+Possible (maybe, not availaible here):
+
+ * translation with no transliteration
+ * just transliteration
+     - numbers
+         + with no numbers' transliteration
+         + ... or with it.
+      - alphabeth
+          + cyryllic
+          + glagolic
+* when initial language is not Russian
+  (can be translated to Russian firstly, then see other parts of this)
+
+See 'Scheme.txt'.
+
+## Inline queries
+<a id="inline"></a>
 Tasks:
 
  * What do happens with symbols there, i. e. how should the bot be done in order to put them greatly?
@@ -38,17 +61,17 @@ Tasks:
 
 Notes:
 
-* Should be enabled at a bot via @BotFather?
+ - See https://core.telegram.org/bots/inline
 
-## Game `words`
+## Game 'words'
 <a id="game"></a>
 Possible TODO:
 
- * [ ] Add transliterating at phrases.
- * [ ] Add the support off dash (can be different?) at words. Can other be? Should be?
- * [ ] Add an ability to teach a word (if not found at any dictionary).
- * [ ] Add an option to search for a word, whether exists, at the Slavonic dictionaries.
- * [ ] + transliterate.
+ * Add transliterating at phrases.
+ * Add the support of dash (can be different?) at words. Can other be? Should be?
+ * Add an ability to teach a word (if not found at any dictionary).
+ * Add an option to search for a word, whether exists, at the Slavonic dictionaries.
+ * ... + transliterate.
 
 Notes:
 
@@ -64,21 +87,6 @@ Possible places:
 
 ## Other notes
 <a id="other_notes"></a>
-Possible (maybe, not availaible here):
-
- * translation with no transliteration
- * just transliteration
-   numbers
-       + with no numbers' transliteration
-       + ... or with it.
-   alphabeth
-       + cyryllic
-       + glagolic
- * initial language is not Russian
-   (can be translated to Russian firstly, then see other parts of this)
-
-See `Scheme.txt`.
-----
 
 `tokens.py` may be added in a such way, that it is absent in the code storage, where the main part is taken from (considering `GitHub` as it). (?->no) Hosting at (1), it can be added to the files there.  Deploying at the Heroku, may be added via config vars.
 
@@ -91,14 +99,16 @@ See `Scheme.txt`.
 
  * The correct match of case at tanslations — ?
  * Is it in the best way?
- * Parse at `_2 col` and find all there.
+ * Parse at folder '_2 col' and find all there.
 
 TODO:
 
  * [ ] Write great docstrings.
  * [ ] Add `meaning` as a single function, can be used at here: command `meaning`, checking for the word, whether exists at game words' play.
+ * [ ] change tokens and/or other params, were at .env-todo (commit 181e106)
+     + *note*: changed; to check/swallow, what is
 
-Maybe-TODO:
+Maybe-TODO, general:
 
  * Possible: add great logs and logging system.
  * Possible: add the great sctructure.
@@ -106,7 +116,7 @@ Maybe-TODO:
  * Write great docstrings for the functions.
  * Realize some of this as things at DB, not as files *at* the project.
  * Add ability to make `е/ё` equal at:
-     + game `words`
+     + game 'words'
      + translating
  * At the auto-insert at chat (at the inline):
  add the change of query's query at the click on it (after).

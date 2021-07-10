@@ -1,31 +1,32 @@
 import asyncio
-import os
+from os.path import join
+import logging
 
 import configparser
-from telethon.sync import TelegramClient
-from telethon.tl.types import DocumentAttributeImageSize
+from aiogram import Bot, Dispatcher, types
+from aiogram import executor  # test
 
 from globalconfig import get, ON_HEROKU
-from _disconnector import disconnect
 
 
 print("Parsing the beginning of configs' file...")
 
 
 def password(uid, time=None, *, test_mode=False):
-    import os, datetime  #?
+    import datetime
     now = datetime.datetime.now()
 
     if time is not None:
-        maxdelta = 3*60
+        max_delta = 3*60
+
         def number(s: str) -> int:
             zero = '0'
-            return int(res) if (res := s.lstrip(zero)) else 0
+            return int(_res) if (_res := s.lstrip(zero)) else 0
         minute, second = map(number, time)
         res_date = now.replace(  # timedelta
             minute=minute, second=second)
         # not to let be static:
-        if not abs((res_date - now).total_seconds()) < maxdelta and not test_mode:
+        if not abs((res_date - now).total_seconds()) < max_delta and not test_mode:
             return
         now = res_date
 
@@ -40,13 +41,13 @@ def password(uid, time=None, *, test_mode=False):
         )
     res = eval(secret_code).split(',')
     space = {
-    'H': H,
-    'M': M,
-    'S': S,
-    'd': d,
-    'm': m,
-    'Y': Y,
-    'uid': int(uid)
+        'H': H,
+        'M': M,
+        'S': S,
+        'd': d,
+        'm': m,
+        'Y': Y,
+        'uid': int(uid)
     }
 
     res = map(lambda i: eval(i, globals(), space), res)
@@ -56,7 +57,7 @@ def password(uid, time=None, *, test_mode=False):
     res = ("".join(res)[::s]*2)[:7]
 
     if __name__ == '__main__':
-         print(res)  # test
+        print(res)  # test
     else:
         return res
 
@@ -67,7 +68,6 @@ TOKEN_INIT = get('TOKEN_INIT')
 if not TOKEN_TEST or not TOKEN_INIT:
     raise SystemExit("No tokens found.")
 
-del os
 PASSWORD_ENABLED = False
 
 # Whether the production version:
@@ -77,8 +77,9 @@ PROD = ON_HEROKU or PROD_UNDEPLOYED
 if ON_HEROKU:
     TEST_MODE = False
 else:
-    TEST_MODE = True  #~  # ADDED THEN  #! Launching 2 bots at the same time -- ?
-        # Corrected at 19.02.2021T17:33: `or` -> `and`
+    TEST_MODE = True  #~  # ADDED THEN
+    #! *Reason*: Launching 2 bots at the same time -- ?
+    # ^ Corrected at 19.02.2021T17:33: `or` -> `and`
     # [17:42] .. it as `if-else`
 
 if PROD:
@@ -88,9 +89,6 @@ if TEST_MODE:
     TOKEN = TOKEN_TEST
 else:
     TOKEN = TOKEN_INIT
-
-
-from os.path import join
 
 
 DATAFILE = join("data", "data.json")
@@ -109,24 +107,24 @@ CONSONANTS = ["б", "в", "г", "д", "ж", "з", "к", "л", "м", "н", "п", 
 
 # logs data
 LOGGING_CHAT = -1001495851235
-CHAT_LOGS_MODE_ALL = [
-# 'launch',
-'new user',
-'bot-exception'
-]
+CHAT_LOGS_MODE_ALL = {
+    # 'launch',
+    'new user',
+    'bot-exception'
+}
 
 ADMINS = [
-699642076
+    699642076
 ]
 
 HELP_URL = "https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28"
 
 A_CYRYLLIC = \
-"https://i.ibb.co/N9Vznhx/F67-C56-DB-732-C-468-B-BC4-B-81-FCCBEEE37-D.jpg"
+    "https://i.ibb.co/N9Vznhx/F67-C56-DB-732-C-468-B-BC4-B-81-FCCBEEE37-D.jpg"
 A_GLAGOLIC = \
-"https://i.ibb.co/DzwcQpr/16482-EB9-9-FF9-405-C-BD76-06-FFDD0613-C2.jpg"
+    "https://i.ibb.co/DzwcQpr/16482-EB9-9-FF9-405-C-BD76-06-FFDD0613-C2.jpg"
 A_LATER_GLAGOLIC = \
-"https://i.ibb.co/2SS7nP7/3-FA71-E14-25-A0-4-B7-C-B8-F1-EDB9-DC8118-AF.jpg"
+    "https://i.ibb.co/2SS7nP7/3-FA71-E14-25-A0-4-B7-C-B8-F1-EDB9-DC8118-AF.jpg"
 
 # A dictionary of `name: (replacement, uid)`
 NAMES_REPLACE = eval(get('NAMES_REPLACE'))
@@ -155,27 +153,34 @@ INLINE_EXAMPLES = [
     ]
 
 
-session_name = 'translator-bot' if not TEST_MODE else 'translator-bot-test'
-api_id = eval(get('API_ID'))
-api_hash = get('API_HASH')
-
-
-disconnect()  # to prevent the situation when another client was connected
-
-# connect to Telegram:
-bot = TelegramClient(session_name, api_id, api_hash).start(bot_token=TOKEN_INIT)
-
-# now it is connected, get some data
-bot_data = bot.get_me()
-BOT_ID = bot_data.id
-BOT_USERNAME = bot_data.username
-
 _THUMB_CONFIG = {
     'common': {
-    'size': 300,
-    'mime_type': 'image/jpeg',
-    'attributes': DocumentAttributeImageSize(48, 48)
+        'width': 48,
+        'height': 48
     }
 }
 
 COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
+
+
+# initialize the bot and dispatcher
+# create an instance of `Bot` and `Dispatcher`, set logging
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
+logging.basicConfig(level=logging.INFO)
+
+# now it is connected, get some data
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+# commented for tests:
+bot_data = asyncio.run(bot.get_me())
+print(bot_data)  # test
+BOT_ID = bot_data.id
+BOT_USERNAME = bot_data.username
+
+BOT_ID, BOT_USERNAME = (None,)*2  # is dummy, deletable_fully
+
+loop = asyncio.new_event_loop()
+if loop.is_closed():
+    ...
+executor.start_polling(dp, loop=loop, skip_updates=True)

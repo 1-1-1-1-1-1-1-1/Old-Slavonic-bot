@@ -1,0 +1,17 @@
+NOTE: This is a developer-only file and is not required for
+nothing else.  Here may be some notes etc.
+
+Syntax: Markdown + 'Sphinx/ReST' (Mixed)
+
+----------------------------------------------------------------
+
+[TOC]
+
+NOTE: some parts of the following files may be similar at
+ different versions
+
+Most recent files:
+ - worker: at root, version with telethon
+
+To merge:
+ - aiogram versions: at ../aiogram and in root
