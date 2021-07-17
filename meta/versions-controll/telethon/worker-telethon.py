@@ -1,34 +1,86 @@
-# main (init) file, written preferably with PEP8, required modules/libraries
+# -*- coding: utf-8 -*-
+# version: telethon:v1.0.6-editing
+
+# THIS CODE AND APP ARE FREE FOR USAGE AND MAINTAINED & DISTRIBUTED UNDER THE
+# TERMS OF *MIT License*. See LICENSE for more info.
+# =============================================================================
+# Main file, written preferably with PEP8, required modules/libraries
 # are in requirements.txt.
+# 
+# **PLEASE NOTE:** The `version: lib:v_name` is important at the beginning of
+# this file. It is parsed while writing this file to the root in order to get
+# the most recent information about what version of app is used and write it 
+# to the "current-version.txt" immediately.
+#
 # -----------------------------------------------------------------------------
 # See also:
 # - README for some info
-# - metalog for some instant/following/current changes
+# - meta/metalog for some instant/following/current changes
 # - config.py to view or change the configurations; also, .env or its analogues
 # - launcher and similar to have a help (maybe) with launching the bot app
 # Requires Python >=3.8 to allow the use of `:=`
 # set the required version at runtime.txt (see also: runtime info at [1])
 # 
 # [1]: https://devcenter.heroku.com/articles/python-runtimes#supported-runtime-versions
-# --- -
-# *marks* (dev.)
+# 
+# -----------------------------------------------------------------------------
+# 
+# Developer notes
+# ---------------
+# 
 # - this can help to ignore further triggers for an exact update:
 #   `raise events.StopPropagation`
 # - see *questions*/*question*
 # - see *mark* (maybe), and also: file metalog
 # - see the `aiogram` version worker[.py] for info
+# - comments at this and other files use the syntax of:
+#    * Markdown (plain/GitHub, mainly *word* and so on);
+#    * ReST (or related meta-syntax, styled as ReST)
+#      *note*: ReST is ReStructuredText
+#    * Several Markdown-styled, but not really existed, e. g. `word_or_text'
+# - **important**: to solve:
+#    + `TODO`, `test` (just less more important),
+#    + *question*/*questions* (or simply question with no symbols behind)
+# - noting versions at some places (e. g. functions/classes) to show, which of
+#   version they are ('at which version'/when they were written/added)
+#   + marking versions: either 'version-name', or 'v:<comment>', e. g. when
+#     comment is "undefined"
+#     * 'to-check' means "nearly final version, to check still, and merge"
+# - may use 'one case'/another to mark (with "'"), which words are included.
+# - TODO: merge versions (1.0.6-editing stage, before 1.0.6 full)
+#
+# Meta
+# ----
+# 
+# versions stages:
+# '-editing' (means editing in process)
+# rcN means realise candidate; if no issues are mentioned -- considired to
+# be ready
+# 
+# See also: PEP440.
+# 
+# Notes syntax
+# -------------
+# 
+# - Mixed Markdown and Sphinx, also using some Sphinx-styled maybe-not-existed
+#   commands.
+# - `re` expressions
+# - Such as:
+#   + [...] -- optional part
+#   + <var>, meaning an exact command, inserted at a place of the "<var>".
 
 
 import random
 import re
-from os.path import join
 import asyncio
 import typing
 import logging
+import json
+from html import escape as html_escape
 
 import requests
 import telethon
-from telethon import sync  # (maybe not required, but let it be)
+from telethon import sync  # Maybe not required, but let it be
 
 from telethon.tl.types import InputWebDocument
 from telethon import errors
@@ -39,48 +91,51 @@ from telethon.tl.types import (
     MessageEntityMention,
     MessageEntityMentionName,
     InputMessageEntityMentionName
-    )
+)
 from telethon import events
 from telethon.events.inlinequery import InlineQuery
 
 from config import (
-    TOKEN, CACHE_TIME, NAMES_REPLACE, UIDS_BASE,
-    # pics:
+    # Pictures/media:
     A_CYRYLLIC, A_GLAGOLIC, A_LATER_GLAGOLIC,
-    # technical
-    ANY_LETTER,
-    ADMINS, LOGGING_CHAT, HELP_URL,
-    PROD, PASSWORD_ENABLED, ON_HEROKU, CHAT_LOGS_MODE_ALL,
     # configparser:
     configparser, NoSectionError,
-    # chats:
+    # Chats & channels:
     CHANNEL, TEST_CHAT, SPEAK_CHAT, HEAD_CHAT,
-    # other/unsorted:
-    bot, BOT_ID, BOT_USERNAME,
-    WORDS_GAME_PATTERN,
-    INLINE_EXAMPLES,
-    GAME_WORDS_DATA,
-    TOKEN_INIT,
-    COMMON_THUMB_CONFIG
-    )
+    # Connected with bot:
+    bot, TOKEN, BOT_ID, BOT_USERNAME, TOKEN_INIT,
+    # Game words:
+    WORDS_GAME_PATTERN, GAME_WORDS_DATA, ANY_LETTER,
+    # Inline:
+    INLINE_EXAMPLES, NAMES_REPLACE, CACHE_TIME, COMMON_THUMB_CONFIG,
+    # Greeting
+    FILE_GREETING, DEFAULT_GREETING_EVAL_SOURCE,
+    # Other:
+    ADMINS, LOGGING_CHAT, CHAT_LOGS_MODE_ALL, HELP_URL,
+    PROD, PASSWORD_ENABLED, ON_HEROKU, UIDS_BASE,
+    LOCAL_LOGS
+)
 from functions import translation, glagolic_transliterate
+from functions import d as _d
+from meta.edit_date import short_cright, full_cright  # <- meta
 
 
+# Set logging
 logformat = '[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s'
 logging.basicConfig(format=logformat,
                     level=logging.WARNING)
 
 
-edit_note = r"end of June, 2021: 30.06.2021"
+edit_note = r"edited at July, the 12th"
 # ^ dummy, to check for updates while running.
 
-
+# checked
 async def bot_inform(text, chat_id=LOGGING_CHAT, type_=None, **kwargs):
     if type_ is not None and type_ not in CHAT_LOGS_MODE_ALL:
         return
     await bot.send_message(chat_id, text, **kwargs)
 
-# TODO: do great
+# TODO Do this (great). Appears to be more a template then a complete func.
 class BotException(Exception):
     def __init__(self, *args, extra={}, kwargs={}):
         super(BotException, self).__init__(*args, **kwargs)
@@ -121,9 +176,9 @@ loop.run_until_complete(future)
 
 del text, ON_HEROKU, on_heroku, future, loop
 
-
-def _cmd_pattern(cmd: str, *, flags: typing.Union[None, 'empty', str] = 'i') \
-        -> str:  # Internal
+# v1.0.6
+# checked
+def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     if flags:
         _flags_add = r'(?' + flags + r')'
     else:
@@ -131,9 +186,9 @@ def _cmd_pattern(cmd: str, *, flags: typing.Union[None, 'empty', str] = 'i') \
     cmd_pattern = _flags_add + r'/' + cmd + r'(?:@' + BOT_USERNAME + r')?'
     return cmd_pattern
 
-
-def commands(*cmds, flags: typing.Union[None, 'empty', str] = None) \
-        -> str:  # Internal
+# v1.0.6
+# checked
+def commands(*cmds, flags=None) -> str:  # Internal
     if flags is not None:
         kwargs = {'flags': flags}
     else:
@@ -144,16 +199,19 @@ def commands(*cmds, flags: typing.Union[None, 'empty', str] = None) \
         cmd_styled = r'(?:' + '|'.join(cmds) + r')'
     return _cmd_pattern(cmd_styled, **kwargs)
 
-
+# v1.0.6
+# checked
 def feature_exists(fid):  # Internal
     d = {
-    'teach_word': False
+        'teach_word': False
     }
     if fid in d:
         return d[fid]
     return False
 
 
+# v1.0.6
+# checked
 async def is_participant(user_id, of=HEAD_CHAT):
     """User is participant of chat `of`, returns bool."""
     try:
@@ -162,53 +220,144 @@ async def is_participant(user_id, of=HEAD_CHAT):
         return False
 
 
+# v:1.0.6rc1
+# Check, test, merge.
+# TODO Test
+def enabled(case=True, *, is_coro=False):  # Internal
+    """Help-function to enable/disable the required trigger.
+
+    Internal function. See code. Works both with functions and coroutines.
+    Pass is_coro=True to work with coroutines. Defaults to False.
+
+    .. example::
+
+        # Example 1
+        @enabled(case=True)
+        def func():
+            ...
+
+        # is same as `def func(): ...`. While:
+
+        # Example 2
+        @enabled(False, is_coro=True)
+        async def func():
+            pass
+
+        # is equal to
+
+        async def func():
+            return  # Pay attention to this! Just `return`.
+    """
+    # This appears to be more a template, then a wrapper function to any such
+    # func. The task may be undone for functions, which have default
+    # arguments/kw, and for functions names; here there is no sense.
+    
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            def _enabled(case_):
+                if type(case_) is bool:
+                    return bool(case_)
+                elif callable(case_):
+                    # Does it really work so?
+                    args_defaults = func.__defaults__
+                    kwargs_defaults = func.__kwdefaults__
+                    code = func.__code__
+                    kwonlyargcount = code.co_kwonlyargcount
+                    argcount = code.co_argcount
+                    if not kwargs_defaults:
+                        kwargs_defaults = {}
+                    if not args_defaults:
+                        args_defaults = ()
+
+                    kwargs_ = kwargs  # kwargs to call with
+                    args_ = args  # args to call with
+
+                    args_with_no_value_count = len(args) + \
+                        len(kwargs) - \
+                        len(args_defaults)
+                    for k in kwargs_defaults:
+                        kwargs_.setdefault(k, kwargs_defaults[k])
+
+                    args_names = code.co_varnames
+                    args_names = args_names[:argcount + kwonlyargcount]
+                    used_args_names = set(kwargs_defaults.keys()) - set(kwargs)
+                    used_args_count = len(used_args_names)
+
+                    lack = argcount - used_args_count
+                    args_ += args_defaults[lack:]
+
+                    return case_(*args_, **kwargs_)
+                elif type(case_) is str:
+                    case_ = eval(case_)
+                    return _enabled(case_)
+                else:
+                    raise TypeError(
+                        "Internal error: "
+                        "case_ must be one of"
+                        " bool, callable, str"
+                        )
+            if not _enabled(case):
+                if is_coro:
+                    async def dummy():
+                        # `await dummy()` -> `None`
+                        """Dymmy function. dummy() is a coroutine object."""
+                    return dummy()
+                return
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+# v1.0.6
 async def _add_user(user_id):
     """Add ID to the base. Comments are allowed."""
     filename = UIDS_BASE
     with open(filename, 'a') as f:
         pass
     with open(filename, 'r', encoding='utf8') as f:
-        data = f.read()
-    data_ = ""
-    if data and data.rstrip('\n') == data:
-        data_ += '\n'
-    if (s := str(user_id)) not in data:
+        data = f.read()  # only to read
+    data_ = ""  # to write
+    if data and data[-1] != '\n':
+        data_ += '\n'  # add newline if absent
+    if (suid := str(user_id)) not in data:
         text = 'New user: \
 <a href="tg://user?id={0}">{1}</a>\nuser_id: {0}'.format(
             user_id, "User")
         await bot_inform(text, type_='new user', parse_mode='html')
-        data_ += s + '\n'
+        data_ += suid + '\n'
     with open(filename, 'a', encoding='utf8') as f:
         f.write(data_)
 
-
+# v1.0.6
 def full_name(user):
+    """Full name of a user."""
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
-
-def user_text_mention(user, fill=None):
-    # `fill` : text to insert at mention
+# v1.0.6
+def user_text_mention(user, fill=None) -> str:
+    """Text mention of a user, i. e. a hyperlink."""
+    # :param fill: Text to insert at mention.
+    # Link: https://core.telegram.org/bots/api#formatting-options.
     if fill is None:
         filling = full_name(user)
     else:
         filling = fill
     return f'<a href="tg://user?id={user.id}">{filling}</a>'
 
-
+# v1.0.6
 def load_users():
-    # NOTE: Return is a generator object!
+    # **Note**: Return is a generator object!
     with open(UIDS_BASE, encoding='utf-8') as f:
         users = map(eval, f.read().strip().split('\n'))
     return users
 
 
-.
-# to test, assumed to be ready
+# To test, assumed to be ready
 def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
-    """get word and meaning from the given dict
+    """Get word and meaning from the given dict
 
-    :return: tuple (..) if found; None when not found
-    when d is not given, pass::
+    :return: tuple `(word, meaning)` if found; `None` when not found
+    when `d` (see code) is not given, pass::
 
         add_d=object of type dict
 
@@ -216,6 +365,7 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
     """
     if add_d:
         d = add_d
+
     if kid == 1:
         # meta: `*a*nswer`,  # *d*efinition  #
         #        `*q*uestion`
@@ -234,72 +384,85 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
             ))
 
             if any(re.fullmatch(pattern.lower(), a_part) for a_part in a):
-                possible.extend(a)
-        word = random.choice(possible)
+                possible.append((a, q))  # to check
+        word, q = random.choice(possible)
         return word, q
     elif kid == '3':
         searched = []
         for k in d:
             if re.fullmatch(pattern.lower(), k.lower()):
                 meaning = d[k]
-                searched += (k, meaning)
+                searched.append((k, meaning))
         k, meaning = random.choice(searched)
         return k, meaning
 
 
-...  # at folder search_word (function get_word_and_meaning): def
 # - Was copied from the version with aiogram;
-# - is currently developed (2021-07-10: morning) at this file
+# - And is currently developed (2021-07-10: morning and later) at this file;
+# - Same to previously stated function (`get_info_by_rule`)
+# 
 # from there:
 # ---
-# May be remaden to the class, such structure should be great
-# template:
+# May be remaden to the class, such structure should be great.
+# 
+# template for it:
 # class FindWordAndMeaning:
 #     # define methods: get_from_dict, get_from_site(url) (static/class), etc.
 #     # define constants:  __word_pattern etc.
 #     # define help-methods: `one_iteration` at url-search etc.
 async def get_word_and_meaning(pattern: 'str or dict',
-                               message: types.Message,
+                               message: events.NewMessage,
                                mentioned=[]):
     r"""Get a word, which matches pattern, and meaning of a word.
 
-    :param str pattern: a pattern, matches `(?i)[-а-яё\*\?]+`
+    # :param str pattern: a pattern, matches `(?i)[-а-яё\*\?]+`  # not so
     :return: either `None`, or `(word, meaning)`
     """
+    # VERSIONS:
+    # - **important**: see `most-recent.txt'
+    # - worker (this) -- current, telethon, most recent
+    # - worker-a -- not so recent, maybe just a few
+    # - worker-telethon and worker-aiogram are old
     # -----------------------------------------------------------------
     # *dev note*: this code may be partially strange, see version 1.0.4
     #             (maybe 1.0.5) or earlier to view the previous
-    # considered to be UNDONE, both at all other similar code-parts
+    # considered to be **UNDONE**, both at all other similar code-parts
+    # :pattern's keys:
+    # - is either 'normal' (='dictionary', changed to this), or 'site'
+    # - changing to `dictionary`; it is not essential.
+    # *dev note*: this code may be strange at least because of it's
+    # aim only for satisfying 2 cases: (letter)**..* and `whole_word`
+    # (i. e. search by patterns :re_pattern:`f"{letter}.*"` and exact
+    # word pattern). However, writing a comple
     # ----
-    # compatibility:
-    _word_pattern = pattern  # should be gone
-    _pattern = pattern  # register word/name/some another
-    # :key `normal` at `_word_pattern` (further): changed to `dictionary`
-    #      *note*: ^ not essen.
+    _pattern = pattern  # register word/name/'place to work at'
 
-    assert re.fullmatch(r'(?i)[-\w\*\?]+', pattern)
-    keys = set(_word_pattern.keys())
-    if type(_word_pattern) is dict and 'normal' in _word_pattern:
-        _word_pattern['dictionary'] = _word_pattern['normal']
-        del _word_pattern['normal']
-    supported_search_types = {'dictionary', 'site'}
-    if not keys.issubset(supported_search_types):
-        warnings.warn("Unsupported search type passed")
-    word_pattern = _word_pattern
-    if type(_word_pattern) is str:
-        # if not word_pattern:  # TODO great | TODO: check all this
-            # raise BotException("Incorrect type of input: length is 0")
-        # letter = word_pattern  # (TODO)
-        func = lambda n: _word_pattern + '*'*(n - max(0,
-                                                      len(word_pattern)))
+    if type(_pattern) is dict and 'normal' in _pattern:
+        _pattern['dictionary'] = _pattern['normal']
+        del _pattern['normal']
+    
+    if type(_pattern) is str:
+        if '?' in _pattern:
+            raise NotImplementedError
+        # _pattern = re.sub(r'[^\w?]', '*', _pattern)
+        # case of `{letter}**.*`, just named `_pattern=letter`
+        assert re.fullmatch(r'(?i)[-\w\*\?]+', _pattern)
+        # *question*: should `assert _pattern` be?
+        func = lambda n: _pattern + '*'*(n - max(0,
+                                                 len(_pattern)))
         word_pattern = {
             # versions (required):
-            'dictionary': _word_pattern + r'.*',
+            'dictionary': _pattern + r'.*',
             'site': func
         }
     else:
+        assert type(_pattern) is dict
+        supported_search_types = {'dictionary', 'site'}
+        keys = set(_pattern.keys())
+        if not keys.issubset(supported_search_types):
+            warnings.warn("Unsupported search type passed")
         assert {'dictionary', 'site'}.issubset(set(keys))
-        word_pattern = _word_pattern
+        word_pattern = _pattern
 
     order = [
         ('dictionary', (None, 1,)),
@@ -315,20 +478,23 @@ async def get_word_and_meaning(pattern: 'str or dict',
     def _allowed(s='-а-яё', *, add_s=''):
         return eval(f"r'(?i)[{s + add_s}]'")
     allowed = _allowed()  # *note* here are all symbols at word (not more/less)
-    assert re.fullmatch(_allowed(add_s='*?'), word)
+    assert re.fullmatch(_allowed(add_s='*?') + r'+', word_pattern["site"])
     del _allowed
     
+    # :define function: search at dictionary
     def search_at_dictionary(k, *, _d=_d):
-        word_pattern_ = word_pattern['dictionary']
-        word, meaning = None, None
+        pattern = word_pattern['dictionary']
         d = _d[k]
-        result = get_info_by_rule(word_pattern_, k, mentioned)
+        result = get_info_by_rule(pattern, k, mentioned)
         return result  # either None, or a tuple `(word, meaning)`
 
-    def search_on_loopy(url, args: dict = None):
+    # :define function: search on site `loopy.ru`
+    def search_on_loopy(url, args: dict = {}):
         # search on loopy.ru
         # :return: a tuple (exit_code, *result),
         # either a (0, word, meaning), or (2, dict_)
+        if not 'word' in args:
+            raise Exception  # nothing should be done
         pattern = eval(args['word'])
         def_ = args['def']
         if def_ is not None:
@@ -336,24 +502,33 @@ async def get_word_and_meaning(pattern: 'str or dict',
 
         def _is_strict_word(word):
             return re.fullmatch(f'{allowed}+', word)
-        is_strict_word = _is_strict_word(pattern)
+        is_strict_word = bool(_is_strict_word(pattern))
+        print(is_strict_word)
 
         increase_allowed = not is_strict_word  # to look then, is meta
         if increase_allowed:
             maxn = 4  # best?
             possible = list(range(1, maxn))
         else:
-            maxn = len(word_pattern)
+            maxn = len(pattern)
             possible = [maxn - 1]
         searched = None
 
         # :part: define function
         def one_iteration(url):
-            # :return: either tuple (1,), or a tuple: (exit_code, *result),
-            # where `result` is either a dict, or (word, meaning)
-            # exit_code possible values: 0, 1, 2 (int)
-            # :exit_code info: 0 means success, 1 means `not found', 2 means
-            #                  `a message/exc' is returned.
+            # :return: a tuple `(exit_code, result)`
+            # .. exit_code-info::
+            #     
+            #     - 0 means success,
+            #     - 1 means `not found',
+            #     - 2 means `a message/exc' is returned.
+            # 
+            # .. result-info::
+            # 
+            #     code == 1 (not found) --> `None`
+            #     code == 2 --> a dict, is data of 'a message'/exc
+            #     code == 0 (success) --> a tuple `(word, meaning)`
+            # where code is exit_code
             
             r = requests.get(url)
             nonlocal searched
@@ -383,8 +558,8 @@ async def get_word_and_meaning(pattern: 'str or dict',
                             pass
                         meaning = random.choice(meanings(item))
                         # *dev note*: mind adding `searched` to the mentioned
-                        return 0, searched, meaning
-                return 1,
+                        return 0, (searched, meaning)
+                return 1, None
 
             else:  # i. e. is_strict_word == True
                 word = pattern
@@ -411,7 +586,7 @@ async def get_word_and_meaning(pattern: 'str or dict',
                         return 2, {"msg": 'Unexpected error'}
                 res = random.choice(finds)
                 meanings = res  # compatibility
-                return 0, pattern, meanings
+                return 0, (pattern, meanings)
 
         # :part: search for word and meaning
         iterations_made = 0  # optional, iterations counter
@@ -424,7 +599,7 @@ async def get_word_and_meaning(pattern: 'str or dict',
                 format_ = pattern(n)  # can be done, actually, for any pattern.
                 # but it's not a goal of this work. See form_word for some help
                 url = _url.format(format_)
-                code, *result = one_iteration(url)
+                code, result = one_iteration(url)
                 iterations_made +=1
                 maxn += 1
 
@@ -435,22 +610,21 @@ async def get_word_and_meaning(pattern: 'str or dict',
         else:
             word = pattern
             url = _url.format(word)
-            code, *result = one_iteration(url)
+            code, result = one_iteration(url)
         
         # :part: get results, if weren't received earlier
         if code == 0:
             word, meaning = result
-        elif code == 1:  # shouldn't come here ...unless `searched is None`
-                         # occures at `not is_strict_word` case, see code
+        elif code == 1:  # shouldn't come here, unless `searched is None`
+                         # occures when `not is_strict_word` is true
             pass  # result wasn't received
         elif code == 2:
             return 2, result  # result is message/exception data
-        else:  # not implemented, is a sample code
+        else:  # not implemented; is a sample
             pass
 
         if searched is None and not is_strict_word:
             if iterations_made >= max_allowed_iterations - 1:
-                # do_something_really_causing()  # unexpected, see
                 return 2, {"msg": "Unexpected error"}
             # commented:
             """'''
@@ -461,23 +635,25 @@ async def get_word_and_meaning(pattern: 'str or dict',
             '''"""
             # return 2, {"iterations_made": iterations_made}  # Or so
 
-        return 0, word, meaning
+        return 0, (word, meaning)
 
+    # :define function: search at given source
     async def search_at(source_type: str = 'dictionary',
                         parameters=None,
                         *,
                         return_on_fail: 'callable or object to return' = 1):
-        # return:
-        # rtype: int or tuple
+        # :exit_code info: 0 means found, 1 means fail
+        # :return: (exit_code, result)
+        # exit_code == 0 --> result is `(word, meaning)`
         try:
             if source_type == 'dictionary':
                 dict_, *params = parameters
-                return 0, *search_at_dictionary(*params, _d=dict_)
+                return 0, search_at_dictionary(*params, _d=dict_)
             elif source_type == 'site':
                 _url, *args = parameters
                 netloc = urlsplit(_url).netloc
                 if netloc == "loopy.ru":
-                    code, *result = search_on_loopy(_url, args)
+                    code, result = search_on_loopy(_url, args)
                     if code == 2:
                         if "msg" in result:
                             await message.reply(result['msg'])
@@ -486,9 +662,9 @@ async def get_word_and_meaning(pattern: 'str or dict',
                                              **result['kwargs'])
                         else:
                             pass
-                        return 1,  # word/meaning not found
+                        return 1, None  # word/meaning not found
                     # otherwise code is 0, do the action: return
-                    return 0, *result
+                    return 0, result
                 else:
                     raise NotImplementedError
             else:
@@ -497,11 +673,12 @@ async def get_word_and_meaning(pattern: 'str or dict',
             raise e
         except Exception as e:
             if callable(return_on_fail):
-                return return_on_fail(e)    
+                return return_on_fail(e),
             return return_on_fail,
-        
+    
+    # :define: whole search    
     async def whole_search():
-        # perform search throw the all requested sources; see `order`
+        # perform search through the all requested sources; see `order`
         # :return: either `1`, or a tuple `(word, meaning)`
         while order:
             item = order.pop(0)
@@ -534,6 +711,8 @@ pattern_2 = {
     "site": "сила"
 }
 print(asyncio.run(get_word_and_meaning(pattern_2, None)))
+raise SystemExit(0)
+
 
 # checked
 async def make_move(message, letter, mentioned):
@@ -543,15 +722,20 @@ async def make_move(message, letter, mentioned):
     result = await \
         get_word_and_meaning(letter, message, mentioned=mentioned)
     if result:
-        _, word, meaning = result
+        word, meaning = result
         msg = word + ' (' + meaning + ')'
         return word, msg
-    else:
+    else:  # *question*: what?
         raise Exception
 
 
-async def play_words(event, current=0):
+# Stage:
+# - [ ] Look throught for the usage of make_move etc., solve to be great;
+# - [ ] Check; commit.
+# - [ ] (NOTE) Also: see *question*/*questions*.
+async def play_words(event):
     # """Да, тут считают, что е и ё -- одна буква."""
+    # :param current: is it required?  # *question*
 
     c = configparser.ConfigParser()
     chat_id = str(event.chat.id)
@@ -571,18 +755,27 @@ async def play_words(event, current=0):
     if (n := event.sender.id) in order and \
         (match := re.fullmatch(WORDS_GAME_PATTERN, event.text)):
         if event.is_private and not (
-            re.fullmatch(r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?", event.text) or
-            (get_reply_message(event) and  #(?)
-            get_reply_message(event).from_user.id == order[current - 1])):
+            #               Considered to be meaning of a word, is ignored
+            # Matches '![ ]word[...]'.          vvvvvvvvv
+            re.fullmatch(r"(?s)!\s?(?:[-\w]+)(?:\s*\(.+\))?", event.text)
+            or  #                     ^^^^^^ Is word
+            # Message is a reply to the appropriate sender's message
+            ((reply := get_reply_message(event)) and  #(?)
+             reply.from_user.id == order[current - 1])
+        ):
+            # Message is neither a reply, nor a message with expacted pattern.
             return
         if n != order[current]:
-            answer_msg = f"Не твой сейчас ход{dot}"  # " Ход игрока "
-            # user_text_mention(user)!
+            answer_msg = (
+                f"Не твой сейчас ход{dot}"
+                # " Ход игрока" + user_text_mention(user) + '!'
+            )
             await event.reply(answer_msg)
             return  #~
         word = match.group(1)
         print(word)  # test
-        if cur_letter != "." and word[0].lower().replace('ё', 'е') != cur_letter:
+        if cur_letter != ANY_LETTER and \
+        word[0].lower().replace('ё', 'е') != cur_letter:
             answer_msg = f"На букву {cur_letter!r}{dot}"
             await event.reply(answer_msg)
             return
@@ -602,12 +795,12 @@ async def play_words(event, current=0):
             return
         mentioned.append(word)
         res = word.lower().rstrip('ь')
-        assert re.fullmatch("(?i)[-а-яё]+", res)  # (*question*) required?
+        assert re.fullmatch(r"(?i)[-а-яё]+", res)  # (*question*) required?
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
         if int(order[current]) == BOT_ID:
-            print("Bot's move at game `words`")  # test
+            print("Bot's move at game 'words'")  # test
 
             try:
                 answer, msg = await make_move(event, letter, mentioned)
@@ -630,10 +823,15 @@ async def play_words(event, current=0):
 
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
+    elif not n in order:
+        # msg = ...
+        # await event.reply(msg)
+        pass
 
     raise events.StopPropagation
 
 
+# v1.0.6rc1
 # add all users from either `NewMessage` or `InlineQuery`
 @bot.on(InlineQuery)
 @bot.on(events.NewMessage)
@@ -641,55 +839,58 @@ async def add_user(event):
     await _add_user(event.sender.id)
 
 
-r'''
-# test-start, may be used for tests
+# v1.0.6rc1
+# here is a test-start, may be used for tests
 # see the `start` command
+@enabled(is_coro=True)
 async def test_start_message(event):
     if event.sender.id not in ADMINS:
         return
 
-    msg = "some msg.\n\n\
+    msg = "Some msg.\n\n\
 Ввод в режиме inline (перевод):"
     choices = INLINE_EXAMPLES
-    HELP_URL = "https://telegra.ph/Test-02-20-154"  # test
+    url = "https://telegra.ph/Test-02-20-154"  # test
     example = random.choice(choices)
-    switch_cur_chat_button = types.InlineKeyboardButton(
-        text="Да", switch_inline_query_current_chat=example)
-    go_to_help_message = types.InlineKeyboardButton(
-        text="Open help", url=HELP_URL)
-    keyboard = types.InlineKeyboardMarkup([
+    switch_cur_chat_button = Button.switch_inline(
+        "Да", example, same_peer=True
+    )
+    go_to_help_message = Button.url(
+        "Open help (test)", url=url
+    )
+    buttons = [
         [switch_cur_chat_button],
         [go_to_help_message]
-        ])
-    event.respond(msg, reply_markup=keyboard)
-    pass
-'''
+    ]
+    await event.respond(msg, buttons=buttons)
 
+    return "Success"  # required?
+
+
+# v1.0.6rc1
 # examples for it:
 # /do -password=pw -action=eval code
-# /do -password=pw -time=mm:ss -action=eval code
+# /do -password=pw -time=mm:ss -action=exec code
+# exact example:
+# /do -password={some_password} 1+2 (it gives 3)
 @bot.on(events.NewMessage(pattern=commands('do')))
 async def do_action(event):
-    # NOTE:
+    # **NOTE**:
     # Some imports were made exactly here,
     # as this function's call is uncommon
     sid = event.sender.id
     if sid not in ADMINS:
         return
 
-    filename = join("locals", "do_logs.log")
+    # Assume an appropriate folder exists
+    filename = LOCAL_LOGS
     mid = "{},{}".format(event.chat.id, event.id)
-
-    import os
-    if not 'data' in os.listdir():
-        os.mkdir('data')
-    del os
 
     try:  # to let the polls tracker go further
         with open(filename, 'rt', encoding='utf-8') as f:
             _data = f.read().split('\n')
         if mid in _data:
-            return
+            return  # Was already answered
     except FileNotFoundError:
         pass
     except Exception as e:
@@ -699,11 +900,13 @@ async def do_action(event):
             f.write(mid)
             f.write('\n')
 
-    pattern = (_cmd_pattern('do', flags='is')
-        + r"(?: {1,2}-password=(" + r'\S+' + r"))?"
-        + r"(?:\s+-time=(\d{,2}:\d{,2}))?"
-        + r"(?:\s+-action=(exec|eval))?"
-        + r"\s+(.+)")
+    pattern = (
+        _cmd_pattern('do', flags='is')  # command's pattern
+        + r"(?: {1,2}-password=(" + r'\S+' + r"))?"  # password
+        + r"(?:\s+-time=(\d{,2}:\d{,2}))?"  # time
+        + r"(?:\s+-action=(exec|eval))?"  # action (type)
+        + r"\s+(.+)"  # the code
+    )
     string = event.text
     if not (match := re.fullmatch(pattern, string)):
         print(pattern, string)
@@ -734,21 +937,30 @@ async def do_action(event):
 
     raise events.StopPropagation
 
-# TODO: test it
+
+# TODO:
+# - [ ] Test
+# - [ ] See: test_start
 @bot.on(events.NewMessage(pattern=commands('start')))
 async def start(event):
+    """Answer the start message.
+
+    Start message is a text message, starts with '/start'.
+    See also: https://core.telegram.org/bots#commands.
+    """
     p = commands('start') + r'\s+[-=]?test'
     if 'test_start_message' in globals() and re.fullmatch(p, event.text):
-        await test_start_message(event)
-        return
+        result = await test_start_message(event)
+        if result:  # If result appears `None`, consider message
+                    # as unanswered and go to answer as to normal
+                    # message `/start`
+            return
     sid = event.sender.id
-
+    cid = event.chat.id
     test = False
 
-    cid = event.chat.id
-
-    header = "\[test]"*test
-    # NOTES on happened:
+    header = r"\[test]"*test
+    # Notes on happened:
     # ~0:01 at 2021-02-08: once said "can't parse ent.",
     # after reload — with some extra ent. ...
     # Then — without (one '"'' was rem.), but wrong, not working.
@@ -792,7 +1004,7 @@ async def start(event):
         buttons=switch_button,
         link_preview=False)
 
-
+# v1.0.6rc1
 @bot.on(events.NewMessage(pattern=commands("add_user", "add_users")))
 async def add_user_via_message(event):
     sids = []
@@ -804,21 +1016,41 @@ async def add_user_via_message(event):
         pass
     raise events.StopPropagation
 
-# checked
+
+# v1.0.6-editing
+# TODO:
+# - [ ] See `TODO` etc., solve it all.
+# - [ ] Check.
+#     + In particular: the default invite message.
+# - [ ] Test.
 @bot.on(events.NewMessage(pattern=commands('help')))
 async def send_help_msg(event):
+    """Answer the help message.
+
+    Help message is '/help' or the same with parameters.
+    See also: https://core.telegram.org/bots#commands.
+    """
+    # TODO: to test: `🔸text` or `🔸 text` -- which looks better?
+    # Same to all, where this/such a thing appears
+    pattern = commands('help') + r'\s+[-+]?full'
+    is_full = re.fullmatch(pattern, event.text)
+    is_not_full = not is_full
     msg = f"""\
 Переводчик на старославянский язык. Правило перевода: ввести в чате\
  слово "@{BOT_USERNAME}\
 \" и, после пробела, — текст для перевода.
-Для отправки текста из списка нажать на тот текст.
+Для отправки текста из списка нажать на тот текст.{'''
  `-` Очень много символов за раз бот не может отправить, только около 220.
- `-` Возможные ошибки: недописывание символов.
+ `-` Возможные ошибки: недописывание символов.'''*is_full}
 
 Ещё:
- `-` игра в слова (см. `/words help`);
- `-` значение слова: \
+🔸 игра в слова (см. `/words help`);
+🔸 значение слова: \
 см. /meaning help.
+{'''
+`-` Полное сообщение — `/help full`.
+'''*is_not_full}
+{short_cright if is_not_full else full_cright}
 """
     h_text = "Руководство"
     h_url = HELP_URL
@@ -826,6 +1058,7 @@ async def send_help_msg(event):
     await event.respond(msg, parse_mode='md', buttons=help_message)
     raise events.StopPropagation
 
+# v:undefined
 # 1
 async def words_skip_move(event):
     c = configparser.ConfigParser()
@@ -850,6 +1083,8 @@ async def words_skip_move(event):
 
         print("Bot's move")  # test
 
+        # Here normally the answer exists, so make_move(...) is a pair
+        # `(word: str, message: str)`
         answer, msg = await make_move(event, letter, mentioned)
 
         current = (current + 1) % len(order)
@@ -870,12 +1105,18 @@ async def words_skip_move(event):
 
     print('Performed skip of move.')  # test
 
-# 3
+# v:undefined
+# 3 | TODO
 @bot.on(events.NewMessage(pattern=commands('meaning')))
 async def send_meaning(event):
-    """Priority to search for a word:
-    dict. 1 -> dict. '3' -> in the exact place at the I-net.
+    """Send meaning of a word.  See help for syntax.
+
+    Syntax: either `/meaning word`, or `/meaning` in reply to the message with
+    the word the meaning searched for.  Priority to search at the reply.
     """
+    # **Note**: Priority to search for a word:
+    # dict. 1 -> dict. '3' -> in the exact place at the I-net.
+
     chat_id = event.chat.id
     bot.action(chat_id, 'typing')
 
@@ -954,12 +1195,25 @@ async def send_meaning(event):
 
     raise events.StopPropagation
 
+# v:undefined
 # 5
 async def _react_game_words(event):
+    # Developer note:
+    # Meta-syntax:
+    # ------------
+    # + `bot_username` -- username of a bot, i. e. BOT_USERNAME
     chat = event.chat
     text = event.text
+    scid = str(chat.id)
+
+    # Be careful: telethon does not recognize str object as a
+    # chat id if passed as an entity,
+    # e.g. while sending message via `send_message`.
+
+    chat_id = scid
 
     # Processing further actions may take a significant amount of time.
+    # Notify the user about it.
     bot.action(chat.id, 'typing')
 
     cmd_pattern = _cmd_pattern('words')
@@ -973,7 +1227,6 @@ async def _react_game_words(event):
         bot.action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
@@ -992,7 +1245,6 @@ async def _react_game_words(event):
         bot.action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
@@ -1011,7 +1263,6 @@ async def _react_game_words(event):
         bot.action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
@@ -1022,11 +1273,11 @@ async def _react_game_words(event):
         current = int(section["current"])
         uid = order[current]
 
-        async def get_user(uid_):
+        async def get_user(uid_: int):
             async for user in bot.iter_participants(chat.id):
                 if user.id == uid_:
                     return user
-            raise BotException('not found')  # TODO
+            raise BotException('not found')
         u = await get_user(uid)
         order_ = ', '.join(map(
             full_name,
@@ -1069,7 +1320,6 @@ async def _react_game_words(event):
         bot.action(chat.id, 'typing')
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if (c.has_option(chat_id, 'status') and
@@ -1084,6 +1334,8 @@ async def _react_game_words(event):
             return
 
     if event.is_private:
+        # 'Requeted' the start of game via `/words[...]` at private chat.
+        # Case of just `/words` goes also here.
         if 'single' in text:
             order = [event.sender.id]
         else:
@@ -1092,17 +1344,19 @@ async def _react_game_words(event):
         mentioned = []
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if c.has_section(chat_id):
             if not re.search('(?:начать|start)', text):
-                msg = "Игра уже есть. Новая игра: /words начать|start. " \
-                      "Также см.: /words help."
-                await event.reply(msg)
-                return  # Do the game being not registered then.
-        if not c.has_section(chat_id):
+                # Prevent the case of just `/words[@bot_username]` of being
+                # the game's registering applied.
+                msg = "Игра уже есть. Новая игра: /words `начать`|`start`. " \
+                      "Также см.: /words `help`."
+                await event.reply(msg, parse_mode='markdown')
+                return
+        else:
             c.add_section(chat_id)
+
         section = c[chat_id]
         section["order"] = str(order)
         section["current"] = str(current)
@@ -1114,25 +1368,33 @@ async def _react_game_words(event):
         print("Registered. chat_id: " + chat_id)  # test
         await event.respond("Done. Registered.")
     elif event.is_group:
-        if re.fullmatch(cmd_pattern, text):
-            return
-        group = chat.id
+        # Message `/words[@bot_username]` was sent via a group or megagroup.
+
+        # group = chat.id
         # can be helpful here: `bot.get_participants(group)`
-        async def user_id_(e: 'Entity') -> int:  # TODO: do it
-            # expectable:
+
+        async def user_id_(e: 'Entity') -> 'int or `None`':  # TODO: do it
+            # Returns either an `user_id: int`, or `None` if not found.
+            # `None` appears either when the entity's type is unexpectable,
+            # then the message via bot is send, if enabled, or when entity
+            # is surely not a mention of user.
+            # Expectable entity types to receive:
             # - MessageEntityUnknown,  # what?
             # - MessageEntityMention,
             # - MessageEntityMentionName,
             # - InputMessageEntityMentionName
+            # Other types surely can't be a mention of a user.
 
             other = (
                 MessageEntityUnknown,
                 InputMessageEntityMentionName
-                )
+            )
             if isinstance(e, MessageEntityMention):
-                index = e.offset
-                # +1: Skips `@`
+                index = e.offset  # Start index of an entity at
+                # the entity's text (this text defines as follows).
                 text = event.text
+                # text[index:] should be smth. like `'@username[...]'`.
+                # +1: Skips `@`
                 uname = text[index + 1 : index + e.length]
                 return (await bot.get_entity(uname)).id
             elif isinstance(e, MessageEntityMentionName):
@@ -1141,23 +1403,53 @@ async def _react_game_words(event):
                 text = f'Unexpected! Type of entity (reg. game):'
                 bot_inform(text + ' ' + str(e))
                 print(text, e)
+            else:
+                # If another entity appears, ignore it.
+                pass
 
-        order: list = []
+        order = []
         for e in event.entities[1:]:
-            order.append(await user_id_(e))
-        if None in order:
+            maybe_user_id = await user_id_(e)
+            if maybe_user_id:
+                order.append(maybe_user_id)
+            else:
+                # Some entity wasn't recognized.
+                # Let the user put the entity at a text and
+                # just ignore it here. E. g., the user can
+                # put links to anything at that message. (*)
+                pass
+        if not order:
+            # (*) Still, when no users were registered, this case happens.
+            # If the user really wants to play the game at his own at a group
+            # chat (and even without the bot's moves), he maybe can do it by
+            # registering the game with his own mention.
+            # "Maybe" means "if his client gives him an appropriate chance".
+
+            # So, do not register the game if only command was passed.
+            # It prevents the case of unwanted click to command of being the
+            # game reset.
             return
+
+        # Otherwise, the message `event` is considered to be a request to
+        # register the game at that chat.
+
         if (n := event.sender.id) not in order:
             order = [n] + order
+
         current = 0
         mentioned = []
 
         c = configparser.ConfigParser()
-        chat_id = str(chat.id)
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
             c.add_section(chat_id)
+        else:
+            # If section exists, game is considired to be still started:
+            # the user wrote an exact text
+            # '/words[@bot_username](\s<user_mention>)+', so this message
+            # is considered to be not odd, but intentional.
+            pass
         section = c[chat_id]
         section["order"] = str(order)
         section["current"] = str(current)
@@ -1169,20 +1461,118 @@ async def _react_game_words(event):
         print("Game registered. chat_id: " + chat_id)  # test
         await event.respond("Done. Game registered.")
 
+
+# v1.0.6rc1
+# checked
 # 4
-@bot.on(events.NewMessage(pattern=commands('words')))  # mark:editing
+@bot.on(events.NewMessage(pattern=commands('words')))
 async def react_game_words(event):
     """React commands and triggers at game 'words'."""
     await _react_game_words(event)
     raise events.StopPropagation
 
 
+# v1.0.6-to-check
+# checked
+# 2-(was set later).
+# TODO:
+# - [ ] test,
+# - [ ] (ONLY AFTER TEST) Add hint at the bot, that this exists.
+@bot.on(events.NewMessage(pattern=commands('greeting', 'new_greeting')))  # new
+async def manage_greeting(event):
+    """Set new greeting via bot/manage existed."""
+    # Mind the Markdown/HTML escape or set.
+    #
+    # Possible: add Markdown/HTML. Also, doing a perfect function
+    # of invite is a goal of not this bot.
+    _pattern = event.pattern_match.re.pattern  # _pattern is a str object
+
+    def pattern(command_part, cont=r'(?!\w).*'):
+        part = r'\s*[-\s]?' + command_part + cont
+        return _pattern + part
+
+    help_pattern = pattern(r'help')
+    del_pattern = pattern(r'(?:del(?:ete)?|remove)')
+    show_pattern = pattern(r'show')
+
+    def match(pattern_):
+        text = event.text
+        return re.fullmatch(pattern_, text)
+
+    if match(help_pattern):
+        sep = '🔸'
+        dash = '-'
+        reply_msg = r"""Добавить текст приветствия: /new_greeting текст.\
+Доступная разметка: `...{user.method}...`, {mention(user)}, (1), всё в HTML.\
+\
+\n\nПример: <i>\"Привет, {mention(user)}! Твое имя: {user.first_name}.\"</i>.
+""" + f"""
+{sep}Это сообщение: /greeting help или /new_greeting help
+{sep}Показать приветствие: /greeting show
+{sep}Удалить приветствие: одно из /greeting del|delete|remove
+Перед параметрами можно добавить тире, например, /greeting {dash}del.
+(1): mentions: mentions — упоминания <i>добавленных пользователей</i> через \
+запятую, bt_uname — @имя_бота, scright и fcright — длинный и короткий, \
+соответственно, тексты копирайта.
+"""
+        await event.reply(reply_msg, parse_mode='html')
+        return
+    else:
+        try:
+            with open(FILE_GREETING, encoding='utf-8') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = {}
+
+    section = str(event.chat.id)
+    is_new_greeting = bool(match(commands('new_greeting')))
+    should_set_new = True
+
+    if not is_new_greeting:
+        if match(del_pattern):
+            case = 'delete'
+            del data[section]
+            should_set_new = False
+        elif match(show_pattern):
+            case = 'show'
+            msg = data[section]
+            await event.reply(msg)
+            should_set_new = False
+            return
+    elif should_set_new:
+        case = 'add'
+        msg = re.fullmatch(_pattern + r'\s*([.\n]+)').match(1)
+        data[section] = msg
+
+    with open(FILE_GREETING, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    if case == 'delete':
+        await event.reply("Приветствие удалено.")
+    elif case == 'add':
+        await event.reply("Приветствие добавлено.") 
+
+# v1.0.6-editing
+# checked; to test
 @bot.on(events.ChatAction(func=lambda event: \
                           event.user_joined or event.user_added))
 async def greet_new_chat_members(event):
-    """Welcome every new user"""
+    """Welcome every new user.
+
+    Strategy: if user joined a chat with chat_id==SPEAK_CHAT and is not a
+    member of the head chat (with chat_id==HEAD_CHAT), ban him; otherwise he
+    is considered to be a normal user to greet him at that chat. It is made in
+    order to add some safety to the chat of speaking. If user/users joined an
+    *another* chat, just greet him/them. If this chat is not with chat_id in
+    [SPEAK_CHAT, HEAD_CHAT, TEST_CHAT], try to greet him using the greeting,
+    set by using the command /add_greeting or similar to this text. If it
+    doesn't goes still, try to greet with a default greeting. In this order,
+    every new user (which is pointed as a user to greet; if not banned in case
+    of upper-mentioned coinsedences) is welcomed with exactly one greeting.
+    """
     # print(event)  # test
     should_greet_all = False
+    # ^ Only for chat with `chat_id == SPEAK_CHAT`
+
     if event.user_joined:
         user_id = event.action_message.from_id  # peer
         user = await bot.get_entity(user_id)
@@ -1195,6 +1585,8 @@ async def greet_new_chat_members(event):
         uids = event.action_message.action.users
         users = [await bot.get_entity(uid) for uid in uids]
     else:
+        # Event is not "user joined/added". Actually, is not required if an
+        # appropriate `func=...` is set at the trigger's settings.
         return
 
     chat_id = event.chat.id
@@ -1203,7 +1595,57 @@ async def greet_new_chat_members(event):
     for uid in uids:
         await _add_user(uid)
 
-    if chat_id == SPEAK_CHAT and TOKEN == TOKEN_INIT:
+    def _mentions(_users, *, escape=True, escape_with='html'):
+        # Return mentions of _users, separated by ', '.
+        # HTML symbols are escaped (or not) in order to make an appropriate
+        # message to send it then.  TODO: Test such mentions + unescape.
+        # e. g. this as a name: `<a href="google.com">Hello</a>`.
+        # Some link(s) about es-pes at Telegram bots/(?)operations:
+        # - https://core.telegram.org/bots/api#formatting-options
+        # 
+        # This action appears to be so common here, that this is a great to
+        # make at as a call of a separate function. I. e., this function.
+
+        escape = escape_with if escape else None
+        def _escape(s, style=None):
+            # Escape the string s symbols with an appropriate symbols seq-s.
+            # When style is None -- do not escape.
+            # 
+            # This function states more as a template, then a complete escape.
+            # For supported styles see `supported_styles` at following.
+
+            style = style.lower()
+            supported_styles = {
+                None,
+                'html', 'markdown', 'markdownv2'
+            }
+            assert style in supported_styles
+            if style is None:
+                return s
+            elif style == 'html':
+                # See https://core.telegram.org/bots/api#markdown-style.
+                return html_escape(s, quote=False)
+            else:
+                msg = "At this case using markdown(v2) can be bad."
+                warnings.warn(msg)
+
+                from escape_markdown import escape as __escape
+                return __escape(s, version=style.lstrip('markdown'))
+        
+        _answer = [
+            _escape(
+                user_text_mention(user), style=escape
+            )
+            for user in _users
+        ]
+        answer = ", ".join(_answer)
+        return answer
+    if chat_id == SPEAK_CHAT:
+        if TOKEN != TOKEN_INIT:
+            # Prevent the case two bots were put at that chat together.
+            # More precisely, greet than only if the working bot is a bot
+            # with TOKEN==TOKEN_INIT.
+            return
         should_ban = []
         if not should_greet_all:
             for user in users:
@@ -1215,34 +1657,32 @@ async def greet_new_chat_members(event):
             for u in should_ban:
                 await bot.edit_permissions(chat_id, u.id,
                     view_messages=False  # i. e. banning
-                    )
-                # ref: (1)
+                )
+                # reference: (1) *QUESTION*: where? what?
 
         should_greet = [user for user in users if user not in should_ban]
         if not should_greet:
+            # No one found to greet him.
             return
 
-        mdash = chr(8212)  # m-dash: "—"
         is_test_msg = False
-        till = (
-            "28.02.2021, 06.03.2021, 07.03.2021, 12.05.2021, 13.05.2021"
-            )
 
-        mentions = [user_text_mention(user) for user in should_greet]
-        mentions = ", ".join(mentions) #  [1:-1]
+        mentions = _mentions(should_greet)
         msg = f"""{"[Это тест.]"*is_test_msg}
 Привет, {mentions}!
 Этот чат — флудилка. Ссылка на основной чат находится в \
 закрепе. Бот может быть полезен аля-переводом текста на старославянский \
 язык. Инструкция: см. /help@{BOT_USERNAME}.
 
-© Anonym, 27.01.2021{mdash}{till}
+{short_cright}
 """
         await event.respond(msg, parse_mode='html')
     elif chat_id == HEAD_CHAT:
+        word = "Здравствуй" if len(users) == 1 else "Здравствуйте"
+        
+        mentions = _mentions(users)
         msg = f"""\
-Здравствуй, <a href="tg://user?id={user.id}">\
-{user.first_name}{" " + u if (u := user.last_name) else ""}</a>!
+{word}, {mentions}!
 Это основной чат курса, ссылка на флудилку есть в закрепе.
 Бот может быть полезен аля-переводом текста на старославянский \
 язык, транслитерацией в старославянские алфавиты. Инструкция: \
@@ -1257,14 +1697,43 @@ async def greet_new_chat_members(event):
 /help@{BOT_USERNAME}.
 """
         await event.respond(msg, parse_mode='html')
+    else:
+        mentions = _mentions(users)
+        with open(FILE_GREETING, 'w', encoding='utf-8') as f:
+            data = json.load(f)
 
-# TODO: place all styled as `_add_user`, if possible, to another handler.
+        if (k := str(chat_id)) in data:
+            # *question*: best?
+            for user in users:
+                source = eval(DEFAULT_GREETING_EVAL_SOURCE)
+                # Replace `"` with `\"`.
+                _msg = data[k].replace('"', r'\"')
+                msg = eval('f"' + _msg + '"', source)
+                await event.respond(msg)
+
+        else:
+            bot_uname = BOT_USERNAME  # shorthand
+            default_greeting = f"""Hello, {mentions}!
+
+🔸Set the greeting via /add_greeting, see /add_greeting@{bot_uname} \
+<pre>help</pre>.
+🔸Bot is usible for like-a-translation to Old Slavonic, see \
+/help@{bot_uname}.
+"""
+            await event.respond(msg, parse_mode='html')
+
+
+# v:undefined
+# TODO Check, test
 @bot.on(InlineQuery(func=lambda event: 0 < len(event.text) <= 255))
 async def answer_query(event):
-    print('user_id:', event.sender.id)  # test  #?
-
+    """Answer a non-empty inline query, but not big.
+    
+    See https://core.telegram.org/bots/api#inlinequery.
+    See also: https://core.telegram.org/bots/#inline-mode.
+    """
     try:
-        answers = []
+        answers = []  # Storage for the results of inline query.
         text = event.text
         print('query:', text)  # test
 
@@ -1272,10 +1741,12 @@ async def answer_query(event):
 
         if any(text.startswith(k) for k in NAMES_REPLACE):
             show_text = text
+            # ... Or do the further with `html.escape(text, quote=False)`,
+            # html is a module of Python stdlib.
             pairs = {
-            '<': "&lt;",
-            '>': "&gt;",
-            '&': "&amp;"
+                '<': "&lt;",
+                '>': "&gt;",
+                '&': "&amp;"
             }
             def _repl(s_part):
                 return pairs[s_part]
@@ -1303,6 +1774,7 @@ async def answer_query(event):
 
         text = event.text
 
+        # parse_mode *question*  # TODO Solve this question.
         # Parse mode here — ?
         # And sending the text in HTML/Markdown.
 
@@ -1333,12 +1805,15 @@ async def answer_query(event):
         c_title = bytes("Перевод на кириллицу", encoding='utf-8')
         c_description = c_text
         # c_text = c_text
+        # ^ cyryllic
         g_title = bytes("Перевод на глаголицу", encoding='utf-8')
         g_description = g_text
         # g_text = g_text
+        # ^ glagolic
         trg_title = bytes("Транслитерация на глаголицу", encoding='utf-8')
         trg_description = trg_text
         # trg_text = trg_text
+        # ^ transliterated to glagolic
 
         # results:
         r_c = builder.article(c_title, c_description,
@@ -1350,50 +1825,13 @@ async def answer_query(event):
 
         answers = [r_c, r_g, r_trg] + answers
 
-        '''
-        r1 = builder.article('Be nice', text='Have a nice day')
-        r2 = builder.article('Be bad', text="I don't like you")
-        
-
-        r1 = builder.article('Be nice', text_cyr, text='Have a nice day',
-            thumb=...)
-        cyr = types.InlineQueryResultArticle(
-            id='1',
-            title="Перевод на кириллицу",
-            description=text_cyr,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_cyr),
-            thumb_url=A_CYRYLLIC, thumb_width=48, thumb_height=48,
-            )
-        
-        
-        gla = types.InlineQueryResultArticle(
-            id='2',
-            title="Перевод на глаголицу",
-            description=text_gla,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_gla),
-            thumb_url=A_GLAGOLIC, thumb_width=48, thumb_height=48,
-            )
-        
-        
-        transliterated_gla = types.InlineQueryResultArticle(
-            id='3',
-            title="Транслитерация на глаголицу",
-            description=text_transliterated_gla,
-            input_message_content=types.InputTextMessageContent(
-                message_text=text_transliterated_gla),
-            thumb_url=A_LATER_GLAGOLIC, thumb_width=48, thumb_height=48,
-            )
-        #TODO: answers = [cyr, gla, transliterated_gla] + answers
-        '''
         await event.answer(answers, cache_time=CACHE_TIME)
     except Exception as e:
         print(type(e), ': ', e, sep='')
 
 
-# 7 (requires test)
-# TODO: test
+# v:undefined
+# TODO Check | Requires test
 @bot.on(InlineQuery(func=lambda event: not event.text))
 async def answer_empty_query(event):
     await _add_user(event.sender.id)
@@ -1418,10 +1856,15 @@ async def answer_empty_query(event):
     except Exception as e:
         print(e)
 
-# 6
+
+# v:undefined
+# TODO Check, do tests
 @bot.on(events.NewMessage)
 async def answer_message(event):
-    # Answer message, realises a game words play, actually.
+    """Answer the text message.
+
+    Actually, realises a move at game words.
+    """
     c = configparser.ConfigParser()
     chat_id = str(event.chat.id)
     filename = GAME_WORDS_DATA
@@ -1437,7 +1880,7 @@ async def answer_message(event):
         return
 
     if event.is_private:
-        pattern = r'(?i)(!)?[-а-яё]+'
+        pattern = r'(?i)\!?[-а-яё]+'
         if (s := re.fullmatch(pattern, event.text)):
             await play_words(event)
     else:

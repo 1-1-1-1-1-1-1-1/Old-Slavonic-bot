@@ -15,3 +15,4 @@ Some commands, were possible at the Heroku
  - Set the config variable at Heroku:
    `heroku config:set VAR_NAME=VAR_VALUE VAR_2_NAME=VAR_2_VALUE ...`
    OR: `heroku config:set VAR_NAME="VAR_VALUE" ...`
+ - install dependencies: `pip install -r requirements.txt` (deploying from GitHub to Heroku it runs automatically)

@@ -1,7 +1,7 @@
 1.0.0 -- telebot basic version finished, already existed versions at
 telethon and aiogram, maybe undone and untested.
 
-# version appear since the 14's commit #
+# versions appear since the 14's commit #
 
 
 files

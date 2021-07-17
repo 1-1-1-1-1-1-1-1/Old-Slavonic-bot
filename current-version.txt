@@ -1,7 +1,14 @@
+> **NOTE**: This file uses the syntax of Markdown & Sphinx-related code.
+
+------------------------------------------------------------------------------
+
+version
+-------
+
 .. version::
 
-	:type: at aiogram
-	:name: 6-remaden (is being edited)
+    :type: at aiogram
+    :name: 1.0.6
 
 added files
 -----------
@@ -10,9 +17,9 @@ added files
  * worker,
  * requirements
 
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 See also: at `versions' controll folder`_
 
-.. `versions' controll folder` folder:: meta/versions-controll/
-worker/config/requirements with telethon -- temporary, testing.
+.. `versions' controll folder` folder:: meta/versions-controll/..:
+   'worker/config/requirements' with telethon -- temporary, testing.

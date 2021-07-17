@@ -1,5 +1,4 @@
-# pyTelegramBotAPI
-telethon
+aiogram
 requests
 configparser
 datetime

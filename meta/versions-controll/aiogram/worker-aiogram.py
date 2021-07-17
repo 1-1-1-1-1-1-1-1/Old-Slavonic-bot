@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+# version: aiogram:1.0.6
 
-# THIS CODE AND APP ARE FREE FOR USAGE AND DISTRIBUTED UNDER THE TERMS OF 
-# *MIT License*. (ALSO FREE FOR COPY, CHANGE, AND THE CODE's SHARING.)
+# THIS CODE AND APP ARE FREE FOR USAGE AND MAINTAINED & DISTRIBUTED UNDER THE
+# TERMS OF *MIT License*. See LICENSE for more info.
+# 
+# The code is FREE FOR COPY, CHANGE, AND THE CODE's SHARING.  (?) **QUESTION**
 # ---------------
 # NOTE ALSO: The terms, under which the product is distributed, may be edited
 # or changed at the future.  See the file LICENSE for info.
 # =============================================================================
-# main (init) file, written preferably with PEP8, required modules/libraries
+# Main file, written preferably with PEP8, required modules/libraries
 # are in requirements.txt.
+# 
 # -----------------------------------------------------------------------------
 # See also:
 # - README for some info
@@ -20,8 +24,12 @@
 # [1]: https://devcenter.heroku.com/articles/python-runtimes#supported-runtime-versions
 # -----------------------------------------------------------------------------
 # Since 27.06.2021 -- rewriting to aiogram
-# NOTE: telethon/teleb. version may be still here, also devepeloped and created
-# *marks* dev
+# NOTE: telethon/telebot versions may be still here, also devepeloped &
+# maintained
+# 
+# Developer marks & notes
+# -----------------------
+# 
 # - here 2 files are edited simultaneously: this and with telethon version. See
 #   to merge (main difference/to merge -- all this notes, at the beg. of file)
 # - configparser.ConfigParser() is sometimes created exactly at the function's
@@ -30,6 +38,8 @@
 # - meta at this file (dev): note, *question*/*questions* (different), mark
 #   (only previous), checked, to test/to check, test, TODO, meta, OR, task
 #    + these are sometimes not case-sensitive
+# - See PEP440 about version format standart
+# - Another TODO: merge TODO, questions etc. from other versions.
 
 import random
 import re
@@ -67,7 +77,8 @@ from config import (
     INLINE_EXAMPLES,
     GAME_WORDS_DATA,
     TOKEN_INIT,
-    COMMON_THUMB_CONFIG
+    COMMON_THUMB_CONFIG,
+    LOCAL_LOGS
     )
 from functions import translation, glagolic_transliterate
 from functions import d as _d
@@ -127,6 +138,7 @@ loop.run_until_complete(
 del text, ON_HEROKU, on_heroku, future, loop
 
 
+# v:1.0.6
 # checked
 def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     if flags:
@@ -136,7 +148,7 @@ def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     cmd_pattern = _flags_add + r'/' + cmd + r'(?:@' + BOT_USERNAME + r')?'
     return cmd_pattern
 
-
+# v:1.0.6
 # checked
 def commands(*cmds, flags=None) -> str:  # Internal
     if flags is not None:
@@ -149,6 +161,7 @@ def commands(*cmds, flags=None) -> str:  # Internal
         cmd_styled = r'(?:' + '|'.join(cmds) + r')'
     return _cmd_pattern(cmd_styled, **kwargs)
 
+# v:1.0.6
 # checked
 def feature_exists(fid):  # Internal
     d = {
@@ -166,35 +179,125 @@ print(is_participant(ADMINS[0]))  # test
 raise SystemExit
 
 
-# checked
+# v1.0.6
+# Tested for 2**2 different cases of (case, is_coro), when they are
+# :obj:`bool`.
+def enabled(case=True, *, is_coro=False):  # Internal
+    """Help-function to enable/disable the required trigger.
+
+    Internal function. See code. Works both with functions and coroutines.
+    Pass is_coro=True to work with coroutines. Defaults to False.
+
+    .. example::
+
+        # Example 1
+        @enabled(case=True)
+        def func():
+            ...
+
+        # is same as `def func(): ...`. While:
+
+        # Example 2
+        @enabled(False, is_coro=True)
+        async def func():
+            pass
+
+        # is equal to
+
+        async def func():
+            return  # Pay attention to this! Just `return`.
+    """
+    # This appears to be more a template, then a wrapper function to any such
+    # func. The task may be undone for functions, which have default
+    # arguments/kw, and for functions names; here there is no sense.
+    
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            def _enabled(case_):
+                if type(case_) is bool:
+                    return bool(case_)
+                elif callable(case_):
+                    # Does it really work so?
+                    args_defaults = func.__defaults__
+                    kwargs_defaults = func.__kwdefaults__
+                    code = func.__code__
+                    kwonlyargcount = code.co_kwonlyargcount
+                    argcount = code.co_argcount
+                    if not kwargs_defaults:
+                        kwargs_defaults = {}
+                    if not args_defaults:
+                        args_defaults = ()
+
+                    kwargs_ = kwargs  # kwargs to call with
+                    args_ = args  # args to call with
+
+                    args_with_no_value_count = len(args) + \
+                        len(kwargs) - \
+                        len(args_defaults)
+                    for k in kwargs_defaults:
+                        kwargs_.setdefault(k, kwargs_defaults[k])
+
+                    args_names = code.co_varnames
+                    args_names = args_names[:argcount + kwonlyargcount]
+                    used_args_names = set(kwargs_defaults.keys()) - set(kwargs)
+                    used_args_count = len(used_args_names)
+
+                    lack = argcount - used_args_count
+                    args_ += args_defaults[lack:]
+
+                    return case_(*args_, **kwargs_)
+                elif type(case_) is str:
+                    case_ = eval(case_)
+                    return _enabled(case_)
+                else:
+                    raise TypeError(
+                        "Internal error: "
+                        "case_ must be one of"
+                        " bool, callable, str"
+                        )
+            if not _enabled(case):
+                if is_coro:
+                    async def dummy():
+                        # `await dummy()` -> `None`
+                        """Dymmy function. dummy() is a coroutine object."""
+                    return dummy()
+                return
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+# v1.0.6
 async def _add_user(user_id):
     """Add ID to the base. Comments are allowed."""
     filename = UIDS_BASE
     with open(filename, 'a') as f:
         pass
     with open(filename, 'r', encoding='utf8') as f:
-        data = f.read()
-    data_ = ""
-    if data and data.rstrip('\n') == data:
-        data_ += '\n'
-    if (s := str(user_id)) not in data:
+        data = f.read()  # only to read
+    data_ = ""  # to write
+    if data and data[-1] != '\n':
+        data_ += '\n'  # add newline if absent
+    if (suid := str(user_id)) not in data:
         text = 'New user: \
 <a href="tg://user?id={0}">{1}</a>\nuser_id: {0}'.format(
             user_id, "User")
         await bot_inform(text, type_='new user', parse_mode='HTML')
-        data_ += s + '\n'
+        data_ += suid + '\n'
     with open(filename, 'a', encoding='utf8') as f:
         f.write(data_)
 
 
-# checked
+# v1.0.6
 def full_name(user):
+    """Full name of a user."""
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
-# checked
-def user_text_mention(user, fill=None):
+# v1.0.6
+def user_text_mention(user, fill=None) -> str:
     """Text mention of a user."""
     # :param fill: text to insert at mention
+    # Link: https://core.telegram.org/bots/api#formatting-options.
     if fill is None:
         filling = full_name(user)
     else:
@@ -202,29 +305,29 @@ def user_text_mention(user, fill=None):
     return f'<a href="tg://user?id={user.id}">{filling}</a>'
 
 
-# checked
-def is_private(message):
+# v1.0.6
+def is_private(message) -> bool:
     return message.chat.type == 'private'
 
-# checked
-def is_group(message):
+# v1.0.6
+def is_group(message) -> bool:
+    # See e.g. "type" at https://core.telegram.org/bots/api#chat
     return 'group' in message.chat.type
-    # OR: `..type in ['group', 'supergroup']`  #?
 
-
-# checked
+# v1.0.6
 def load_users():
-    # NOTE: Return is a generator object!
+    # **Note**: Return is a generator object!
     with open(UIDS_BASE, encoding='utf-8') as f:
         users = map(eval, f.read().strip().split('\n'))
     return users
 
-# to test, assumed to be ready
-def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
-    """get word and meaning from the given dict
 
-    :return: tuple (..) if found; None when not found
-    when d is not given, pass::
+# To test, assumed to be ready
+def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
+    """Get word and meaning from the given dict
+
+    :return: tuple `(word, meaning)` if found; `None` when not found
+    when `d` (see code) is not given, pass::
 
         add_d=object of type dict
 
@@ -232,6 +335,7 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
     """
     if add_d:
         d = add_d
+
     if kid == 1:
         # meta: `*a*nswer`,  # *d*efinition  #
         #        `*q*uestion`
@@ -250,294 +354,20 @@ def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
             ))
 
             if any(re.fullmatch(pattern.lower(), a_part) for a_part in a):
-                possible.extend(a)
-        word = random.choice(possible)
+                possible.append((a, q))  # to check
+        word, q = random.choice(possible)
         return word, q
     elif kid == '3':
         searched = []
         for k in d:
             if re.fullmatch(pattern.lower(), k.lower()):
                 meaning = d[k]
-                searched += (k, meaning)
+                searched.append((k, meaning))
         k, meaning = random.choice(searched)
         return k, meaning
 
 
-...  # at folder search_word (function get_word_and_meaning): def
-# from there:
-# ---
-# May be remaden to the class, such structure should be great
-# template:
-# class FindWordAndMeaning:
-#     # define methods: get_from_dict, get_from_site(url) (static/class), etc.
-#     # define constants:  __word_pattern etc.
-#     # define help-methods: `one_iteration` at url-search etc.
-async def get_word_and_meaning(pattern: 'str or dict',
-                               message: types.Message,
-                               mentioned=[]):
-    r"""Get a word, which matches pattern, and meaning of a word.
-
-    :param str pattern: a pattern, matches `(?i)[-а-яё\*\?]+`
-    """
-    # -----------------------------------------------------------------
-    # *dev note*: this code may be partially strange, see version 1.0.4
-    #             (maybe 1.0.5) or earlier to view the previous
-    # considered to be UNDONE, both at all other similar code-parts
-    # ----
-    # compatibility:
-    _word_pattern = pattern  # should be gone
-    _pattern = pattern  # register word/name/some another
-    # :param increase_allowed: REMOVED
-    # :param search_mode: REMOVED (also see: _search_mode)
-    # :key `normal` at `_word_pattern` (further): changed to `dictionary`
-    #     *note*: ^ not essen.
-
-    assert re.fullmatch(r'(?i)[-\w\*\?]+', pattern)
-    keys = set(_word_pattern.keys())
-    if type(_word_pattern) is dict and 'normal' in _word_pattern:
-        _word_pattern['dictionary'] = _word_pattern['normal']
-        del _word_pattern['normal']
-    supported_search_types = {'dictionary', 'site'}
-    if not keys.issubset(supported_search_types):
-        warnings.warn("Unsupported search type passed")
-    word_pattern = _word_pattern
-    if type(_word_pattern) is str:
-        # if not word_pattern:  # TODO great | TODO: check all this
-            # raise BotException("Incorrect type of input: length is 0")
-        # letter = word_pattern  # (TODO)
-        func = lambda n: _word_pattern + '*'*(n - max(0,
-                                                      len(word_pattern)))
-        word_pattern = {
-            # versions (required):
-            'dictionary': _word_pattern + r'.*',
-            'site': func
-        }
-    else:
-        assert {'dictionary', 'site'}.issubset(set(keys))
-        word_pattern = _word_pattern
-
-    order = [
-        ('dictionary', (None, 1,)),
-        ('dictionary', (None, '3',)),
-        ('site', ("https://loopy.ru/?word={0}&def=",
-                  {
-                      "word": 'word_pattern["site"]',
-                      "def": None
-                   })
-        )
-    ]
-
-    def _allowed(s='-а-яё', *, add_s=''):
-        return eval(f"r'(?i)[{s + add_s}]'")
-    allowed = _allowed()  # *note* here are all symbols at word (not more/less)
-    assert re.fullmatch(_allowed(add_s='*?'), word)
-    del _allowed
-    
-    def search_at_dictionary(k, *, _d=_d):
-        word_pattern_ = word_pattern['dictionary']
-        word, meaning = None, None
-        d = _d[k]
-        result = get_info_by_rule(word_pattern_, k, mentioned)
-        return result  # either None, or a tuple `(word, meaning)`
-
-    def search_on_loopy(url, args: dict = None):
-        # search on loopy.ru
-        # :return: a tuple (exit_code, result),
-        # either a (0, word, meaning), or (2, dict_)
-        pattern = eval(args['word'])
-        def_ = args['def']
-        if def_ is not None:
-            def_ = eval(def_)
-
-        def _is_strict_word(word):
-            return re.fullmatch(f'{allowed}+', word)
-        is_strict_word = _is_strict_word(pattern)
-
-        increase_allowed = not is_strict_word  # to look then, is meta
-        if increase_allowed:
-            maxn = 4  # best?
-            possible = list(range(1, maxn))
-        else:
-            maxn = len(word_pattern)
-            possible = [maxn - 1]
-        searched = None
-
-        # :part: define function
-        def one_iteration(url):
-            # :return: either tuple (1,), or a tuple: (exit_code, result),
-            # where `result` is either a dict, or unpacked (word, meaning)
-            # exit_code possible values: 0, 1, 2 (int)
-            # :exit_code info: 0 means success, 1 means `not found', 2 means
-            #                  `a message/exc' is returned.
-            
-            r = requests.get(url)
-            nonlocal searched
-
-            if increase_allowed:
-                if r.status_code != 200:
-                    return 2, {"msg": "Unexpected error"}
-
-                text = r.text
-
-                base = re.findall(r'<div class="wd">(?:.|\n)+?</div>', text)
-
-                def word(item):
-                    _pattern = r'<h3>.+?значение слова ([-\w]+).+?</h3>'
-                    return re.search(_pattern, item).group(1)
-
-                def meanings(item):
-                    return re.findall(r'<p>(.+?)</p>', item)
-
-                while base:
-                    i = random.choice(range(len(base)))
-                    item = base.pop(i).group()
-                    word_ = word(item)
-                    if word_ not in mentioned:
-                        searched = word_
-                        if not (m := meanings(item)):  # can it actually be?
-                            pass
-                        meaning = random.choice(meanings(item))
-                        # *dev note*: mind adding `searched` to the mentioned
-                        return 0, searched, meaning
-                return 1,
-
-            else:  # i. e. is_strict_word == True
-                word = pattern
-                if (sc := r.status_code) == 404:
-                    msg = f"Слово {word!r} не найдено в словаре."
-                    return 2, {"msg": msg}
-                elif sc != 200:
-                    msg = f"Непонятная ошибка. Код ошибки: {sc}."
-                    return 2, {"msg": msg}
-                rtext = r.text
-                _rtext_part = rtext[rtext.find('Значения'):]
-
-                try:  # version 1
-                    rtext_part = _rtext_part
-                    rtext_part = rtext_part[:rtext_part.index('</div>')]
-                    finds = re.findall(r'<p>(.*?)</p>', rtext_part)[1:]
-                    # :request question: is 1-st item here: ^ — a header?
-                    assert finds
-                except AssertionError:  # version 2
-                    rtext_part = _rtext_part
-                    rtext_part = rtext_part[:rtext_part.index('</ul>')]
-                    finds = re.findall(r'<li>(.*?)</li>', rtext_part)
-                    if not finds:  # can it actually be?
-                        return 2, {"msg": 'Unexpected error'}
-                res = random.choice(finds)
-                meanings = res  # compatibility
-                return 0, pattern, meanings
-
-        # :part: search for word and meaning
-        iterations_made = 0  # optional, iterations counter
-        max_allowed_iterations = 100
-        if not is_strict_word:
-            while maxn <= 20 and \
-            iterations_made < max_allowed_iterations:
-                possible.append(maxn)
-                n = possible.pop(random.choice(range(len(possible))))
-                format_ = pattern(n)  # can be done, actually, for any pattern.
-                # but it's not a goal of this work. See form_word for some help
-                url = _url.format(format_)
-                code, *result = one_iteration(url)
-                iterations_made +=1
-                maxn += 1
-
-                if code == 1:  # not found
-                    continue
-                else:  # either found, or an exception occured
-                    break
-        else:
-            word = pattern
-            url = _url.format(word)
-            code, *result = one_iteration(url)
-        
-        # :part: get results, if weren't received earlier
-        if code == 0:
-            word, meaning = result
-        elif code == 1:  # shouldn't come here ...unless `searched is None`
-                         # occures at `not is_strict_word` case, see code
-            pass  # result wasn't received
-        elif code == 2:
-            return 2, result  # result is message/exception data
-        else:  # not implemented, is a sample code
-            pass
-
-        if searched is None and not is_strict_word:
-            if iterations_made >= max_allowed_iterations - 1:
-                # do_something_really_causing()  # unexpected, see
-                return 2, {"msg": "Unexpected error"}
-            # commented:
-            """'''
-            msg = (
-            "Wow!😮 How can it happen? I had found no words for this pattern."
-            "❌Game is stopped. Realise move's skip to continue"  #!
-            )  # *question*: continuing game -- ?
-            '''"""
-            # return 2, {"iterations_made": iterations_made}  # Or so
-
-        return 0, word, meaning
-
-    async def search_at(source_type: str = 'dictionary',
-                        parameters=None,
-                        *,
-                        return_on_fail: 'callable or object to return' = 1):
-        # return:
-        # rtype: int or tuple
-        try:
-            if source_type == 'dictionary':
-                dict_, *params = parameters
-                return 0, *search_at_dictionary(*params, _d=dict_)
-            elif source_type == 'site':
-                _url, *args = parameters
-                netloc = urlsplit(_url).netloc
-                if netloc == "loopy.ru":
-                    code, *result = search_on_loopy(_url, args)
-                    if code == 2:
-                        if "msg" in result:
-                            await message.reply(result['msg'])
-                        elif 'bot_inform' in result:
-                            await bot_inform(result['bot_inform'], 
-                                             **result['kwargs'])
-                        else:
-                            pass
-                        return 1,  # word/meaning not found
-                    # otherwise code is 0, do the action: return
-                    return 0, *result
-                else:
-                    raise NotImplementedError
-            else:
-                raise NotImplementedError
-        except NotImplementedError as e:
-            raise e
-        except Exception as e:
-            if callable(return_on_fail):
-                return return_on_fail(e)    
-            return return_on_fail,
-        
-    async def whole_search():
-        # perform search throw the all requested sources; see `order`
-        # :return: either 1 (int), or a tuple (word, meaning)
-        while order:
-            item = order.pop(0)
-            source_type, parameters = item
-            try:
-                search_result = await search_at(source_type, parameters)
-            except NotImplementedError:
-                continue
-            if search_result != 1 and search_result != (1,):
-                _, result = search_result
-                return result
-        return 1  # not found
-    result = await whole_search()
-    if result == 1:
-        return  # All (?) is done
-    
-    word, meaning = result
-    word = word.capitalize()
-
-    return 0, word, meaning
-
+# get_word_and_meaning def
 
 # checked
 async def make_move(message, letter, mentioned):
@@ -611,7 +441,7 @@ async def play_words(message, current=0):
         section["letter"] = letter
         current = (current + 1) % len(order)
         if int(order[current]) == BOT_ID:
-            print("Bot's move at game `words`")  # test
+            # Bot's move.
 
             try:
                 answer, msg = await make_move(message, letter, mentioned)
@@ -636,9 +466,10 @@ async def play_words(message, current=0):
             c.write(f)
 
 
+# v1.0.6
 # test-start, may be used for tests
 # see the `start` command
-r'''
+@enabled(is_coro=True)
 async def test_start_message(message: types.Message):
     if message.from_user.id not in ADMINS:
         return
@@ -646,48 +477,47 @@ async def test_start_message(message: types.Message):
     msg = "some msg.\n\n\
 Ввод в режиме inline (перевод):"
     choices = INLINE_EXAMPLES
-    HELP_URL = "https://telegra.ph/Test-02-20-154"  # test
+    url = "https://telegra.ph/Test-02-20-154"  # test
     example = random.choice(choices)
     switch_cur_chat_button = InlineKeyboardButton(
         text="Да", switch_inline_query_current_chat=example
     )
     go_to_help_message = InlineKeyboardButton(
-        text="Open help", url=HELP_URL
+        text="Open help (test)", url=url
     )
     keyboard = InlineKeyboardMarkup([
         [switch_cur_chat_button],
         [go_to_help_message]
-        ])
+    ])
     await message.answer(msg, reply_markup=keyboard)
-    pass
-'''
 
-# checked
+    return "Success"  # required?
+
+
+# v1.0.6
 # examples for it:
 # /do -password=pw -action=eval code
 # /do -password=pw -time=mm:ss -action=eval code
+# exact example:
+# /do -password={some_password} 1+2 (it gives 3)
 @dp.message_handler(regexp=commands('do') + '.*')
 async def do_action(message: types.Message):
-    # NOTE:
+    # **NOTE**:
     # Some imports were made exactly here,
     # as this function's call is uncommon
     sid = message.from_user.id
     if sid not in ADMINS:
         return
 
-    filename = join("locals", "do_logs.log")
+    # Assume an appropriate folder exists
+    filename = LOCAL_LOGS
     mid = "{},{}".format(message.chat.id, message.id)
-
-    import os
-    if not 'data' in os.listdir():
-        os.mkdir('data')
-    del os
 
     try:  # to let the polls tracker go further
         with open(filename, 'rt', encoding='utf-8') as f:
             _data = f.read().split('\n')
         if mid in _data:
-            return
+            return  # Was already answered
     except FileNotFoundError:
         pass
     except Exception as e:
@@ -697,11 +527,13 @@ async def do_action(message: types.Message):
             f.write(mid)
             f.write('\n')
 
-    pattern = (_cmd_pattern('do', flags='is')
-        + r"(?: {1,2}-password=(" + r'\S+' + r"))?"
-        + r"(?:\s+-time=(\d{,2}:\d{,2}))?"
-        + r"(?:\s+-action=(exec|eval))?"
-        + r"\s+(.+)")
+    pattern = (
+        _cmd_pattern('do', flags='is')  # command's pattern
+        + r"(?: {1,2}-password=(" + r'\S+' + r"))?"  # password
+        + r"(?:\s+-time=(\d{,2}:\d{,2}))?"  # time
+        + r"(?:\s+-action=(exec|eval))?"  # action (type)
+        + r"\s+(.+)"  # the code
+    )
     string = message.text
     if not (match := re.fullmatch(pattern, string)):
         print(pattern, string)
@@ -731,28 +563,25 @@ async def do_action(message: types.Message):
         await message.reply(msg, parse_mode='MarkdownV2')
 
 
-# ckeched
+# v1.0.6
 @dp.message_handler(regexp=commands('start') + '.*')
 async def start(message):
-    """Start message (`/start` or `/start ...`)."""
+    """Answer the start message.
+
+    Start message is a text message, starts with '/start'.
+    See also: https://core.telegram.org/bots#commands.
+    """
     await _add_user(message.from_user.id)
     p = commands('start') + r'\s+[-=]?test'
     if 'test_start_message' in globals() and re.fullmatch(p, message.text):
         await test_start_message(message)
         return
     sid = message.from_user.id
-    chat = message.chat
+    cid = message.chat.id
+    is_test = False
 
-    test = False
+    header = r"\[test]"*is_test
 
-    cid = chat.id
-
-    header = "\[test]"*test
-    # NOTES on happened:
-    # ~0:01 at 2021-02-08: once said "can't parse ent.",
-    # after reload — with some extra entities ...
-    # Then — without (one '"'' was rem.), but wrong, not working.
-    # Then — again once "can't ..." (byte offset ?552)
     msg = f"""\
 {header}
 Основные команды:
@@ -768,9 +597,8 @@ async def start(message):
     if allow_links_to_all or await is_participant(sid):
         async def invite_link(chat_id_):
             # may be helpful: `export_chat_invite_link`
-            try:  # to test: test it (task)
-                # link = (await bot.get_chat(chat_id_)).invite_link
-                link = await chat.get_url()
+            try:  # TODO Test
+                link = (await bot.get_chat(chat_id_)).invite_link
             except:
                 link = "не найдено"
             return link
@@ -790,14 +618,16 @@ async def start(message):
     example = random.choice(choices)
 
     button = InlineKeyboardButton(
-        text="Да", switch_inline_query_current_chat=example)
+        text="Да", switch_inline_query_current_chat=example
+    )
     keyboard = InlineKeyboardMarkup([[button]])
     await message.answer(msg, parse_mode='MarkdownV2',
         reply_markup=keyboard,
-        disable_web_page_preview=True)
+        disable_web_page_preview=True
+    )
 
     
-# checked
+# v1.0.6
 @dp.message_handler(regexp=commands("add_user", "add_users") + ".*")
 async def add_user_via_message(message):
     """Add the reply-to-message sender's ID to the IDs base."""
@@ -808,10 +638,14 @@ async def add_user_via_message(message):
         await message.answer("Пользователь добавлен.")
 
 
-# checked
+# v1.0.6
 @dp.message_handler(regexp=commands('help') + ".*")
 async def send_help_msg(message):
-    """Help message (i. e. `/help` or the same with parameters)."""
+    """Answer the help message.
+
+    Help message is '/help' or the same with parameters.
+    See also: https://core.telegram.org/bots#commands.
+    """
     await _add_user(message.from_user.id)
     pattern = commands('help') + r'\s+[-+]?full'
     is_full = re.fullmatch(pattern, message.text)
@@ -825,8 +659,8 @@ async def send_help_msg(message):
  `-` Возможные ошибки: недописывание символов.'''*is_full}
 
 Ещё:
-🔸 игра в слова (см. `/words help`);
-🔸 значение слова: \
+🔸игра в слова (см. `/words help`);
+🔸значение слова: \
 см. /meaning help.
 {'''
 `-` Полное сообщение — `/help full`.
@@ -840,6 +674,7 @@ async def send_help_msg(message):
     await message.answer(msg, parse_mode='MarkdownV2', reply_markup=keyboard)
 
 
+# v1.0.6
 # checked
 async def words_skip_move(message: types.Message):
     c = configparser.ConfigParser()
@@ -864,6 +699,8 @@ async def words_skip_move(message: types.Message):
 
         print("Bot's move")  # test
 
+        # Here normally the answer exists, so make_move(...) is a pair
+        # `(word: str, message: str)`
         answer, msg = await make_move(message, letter, mentioned)
 
         current = (current + 1) % len(order)
@@ -885,7 +722,7 @@ async def words_skip_move(message: types.Message):
     print('Performed skip of move.')  # test
 
 
-# checked
+# processing
 @dp.message_handler(regexp=commands('meaning') + ".*")
 async def send_meaning(message):
     """Send meaning of a word.  See help for syntax.
@@ -893,8 +730,9 @@ async def send_meaning(message):
     Syntax: either `/meaning word`, or `/meaning` in reply to the message with
     the word the meaning searched for.  Priority to search at the reply.
     """
-    # *note:* Priority to search for a word:
+    # **Note**: Priority to search for a word:
     # dict. 1 -> dict. '3' -> in the exact place at the I-net.
+    
     await _add_user(message.from_user.id)
     chat_id = message.chat.id
     await bot.send_chat_action(chat_id, 'typing')
@@ -977,13 +815,15 @@ async def send_meaning(message):
 
 # checked
 @dp.message_handler(regexp=commands('words') + ".*")
-async def react_game_words(message):
+async def react_game_words(message):  # TODO Merge with telethon v.
     """React commands and triggers at game 'words'."""
     await _add_user(message.from_user.id)
     chat = message.chat
     text = message.text
     scid = str(chat.id)  # scid -- string chat_id
-    chat_id = scid  # be careful
+    chat_id = scid  # Be careful: telethon does not recognize str object as a
+                    # chat id if passed as an entity
+                    # (e.g. while sending message via `send_message`)
 
     # Processing further actions may take a significant amount of time.
     await bot.send_chat_action(chat.id, 'typing')
@@ -998,7 +838,9 @@ async def react_game_words(message):
     if re.fullmatch(cmd_pattern + r'\s+(?:приостановить|pause)', text):
         await bot.send_chat_action(chat.id, 'typing')
 
-        c = configparser.ConfigParser()
+        c = configparser.ConfigParser()  # TODO Such parts
+        # Is really plural `c` objects at this code (whole) a good work?
+
         filename = GAME_WORDS_DATA
         c.read(filename, encoding='utf-8')
         if not c.has_section(chat_id):
@@ -1149,7 +991,7 @@ async def react_game_words(message):
                 # :note: +1: Skips `@`
                 uname = message.text[e.offset + 1 : e.offset + e.length]
                 for user_id in users:
-                    #! TODO *test*, do it first
+                    #! TODO Test, do it first
                     if (_user := (await get_chat_member(user_id,
                                                         of=chat.id)).user) \
                     and _user.username == uname:
@@ -1184,7 +1026,10 @@ async def react_game_words(message):
         await message.answer("Done. Game registered.")
 
 
-# checked
+...  # command to add a greeting, TODO. Firstly do at telethon v.
+
+
+# TODO, also greetings new features, see telethon version code.
 @dp.message_handler(func=lambda message: message.new_chat_members)
 async def greet_new_chat_members(message: types.Message):
     """Welcome every new user"""
@@ -1192,6 +1037,7 @@ async def greet_new_chat_members(message: types.Message):
     await _add_user(message.from_user.id)
     should_greet_all = False
     members = message.new_chat_members
+    members = users
 
     chat_id = message.chat.id
     user_id = message.from_user.id
@@ -1257,6 +1103,7 @@ async def answer_query(inline_query: types.InlineQuery):
     """Answer a non-empty query, but not big.
     
     See https://core.telegram.org/bots/api#inlinequery.
+    See also: https://core.telegram.org/bots/#inline-mode.
     """
     await _add_user(inline_query.from_user.id)
     try:
@@ -1266,6 +1113,8 @@ async def answer_query(inline_query: types.InlineQuery):
 
         if any(text.startswith(k) for k in NAMES_REPLACE):
             show_text = text
+            # ... Or do the following with `html.escape(text, quote=False)`,
+            # html is a module of Python stdlib.
             pairs = {
                 '<': "&lt;",
                 '>': "&gt;",
@@ -1307,7 +1156,7 @@ async def answer_query(inline_query: types.InlineQuery):
         # Parse mode here — ?
         # And sending the text in HTML/Markdown.
 
-        # *dev note*: Shortages:
+        # *dev note*: Shortages here:
         #  - c, g -- cyryllic, glagolic
         #  - trg -- transliterated (to) glagolic
 
@@ -1423,7 +1272,7 @@ async def answer_message(message: types.Message):
     filename = GAME_WORDS_DATA
     c.read(filename, encoding='utf-8')
     if not c.has_section(chat_id):
-        # *note* Аnswer can be performed only if section exists
+        # Аnswer can be performed only if section exists.
         return
     section = c[chat_id]
     order = eval(section["order"])
@@ -1433,7 +1282,7 @@ async def answer_message(message: types.Message):
         return
 
     if is_private(message):
-        pattern = r'(?i)(!)?[-а-яё]+'
+        pattern = r'(?i)\!?[-а-яё]+'
         if (s := re.fullmatch(pattern, message.text)):
             await play_words(message)
     else:

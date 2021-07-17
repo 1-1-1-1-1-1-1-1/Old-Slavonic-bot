@@ -104,9 +104,10 @@ Possible places:
 TODO:
 
  * [ ] Write great docstrings.
- * [ ] Add `meaning` as a single function, can be used at here: command `meaning`, checking for the word, whether exists at game words' play.
- * [ ] change tokens and/or other params, were at .env-todo (commit 181e106)
-     + *note*: changed; to check/swallow, what is
+ * [x] Add `meaning` as a single function, can be used at here: command `meaning`, checking for the word, whether exists at game words' play.
+      + at `v1.0.6-editing`: editing
+ * [ ] change tokens and/or other params, were at .env-todo (commit `181e106`)
+     + *note*: tokens changed; to check/swallow, what is.
 
 Maybe-TODO, general:
 
@@ -127,3 +128,7 @@ Delete dispansable!
 Exceptions at code: what it the better part and better at all?
 
 ...
+
+To add links:
+
+ - [ ] Bots: inline. https://core.telegram.org/bots/inline

@@ -1,5 +1,0 @@
-# pyTelegramBotAPI
-telethon
-requests
-configparser
-datetime

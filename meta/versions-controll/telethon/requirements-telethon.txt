@@ -1,4 +1,4 @@
-aiogram
+telethon
 requests
 configparser
 datetime
