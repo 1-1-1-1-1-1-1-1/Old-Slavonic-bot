@@ -28,7 +28,7 @@ from config import (
 from functions import translation, glagolic_transliterate
 
 
-edit_date = '@day-08.03.2021->12.05.2021'
+edit_date = '@day-08.03.2021->12.05.2021;'
   # dummy, to check for updates while running.
 
 
@@ -58,7 +58,7 @@ def _cmd_pattern(cmd, *, flags='i'):  # Internal
 
 def feature_exists(fid):  # Internal
     d = {
-    'teach_word': False
+        'teach_word': False
     }
     if fid in d:
         return d[fid]
@@ -88,9 +88,9 @@ def _add_user(user_id):
     with open(filename, 'a') as f:
         pass
     with open(filename, 'r', encoding='utf8') as f:
-        data = f.read()
-    data_ = ""
-    if data and data.rstrip('\n') == data:
+        data = f.read()  # to read
+    data_ = ""  # to write
+    if data and data[-1] != '\n':
         data_ += '\n'
     if (s := str(user_id)) not in data:
         bot_inform('New user: \
@@ -100,11 +100,18 @@ def _add_user(user_id):
     with open(filename, 'a', encoding='utf8') as f:
         f.write(data_)
 
+
 def full_name(user):
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
-def user_text_mention(user, fill_as=None):
+def user_text_mention(user, fill_as=None, fill=None):
     # fill_as: text to insert at mention
+    if fill_as is not None:
+        import warnings
+        warnings.warn('fill_as param is deprecated')
+    if fill is not None:
+        fill_as = fill  # compat
+
     if fill_as is None:
         filling = full_name(user)
     else:
@@ -204,7 +211,7 @@ def make_move(chat_id, message, letter, mentioned):
 
         return res_word, msg  # test st.
 
-def play_words(chat_id, message, current=0):
+def play_words(chat_id, message):
     # """Да, тут считают, что е и ё — одна буква."""
 
     c = configparser.ConfigParser()
@@ -223,10 +230,13 @@ def play_words(chat_id, message, current=0):
     mentioned = eval(section["mentioned"])
     
     dot = '.' * (random.choice([0, 1, 2]) < 1)
-    if (n := message.from_user.id) in order and \
-        (match := re.fullmatch(WORDS_GAME_PATTERN, message.text)):
+
+    if (match := re.fullmatch(WORDS_GAME_PATTERN, message.text)) \
+    and (n := message.from_user.id) in order:
         if message.chat.type != 'private' and not (
-            re.fullmatch(r"(?s)!\s?([-\w]+)(?:\s*\(.+\))?", message.text) or
+            #                            comment vvvvvvvvv
+            re.fullmatch(r"(?s)\!\s?(?:[-\w]+)(?:\s*\(.+\))?", message.text) or
+            #                          ^^^^^^ word
             (message.reply_to_message and
             message.reply_to_message.from_user.id == order[current - 1])):
             return
@@ -289,6 +299,10 @@ def play_words(chat_id, message, current=0):
 
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
+    elif match:
+        # msg = ...
+        # await event.reply(msg)
+        pass
 
 r'''
 @bot.message_handler(commands=['test_start'])
@@ -383,16 +397,19 @@ def do_action(message):
 def start_message(message):
     user_id = message.from_user.id
     _add_user(user_id)
+    p = commands('start') + r'\s+[-=]?test'
+    if 'test_start_message' in globals() and re.fullmatch(p, event.text):
+        result = await test_start_message(event)
+        if result:  # If result appears `None`, consider message
+                    # as unanswered and go to answer as to normal
+                    # message `/start`
+            return
 
     test = False
 
     chat_id = message.chat.id
 
     header = "\[test]"*test
-    # ~0:01 at 2021-02-08: once said "can't parse ent.",
-    # after reload — with some extra ent. ...
-    # Then — without (one '"'' was rem.), but wrong, not working.
-    # Then — again once "can't ..." (byte offset ?552)
     msg = f"""\
 {header}
 Основные команды:
@@ -456,7 +473,7 @@ def send_help_msg(message):
 
     msg = """\
 Переводчик на старославянский язык. Правило перевода: ввести в чате\
- слово "@""" + BOT_USERNAME.replace('_', r'\_') + """\
+ слово "@""" + BOT_USERNAME.replace('_', r'\_') + f"""\
 \" и, после пробела, — текст для перевода.
 Для отправки текста из списка нажать на тот текст.
 Очень много символов за раз бот не может отправить, только около 220.
@@ -464,6 +481,8 @@ def send_help_msg(message):
 
 Ещё: игра в слова (см. `/words help`). Значение слова: \
 см. /meaning help.
+
+{short_cright if is_not_full else full_cright}
 """
     help_message = types.InlineKeyboardButton(
         text="Руководство",

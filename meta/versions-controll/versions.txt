@@ -26,3 +26,6 @@ v.    |  description
   —      etc., some other changes
 1.0.5
 1.0.6 -- introducing... (changing/editing etc.)
+1.0.7 -- telethon version considered to be pretty done; untested
+1.0.8 -- change telebot version, untested and unfully (change).
+1.0.9 -- introducing: fixes at versions aiogram, telethon, telebot; all versions tested. Some feature may appear.
