@@ -34,7 +34,9 @@
 #   to merge (main difference/to merge -- all this notes, at the beg. of file)
 # - configparser.ConfigParser() is sometimes created exactly at the function's
 #   call, which is to work correctly, if several users use a bot simultaneously
-# - TODO: test: triggers to start, words, BotException (see comments)
+# - TODO:
+#   + Test: triggers to start, words, BotException (see comments)
+#   + Merge versions
 # - meta at this file (dev): note, *question*/*questions* (different), mark
 #   (only previous), checked, to test/to check, test, TODO, meta, OR, task
 #    + these are sometimes not case-sensitive
@@ -1247,7 +1249,7 @@ async def answer_empty_inline_query(inline_query: types.InlineQuery):
         )
 
         item = InlineQueryResultArticle(
-                id='0',  # id -- dummy ('any' string)
+                id='0',
                 title=title,
                 description=description,
                 input_message_content=input_content,
@@ -1259,7 +1261,7 @@ async def answer_empty_inline_query(inline_query: types.InlineQuery):
         print(e)
 
 
-# checked
+
 @dp.message_handler()
 async def answer_message(message: types.Message):
     """Answer the text message.

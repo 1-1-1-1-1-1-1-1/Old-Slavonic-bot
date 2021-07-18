@@ -209,3 +209,9 @@ DEFAULT_GREETING_EVAL_SOURCE = """{
     'scright': short_cright,
     'fcright': full_cright
 }"""
+
+DEFAULT_GREETING = '''f"""Hello, {mentions}!
+
+🔸Bot is usible for like-a-translation to Old Slavonic, see \
+/help@{BOT_USERNAME}.
+"""'''

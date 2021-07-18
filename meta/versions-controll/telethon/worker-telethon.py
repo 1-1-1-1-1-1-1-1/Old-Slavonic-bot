@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# version: telethon:v1.0.6-editing
+# version: telethon:v1.0.7
 
 # THIS CODE AND APP ARE FREE FOR USAGE AND MAINTAINED & DISTRIBUTED UNDER THE
 # TERMS OF *MIT License*. See LICENSE for more info.
@@ -47,7 +47,6 @@
 #     comment is "undefined"
 #     * 'to-check' means "nearly final version, to check still, and merge"
 # - may use 'one case'/another to mark (with "'"), which words are included.
-# - TODO: merge versions (1.0.6-editing stage, before 1.0.6 full)
 #
 # Meta
 # ----
@@ -109,7 +108,7 @@ from config import (
     # Inline:
     INLINE_EXAMPLES, NAMES_REPLACE, CACHE_TIME, COMMON_THUMB_CONFIG,
     # Greeting
-    FILE_GREETING, DEFAULT_GREETING_EVAL_SOURCE,
+    FILE_GREETING, DEFAULT_GREETING_EVAL_SOURCE, DEFAULT_GREETING,
     # Other:
     ADMINS, LOGGING_CHAT, CHAT_LOGS_MODE_ALL, HELP_URL,
     PROD, PASSWORD_ENABLED, ON_HEROKU, UIDS_BASE,
@@ -176,8 +175,8 @@ loop.run_until_complete(future)
 
 del text, ON_HEROKU, on_heroku, future, loop
 
-# v1.0.6
-# checked
+
+# v1.0.7
 def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     if flags:
         _flags_add = r'(?' + flags + r')'
@@ -186,8 +185,7 @@ def _cmd_pattern(cmd: str, *, flags='i') -> str:  # Internal
     cmd_pattern = _flags_add + r'/' + cmd + r'(?:@' + BOT_USERNAME + r')?'
     return cmd_pattern
 
-# v1.0.6
-# checked
+# v1.0.7
 def commands(*cmds, flags=None) -> str:  # Internal
     if flags is not None:
         kwargs = {'flags': flags}
@@ -199,8 +197,7 @@ def commands(*cmds, flags=None) -> str:  # Internal
         cmd_styled = r'(?:' + '|'.join(cmds) + r')'
     return _cmd_pattern(cmd_styled, **kwargs)
 
-# v1.0.6
-# checked
+# v1.0.7
 def feature_exists(fid):  # Internal
     d = {
         'teach_word': False
@@ -210,7 +207,7 @@ def feature_exists(fid):  # Internal
     return False
 
 
-# v1.0.6
+# v1.0.7
 # checked
 async def is_participant(user_id, of=HEAD_CHAT):
     """User is participant of chat `of`, returns bool."""
@@ -220,7 +217,7 @@ async def is_participant(user_id, of=HEAD_CHAT):
         return False
 
 
-# v:1.0.6rc1
+# v1.0.7
 # Check, test, merge.
 # TODO Test
 def enabled(case=True, *, is_coro=False):  # Internal
@@ -308,7 +305,7 @@ def enabled(case=True, *, is_coro=False):  # Internal
     return decorator
 
 
-# v1.0.6
+# v1.0.7
 async def _add_user(user_id):
     """Add ID to the base. Comments are allowed."""
     filename = UIDS_BASE
@@ -328,12 +325,12 @@ async def _add_user(user_id):
     with open(filename, 'a', encoding='utf8') as f:
         f.write(data_)
 
-# v1.0.6
+# v1.0.7
 def full_name(user):
     """Full name of a user."""
     return f'{user.first_name}{" " + u if (u := user.last_name) else ""}'
 
-# v1.0.6
+# v1.0.7
 def user_text_mention(user, fill=None) -> str:
     """Text mention of a user, i. e. a hyperlink."""
     # :param fill: Text to insert at mention.
@@ -344,7 +341,7 @@ def user_text_mention(user, fill=None) -> str:
         filling = fill
     return f'<a href="tg://user?id={user.id}">{filling}</a>'
 
-# v1.0.6
+# v1.0.7
 def load_users():
     # **Note**: Return is a generator object!
     with open(UIDS_BASE, encoding='utf-8') as f:
@@ -735,7 +732,6 @@ async def make_move(message, letter, mentioned):
 # - [ ] (NOTE) Also: see *question*/*questions*.
 async def play_words(event):
     # """Да, тут считают, что е и ё -- одна буква."""
-    # :param current: is it required?  # *question*
 
     c = configparser.ConfigParser()
     chat_id = str(event.chat.id)
@@ -752,8 +748,8 @@ async def play_words(event):
     mentioned = eval(section["mentioned"])
 
     dot = '.' * (random.choice([0, 1, 2]) < 1)
-    if (n := event.sender.id) in order and \
-        (match := re.fullmatch(WORDS_GAME_PATTERN, event.text)):
+    if (match := re.fullmatch(WORDS_GAME_PATTERN, event.text)) \
+    and (n := event.sender.id) in order:
         if event.is_private and not (
             #               Considered to be meaning of a word, is ignored
             # Matches '![ ]word[...]'.          vvvvvvvvv
@@ -763,7 +759,7 @@ async def play_words(event):
             ((reply := get_reply_message(event)) and  #(?)
              reply.from_user.id == order[current - 1])
         ):
-            # Message is neither a reply, nor a message with expacted pattern.
+            # Message is neither a reply, nor a message with expected pattern.
             return
         if n != order[current]:
             answer_msg = (
@@ -783,10 +779,10 @@ async def play_words(event):
             == 404:
             answer_msg = "Вау. Кажется, я не знаю этого слова. Хотя, \
 возможно, оно лежит где-то на полке в папке data, но я не смотрел." \
- + f" Переходи, пожалуйста{dot}" + " Что \
-это слово значит? (Ход не засчитан. Потом либо напиши ответом на это \
-сообщение толкование слова, я его в словарь запишу, либо назови другое \
-слово. И вообще, это not implemented ещё{dot})"*feature_exists('teach_word')
++ f" Переходи, пожалуйста{dot}" # + \
+# " Что это слово значит? Ход не засчитан. Либо напиши ответом на это \
+# сообщение толкование слова, я его в словарь запишу, либо назови другое \
+# слово." * feature_exists('teach_word')
             await event.reply(answer_msg)
             return
         if word.casefold() in map(lambda s: s.casefold(), mentioned):
@@ -795,13 +791,11 @@ async def play_words(event):
             return
         mentioned.append(word)
         res = word.lower().rstrip('ь')
-        assert re.fullmatch(r"(?i)[-а-яё]+", res)  # (*question*) required?
+        assert re.fullmatch(r"(?i)[-а-яё]+", res)
         letter = res[-1]
         section["letter"] = letter
         current = (current + 1) % len(order)
         if int(order[current]) == BOT_ID:
-            print("Bot's move at game 'words'")  # test
-
             try:
                 answer, msg = await make_move(event, letter, mentioned)
             except Exception as e:
@@ -823,7 +817,7 @@ async def play_words(event):
 
         with open(filename, 'w', encoding='utf-8') as f:
             c.write(f)
-    elif not n in order:
+    elif match:
         # msg = ...
         # await event.reply(msg)
         pass
@@ -831,7 +825,7 @@ async def play_words(event):
     raise events.StopPropagation
 
 
-# v1.0.6rc1
+# v1.0.7
 # add all users from either `NewMessage` or `InlineQuery`
 @bot.on(InlineQuery)
 @bot.on(events.NewMessage)
@@ -839,7 +833,7 @@ async def add_user(event):
     await _add_user(event.sender.id)
 
 
-# v1.0.6rc1
+# v1.0.7
 # here is a test-start, may be used for tests
 # see the `start` command
 @enabled(is_coro=True)
@@ -864,10 +858,10 @@ async def test_start_message(event):
     ]
     await event.respond(msg, buttons=buttons)
 
-    return "Success"  # required?
+    return "Success"
 
 
-# v1.0.6rc1
+# v1.0.7
 # examples for it:
 # /do -password=pw -action=eval code
 # /do -password=pw -time=mm:ss -action=exec code
@@ -938,6 +932,7 @@ async def do_action(event):
     raise events.StopPropagation
 
 
+# 1.0.7
 # TODO:
 # - [ ] Test
 # - [ ] See: test_start
@@ -1004,7 +999,7 @@ async def start(event):
         buttons=switch_button,
         link_preview=False)
 
-# v1.0.6rc1
+# v1.0.7
 @bot.on(events.NewMessage(pattern=commands("add_user", "add_users")))
 async def add_user_via_message(event):
     sids = []
@@ -1017,7 +1012,7 @@ async def add_user_via_message(event):
     raise events.StopPropagation
 
 
-# v1.0.6-editing
+# v1.0.7-editing
 # TODO:
 # - [ ] See `TODO` etc., solve it all.
 # - [ ] Check.
@@ -1044,9 +1039,9 @@ async def send_help_msg(event):
  `-` Возможные ошибки: недописывание символов.'''*is_full}
 
 Ещё:
-🔸 игра в слова (см. `/words help`);
-🔸 значение слова: \
-см. /meaning help.
+🔸игра в слов: см. `/words help`;
+🔸значение слова: см. /meaning help;
+🔸добавление приветствия: см. /new_greeting help.
 {'''
 `-` Полное сообщение — `/help full`.
 '''*is_not_full}
@@ -1058,8 +1053,8 @@ async def send_help_msg(event):
     await event.respond(msg, parse_mode='md', buttons=help_message)
     raise events.StopPropagation
 
-# v:undefined
-# 1
+
+# 1.0.7
 async def words_skip_move(event):
     c = configparser.ConfigParser()
     chat_id = str(event.chat.id)
@@ -1083,7 +1078,7 @@ async def words_skip_move(event):
 
         print("Bot's move")  # test
 
-        # Here normally the answer exists, so make_move(...) is a pair
+        # Normally this answer exists, so make_move(...) is a pair
         # `(word: str, message: str)`
         answer, msg = await make_move(event, letter, mentioned)
 
@@ -1105,8 +1100,8 @@ async def words_skip_move(event):
 
     print('Performed skip of move.')  # test
 
+
 # v:undefined
-# 3 | TODO
 @bot.on(events.NewMessage(pattern=commands('meaning')))
 async def send_meaning(event):
     """Send meaning of a word.  See help for syntax.
@@ -1114,6 +1109,8 @@ async def send_meaning(event):
     Syntax: either `/meaning word`, or `/meaning` in reply to the message with
     the word the meaning searched for.  Priority to search at the reply.
     """
+    # Not surely done
+
     # **Note**: Priority to search for a word:
     # dict. 1 -> dict. '3' -> in the exact place at the I-net.
 
@@ -1195,13 +1192,9 @@ async def send_meaning(event):
 
     raise events.StopPropagation
 
-# v:undefined
+# v1.0.7
 # 5
 async def _react_game_words(event):
-    # Developer note:
-    # Meta-syntax:
-    # ------------
-    # + `bot_username` -- username of a bot, i. e. BOT_USERNAME
     chat = event.chat
     text = event.text
     scid = str(chat.id)
@@ -1368,7 +1361,7 @@ async def _react_game_words(event):
         print("Registered. chat_id: " + chat_id)  # test
         await event.respond("Done. Registered.")
     elif event.is_group:
-        # Message `/words[@bot_username]` was sent via a group or megagroup.
+        # Message was sent via a group or megagroup.
 
         # group = chat.id
         # can be helpful here: `bot.get_participants(group)`
@@ -1393,7 +1386,7 @@ async def _react_game_words(event):
                 index = e.offset  # Start index of an entity at
                 # the entity's text (this text defines as follows).
                 text = event.text
-                # text[index:] should be smth. like `'@username[...]'`.
+                # text[index:] should be smth. like '@username[...]'.
                 # +1: Skips `@`
                 uname = text[index + 1 : index + e.length]
                 return (await bot.get_entity(uname)).id
@@ -1446,7 +1439,7 @@ async def _react_game_words(event):
             c.add_section(chat_id)
         else:
             # If section exists, game is considired to be still started:
-            # the user wrote an exact text
+            # the user wrote an exact text like
             # '/words[@bot_username](\s<user_mention>)+', so this message
             # is considered to be not odd, but intentional.
             pass
@@ -1462,9 +1455,7 @@ async def _react_game_words(event):
         await event.respond("Done. Game registered.")
 
 
-# v1.0.6rc1
-# checked
-# 4
+# v1.0.7
 @bot.on(events.NewMessage(pattern=commands('words')))
 async def react_game_words(event):
     """React commands and triggers at game 'words'."""
@@ -1472,19 +1463,17 @@ async def react_game_words(event):
     raise events.StopPropagation
 
 
-# v1.0.6-to-check
-# checked
-# 2-(was set later).
-# TODO:
+# v1.0.7
 # - [ ] test,
 # - [ ] (ONLY AFTER TEST) Add hint at the bot, that this exists.
-@bot.on(events.NewMessage(pattern=commands('greeting', 'new_greeting')))  # new
+@bot.on(events.NewMessage(pattern=commands('greeting', 'new_greeting')))
 async def manage_greeting(event):
     """Set new greeting via bot/manage existed."""
     # Mind the Markdown/HTML escape or set.
     #
     # Possible: add Markdown/HTML. Also, doing a perfect function
     # of invite is a goal of not this bot.
+
     _pattern = event.pattern_match.re.pattern  # _pattern is a str object
 
     def pattern(command_part, cont=r'(?!\w).*'):
@@ -1502,10 +1491,11 @@ async def manage_greeting(event):
     if match(help_pattern):
         sep = '🔸'
         dash = '-'
-        reply_msg = r"""Добавить текст приветствия: /new_greeting текст.\
-Доступная разметка: `...{user.method}...`, {mention(user)}, (1), всё в HTML.\
-\
-\n\nПример: <i>\"Привет, {mention(user)}! Твое имя: {user.first_name}.\"</i>.
+        reply_msg = r"""Добавить текст приветствия: /new_greeting текст. \
+Доступная разметка: {user.method}, {mention(user)}, (1). Весь \
+текст — в HTML.
+
+Пример: <i>"Привет, {mention(user)}! Твое имя: {user.first_name}."</i>.
 """ + f"""
 {sep}Это сообщение: /greeting help или /new_greeting help
 {sep}Показать приветствие: /greeting show
@@ -1539,7 +1529,8 @@ async def manage_greeting(event):
             await event.reply(msg)
             should_set_new = False
             return
-    elif should_set_new:
+
+    if should_set_new:
         case = 'add'
         msg = re.fullmatch(_pattern + r'\s*([.\n]+)').match(1)
         data[section] = msg
@@ -1549,10 +1540,10 @@ async def manage_greeting(event):
     if case == 'delete':
         await event.reply("Приветствие удалено.")
     elif case == 'add':
-        await event.reply("Приветствие добавлено.") 
+        await event.reply("Приветствие добавлено.")
 
-# v1.0.6-editing
-# checked; to test
+
+# v1.0.7
 @bot.on(events.ChatAction(func=lambda event: \
                           event.user_joined or event.user_added))
 async def greet_new_chat_members(event):
@@ -1569,7 +1560,7 @@ async def greet_new_chat_members(event):
     every new user (which is pointed as a user to greet; if not banned in case
     of upper-mentioned coinsedences) is welcomed with exactly one greeting.
     """
-    # print(event)  # test
+
     should_greet_all = False
     # ^ Only for chat with `chat_id == SPEAK_CHAT`
 
@@ -1585,7 +1576,7 @@ async def greet_new_chat_members(event):
         uids = event.action_message.action.users
         users = [await bot.get_entity(uid) for uid in uids]
     else:
-        # Event is not "user joined/added". Actually, is not required if an
+        # Event is not "user joined/added". Is not really required if an
         # appropriate `func=...` is set at the trigger's settings.
         return
 
@@ -1640,6 +1631,7 @@ async def greet_new_chat_members(event):
         ]
         answer = ", ".join(_answer)
         return answer
+
     if chat_id == SPEAK_CHAT:
         if TOKEN != TOKEN_INIT:
             # Prevent the case two bots were put at that chat together.
@@ -1655,10 +1647,7 @@ async def greet_new_chat_members(event):
         if should_ban:
             await event.reply("Сюда можно онли участникам чата курса. Сóри.")
             for u in should_ban:
-                await bot.edit_permissions(chat_id, u.id,
-                    view_messages=False  # i. e. banning
-                )
-                # reference: (1) *QUESTION*: where? what?
+                await bot.ban_chat_member(chat_id, u.id, until_date=0)
 
         should_greet = [user for user in users if user not in should_ban]
         if not should_greet:
@@ -1685,7 +1674,7 @@ async def greet_new_chat_members(event):
 {word}, {mentions}!
 Это основной чат курса, ссылка на флудилку есть в закрепе.
 Бот может быть полезен аля-переводом текста на старославянский \
-язык, транслитерацией в старославянские алфавиты. Инструкция: \
+язык, транслитерацией на старославянские алфавиты. Инструкция: \
 см. /help@{BOT_USERNAME}.
 """
         await event.respond(msg, parse_mode='html')
@@ -1703,28 +1692,18 @@ async def greet_new_chat_members(event):
             data = json.load(f)
 
         if (k := str(chat_id)) in data:
-            # *question*: best?
             for user in users:
                 source = eval(DEFAULT_GREETING_EVAL_SOURCE)
-                # Replace `"` with `\"`.
                 _msg = data[k].replace('"', r'\"')
                 msg = eval('f"' + _msg + '"', source)
                 await event.respond(msg)
 
         else:
-            bot_uname = BOT_USERNAME  # shorthand
-            default_greeting = f"""Hello, {mentions}!
-
-🔸Set the greeting via /add_greeting, see /add_greeting@{bot_uname} \
-<pre>help</pre>.
-🔸Bot is usible for like-a-translation to Old Slavonic, see \
-/help@{bot_uname}.
-"""
+            msg = eval(DEFAULT_GREETING)
             await event.respond(msg, parse_mode='html')
 
 
-# v:undefined
-# TODO Check, test
+# v1.0.7
 @bot.on(InlineQuery(func=lambda event: 0 < len(event.text) <= 255))
 async def answer_query(event):
     """Answer a non-empty inline query, but not big.
@@ -1733,7 +1712,7 @@ async def answer_query(event):
     See also: https://core.telegram.org/bots/#inline-mode.
     """
     try:
-        answers = []  # Storage for the results of inline query.
+        answers = []  # Storage for the results.
         text = event.text
         print('query:', text)  # test
 
@@ -1830,12 +1809,9 @@ async def answer_query(event):
         print(type(e), ': ', e, sep='')
 
 
-# v:undefined
-# TODO Check | Requires test
+# v1.0.7
 @bot.on(InlineQuery(func=lambda event: not event.text))
 async def answer_empty_query(event):
-    await _add_user(event.sender.id)
-
     try:
         title = bytes("Перевод на славянские языки: кириллица, глаголица.",
             encoding='utf8')
@@ -1857,8 +1833,7 @@ async def answer_empty_query(event):
         print(e)
 
 
-# v:undefined
-# TODO Check, do tests
+# v1.0.7
 @bot.on(events.NewMessage)
 async def answer_message(event):
     """Answer the text message.
