@@ -1,20 +1,28 @@
-# placing this file exaclty as a separate may be somehow strange, so it's just
+#  ** Please note **
+# -----------------------------------------------------------------------------
+# Placing this file exaclty as a separate may be somehow strange, so it's just
 # (partially) developed here, may be with not the latest version
-# NOTE: may different for difirent methods of working at Telegram
-# NOTE: this file states only as an example and a part of developing, which
+# NOTE: Such a func. may different for difirent methods of working at Telegram.
+# NOTE: Shis file states **only** as an example and a part of developing, which
 # than was continued at other files/places.
-# -------
+#
+# -----------------------------------------------------------------------------
+# See worker.py or like that to view the newest info about such a function
+# development at the bot version (i. e. which is working, and which is *not so
+# abstract* ala a respective function here **can** be).
+# 
+# =============================================================================
 
 # --- For the test
 def get_info_by_rule(pattern: str, kid, mentioned=[], add_d=None):
-    """get word and meaning from the given dict
+    """Get word and meaning from the given dict.
 
     :return: tuple (..) if found; None when not found
-    when d is not given, pass::
+    When d is not given, pass::
 
-        add_d=object of type dict
+        add_d=:obj: of type `dict`
 
-    type(d) is dict
+    .. type(d) is dict
     """
     if add_d:
         d = add_d

@@ -1,6 +1,13 @@
 # A util to form pattern
 
 
+# May be remaden to the class, such structure should be great.
+# 
+# template for it:
+# class FindWordAndMeaning:
+#     # define methods: get_from_dict, get_from_site(url) (static/class), etc.
+#     # define constants:  __word_pattern etc.
+#     # define help-methods: `one_iteration` at url-search etc.
 def iter_possible(word: str, *, maxlength=20):
     def reduce(s, *, obj='*?'):
         if set(obj) == {'*', '?'}:

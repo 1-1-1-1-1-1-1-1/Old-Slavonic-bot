@@ -140,6 +140,7 @@ tokens.py
 !*.log
 do_logs.log
 \!private-logs.log
+tracker.ini
 
 # appeared when running the telethon version
 *.session

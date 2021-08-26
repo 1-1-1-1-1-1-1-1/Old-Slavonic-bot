@@ -1,4 +1,6 @@
-aiogram
+aiogram~=2.14
+# At v3: Breaking changes had been introduced there.
+# Use of aiogram version 3 may cause errors.
 requests
 configparser
 datetime

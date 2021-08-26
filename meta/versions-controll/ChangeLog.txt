@@ -1,0 +1,119 @@
+ChangeLog
+=========
+
+> ⚠️The ChangeLog of exact version should not be treated as completely written as text until it's explicitly noted.
+
+[1.0.0] - 2021-06-30
+--------------------
+
+**Changed:**
+
+        * Structure of project.
+
+**Added:**
+
+        * Version written at aiogram. Maybe incomplete and untested.
+
+[1.0.1] - 2021-07-01
+--------------------
+
+ - few fixes done at versions telethon, aiogram
+ - changed code's structure
+
+[1.0.2] - 2021-07-01
+--------------------
+
+Main: several fixes/changes.
+
+ - aiogram version is considered to be more code-clear, but still untested;
+ - telethon version changed a bit
+ - telebot version is not changed (at least mostly)
+ - Change structure of project: see [versions.rst#files](versions.rst#files)
+
+[1.0.3—1.0.5] - 2021-07-01
+--------------------------
+
+ - Changes at aiogram version
+ - Change 'get meaning' function etc., some other changes
+
+[1.0.6] - 2021-07-17
+--------------------
+
+Several changes made. Change version at aiogram.
+
+[1.0.7] - 2021-07-18
+--------------------
+
+ - telethon version considered to be pretty done; untested
+
+[1.0.8] - 2021-07-18
+--------------------
+
+ - Change telebot version, untested and unfully (change).
+
+[1.0.9] - 2021-08-26
+--------------------
+
+> ⚠️ATTENTION: List of changes at this version may be incomplete.
+
+**Preliminary description**
+
+        * Introducing fixes at versions aiogram, telethon, telebot. All versions tested. Some feature may appear.
+        * Command to get meaning changes:
+            + Add the message reply in the case, when word's meaning was not found.
+            + Fix implementations of `get_word_and_meaning`.
+        * Some things may be additionally signed as "Since v<v_name>" or similar mark. It is about the version, when it was edited last time.
+        * Lots of changes may be introduced, strict list of changes may be not given here.
+
+**Confirmed**
+
+        * Several changes at versions: aiogram, telethon, maybe telebot.
+
+**Changed**
+
+        * Structure of a project a bit.
+        * Changed the greeting algorithm. See docs of command greeting at worker.
+        * Changed structure of code at file "worker".
+        * Changed: sending an exact text, as example, at the case of empty inline query.
+        * Changed README a few: changed button template code, added examples for meaning's use and other.
+        * Changed several docstrings at Telegraph page and README. In particular, added examples for command meaning usage and example for translating and transliterating.
+        * [BREAKING CHANGE] Changed "glagolic" to "glagolitic" at functions.py and related: main (worker.py), config (uniconfig.py).
+        * Changed: made the code of functions.py more clear.
+        * Changed the id of logging chat; added the id of logging chat to store the inline queries callback. Set inline queries feedback receiving probability to 10% for both test and initial bots. This may change. See also: https://core.telegram.org/bots/inline#collecting-feedback.
+        * Changed the case of variable `BASEDIR` at globalconfig.py (upper->lower). Idea and the other implementation of the function `load_env` is the same.
+        * Changed annotations at several code-parts.
+        * Changed: write the code to start bot at function `main` and call it at if main at all versions.
+
+**Added**
+
+        * Few features, version-insensetive at sense of library versions: `telebot`, `telethon` or `aiogram`.
+        * Added mainly features at telethon version.
+        * Added function to get word and meaning. Function's name: `get_word_and_meaning`. Defined at file worker.
+        * Added the command to manage greeting of new chat member.
+        * Added default greeting.
+        * Added the "Since v<v_name>" mark at some places. Notifies that "since that version (and not later) that thing was edited the last time".
+        * Added annotations for common functions at functions.py. Wrote docstrings for them.
+        * Added: annotations at functions.py at other places.
+        * Added: docstrings for some other functions at functions.py.
+        * [BREAKING CHANGE] Added parameter `transliterate_number[s]` at several functions at functions.py.
+        * Added the chat to log inline queries callback.
+        * Added the inline queries callback handler at telebot and aiogram versions.
+        * Added the constant `INITIAL_FILE` at globalconfig.py.
+        * Added annotations at several places.
+
+**Fixed**
+
+        * Several bugs at game "words", at the `do` command and other.
+
+**Removed** 
+
+        * Removed some unrequired things.
+
+**Versions about**
+
+        * telethon version is considired to be pretty done.
+        * aiogram version is considered to be quite like a telethon version, but less complete.
+        * telebot version is considired to be quite like a telethon version.
+
+1.1.0
+-----

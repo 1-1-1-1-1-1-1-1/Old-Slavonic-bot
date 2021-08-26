@@ -1,0 +1,8 @@
+# This file is parsed at _write_files.py or similar in order to get the current
+# version. This file is not used for anything else. This file is optional and
+# can be absent if the appropriate code exists at _write_files.py. 
+# Syntax: version to choose.
+
+"aiogram"
+# "telethon"
+# "telebot"

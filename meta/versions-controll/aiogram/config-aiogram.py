@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-# version: aiogram:1.0.6-editing
+# version: aiogram:1.0.9+
+
+
+# ==== Imports +load config from uniconfig ===================================
 
 import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, types
-from aiogram import executor  # test
 
 from uniconfig import *
 from globalconfig import get
 
 
-# INLINE SETTING
+# === Inline settings ========================================================
 
 _THUMB_CONFIG = {
     'common': {
@@ -22,7 +24,8 @@ _THUMB_CONFIG = {
 
 COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 
-# LOGGING & BOT SETTING
+
+# Logging & bot settings =====================================================
 
 # Set logging
 logging.basicConfig(level=logging.INFO)
@@ -31,19 +34,9 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-# Now the bot is connected, get some data
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-# May be commented for tests:
-bot_data = asyncio.run(bot.get_me())
-print(bot_data)  # test
+# Now the bot is connected, get some data.
+bot_data = asyncio.get_event_loop().run_until_complete(
+    bot.get_me()
+)
 BOT_ID = bot_data.id
 BOT_USERNAME = bot_data.username
-# ---
-
-BOT_ID, BOT_USERNAME = (None,)*2  # is dummy, deletable_fully
-
-loop = asyncio.new_event_loop()
-if loop.is_closed():
-    ...
-executor.start_polling(dp, loop=loop, skip_updates=True)

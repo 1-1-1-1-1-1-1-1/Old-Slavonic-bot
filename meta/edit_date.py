@@ -12,7 +12,7 @@ mdash = chr(8212)  # m-dash: "—"
 full_start = '27.01.2021'  # const
 _full_till = (
     "28.02.2021", "06.03.2021", "07.03.2021", "12.05.2021", "13.05.2021",
-    f"16.06.2021{mdash}30.06.2021"
+    f"16.06.2021{mdash}26.08.2021"
 )  # const
 full_till = ", ".join(_full_till)
 full_date = f'{full_start}{mdash}{full_till}'

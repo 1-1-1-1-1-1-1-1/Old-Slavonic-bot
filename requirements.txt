@@ -1,4 +1,4 @@
-aiogram
+pyTelegramBotAPI
 requests
 configparser
 datetime

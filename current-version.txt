@@ -1,21 +1,25 @@
-> **NOTE**: This file uses the syntax of Markdown & Sphinx-related code.
+> This file uses the syntax of Markdown & Sphinx-related code.
 
 ------------------------------------------------------------------------------
+
+This describes the version of file at root.
+
+> *NOTE*: The files of versions (files, which do exist at meta/version-controll/&lt;lib_name&gt;/: worker, config, requirements.txt; '`lib_name`': one of containing telebot, aiogram, Telethon) should be modified at *that* folder, not at the root. Also, they can be modified at root, but not in a main stream.
 
 version
 -------
 
 .. version::
 
-    :type: at aiogram
-    :name: 1.0.6
+    :type: at telebot
+    :name: 1.0.9
 
-added files
------------
+version files
+-------------
 
  * config,
  * worker,
- * requirements
+ * requirements.txt
 
 -------------------------------------------------------------------------------
 

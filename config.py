@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-# version: aiogram:1.0.6-editing
+# version: telebot:1.0.9+
 
-import asyncio
+
+# ==== Imports +load config from uniconfig ====================================
+
 import logging
 
-from aiogram import Bot, Dispatcher, types
-from aiogram import executor  # test
+import telebot
 
 from uniconfig import *
 from globalconfig import get
 
 
-# INLINE SETTING
+# === Inline settings =========================================================
 
 _THUMB_CONFIG = {
     'common': {
@@ -22,28 +23,15 @@ _THUMB_CONFIG = {
 
 COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 
-# LOGGING & BOT SETTING
+
+# Logging & bot settings =====================================================
 
 # Set logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize the bot and dispatcher
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+# Initialize the bot.
+bot = telebot.TeleBot(TOKEN)
 
-# Now the bot is connected, get some data
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-# May be commented for tests:
-bot_data = asyncio.run(bot.get_me())
-print(bot_data)  # test
-BOT_ID = bot_data.id
-BOT_USERNAME = bot_data.username
-# ---
-
-BOT_ID, BOT_USERNAME = (None,)*2  # is dummy, deletable_fully
-
-loop = asyncio.new_event_loop()
-if loop.is_closed():
-    ...
-executor.start_polling(dp, loop=loop, skip_updates=True)
+# Now the bot is connected, get some data.
+BOT_ID = int(TOKEN[:TOKEN.index(':')])
+BOT_USERNAME = bot.get_me().username

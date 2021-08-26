@@ -1,0 +1,13 @@
+Here is a main idea of tracker at root.
+
+Check each XXX ms, whether the content of `fname` changed, for each `fname`
+in `files`.  If changed -- warn and add the corresponding note to the dict.
+`warns_info` (that "file `fname` changed and the last warn was done at
+<...>").  If changed at least ones, clicking the button of corresponding fname
+will display message like "changed at `<some_date>`; first edited at
+`<some_date>`".  Otherwise clicking will display message like "wasn't edited".
+
+When the files are reloaded via `write_files` or like that, they are doing some
+work like: stop the tracker, do stuff with "write files", reload tracker,
+meaning "again enabling", but only after reseting variables as "edit time",
+files edited etc.

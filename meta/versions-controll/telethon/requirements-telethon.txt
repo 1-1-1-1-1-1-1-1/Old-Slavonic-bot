@@ -1,4 +1,4 @@
-telethon
+Telethon
 requests
 configparser
 datetime

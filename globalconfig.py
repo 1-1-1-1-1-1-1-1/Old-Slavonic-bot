@@ -10,15 +10,16 @@ get = os.environ.get
 
 
 ON_HEROKU = get('ON_HEROKU', False)
+INITIAL_FILE = "worker.py"  # Is used at script: `_write_files._script`.
 
 
 def load_env(name=""):
     if not ON_HEROKU:
         from dotenv import load_dotenv
 
-        BASEDIR = os.path.abspath(os.path.dirname(__file__))
+        basedir = os.path.abspath(os.path.dirname(__file__))
 
-        dotenv_path = os.path.join(BASEDIR, name + '.env')
+        dotenv_path = os.path.join(basedir, name + '.env')
         if os.path.exists(dotenv_path):
             load_dotenv(dotenv_path, encoding='utf-8', interpolate=True)
 

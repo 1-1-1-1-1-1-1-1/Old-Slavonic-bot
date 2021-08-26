@@ -27,6 +27,7 @@ from globalconfig import load_env, get
 
 load_env('bot')
 
+
 DATA = os.path.join("locals", "_launcher.ini")
 RUN = "worker.py"
 APP_NAME = get('APP_NAME')
