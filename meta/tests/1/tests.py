@@ -1,3 +1,6 @@
+"""See <folder of this file>/README."""
+
+
 import re
 
 import requests
@@ -30,11 +33,14 @@ base = list(base)
 
 item = base[1].group()
 
-def word(item):  # general
+
+def word(item) -> str:  # general
     return re.search(r'<h3>.+?значение слова (\w+).+?</h3>', item).group(1)
 
-def meanings(item):
+
+def meanings(item) -> list[str]:
 	return re.findall(r'<p>(.+?)</p>', item)
+
 
 # print(item);
 print(word(item))

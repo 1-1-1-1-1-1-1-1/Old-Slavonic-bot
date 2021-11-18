@@ -1,3 +1,13 @@
+# This file consists of 2 parts.
+# First is a default list of files, generated automatically on GitHub.
+# Second is a list, written by hand. It can be a sufficient list unless the
+# special stuff (translating via i18n/l8n, using Sphinx docs generator) is
+# used.
+
+# The first and seconds and second parts are entitled in a respective way.
+
+## Beginning of part 1 ##
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,21 +138,23 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# --------------------------------
-# following is appended by hand
+## Beginning of part 2 ##
+# (The stuff at this part is written by hand)
+# -------------------------------------------
 
-# required:
+# Required
 __pycache__/
 *.env
-# optional one:
-tokens.py
 *!private*
 !*.log
 do_logs.log
 \!private-logs.log
 tracker.ini
 
-# appeared when running the telethon version
+# Optional one, if store tokens there
+tokens.py
+
+# Appeared when running the telethon version
 *.session
 *.session-journal
 

@@ -1,3 +1,6 @@
+#dotenv
+# dotenv should not be at requirements file if running on Heroku,
+# but should be if it is run locally to load data from .env.
 aiogram~=2.14
 # At v3: Breaking changes had been introduced there.
 # Use of aiogram version 3 may cause errors.

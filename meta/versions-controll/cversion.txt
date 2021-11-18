@@ -3,6 +3,6 @@
 # can be absent if the appropriate code exists at _write_files.py. 
 # Syntax: version to choose.
 
-"aiogram"
-# "telethon"
+# "aiogram"
+"telethon"
 # "telebot"

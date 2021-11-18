@@ -1,13 +1,13 @@
-This file is about the recent changes at versions. States since or later than the commit with version 1.0.9 introduced.
+This file is about the recent changes at versions. States since or later than the commit with version 1.0.9 introduced. This file is not stated as a respective source for latest information, but may contain helpful info.
 
 Version:
 
-  1.0.9
+  1.1.0
 
 Stage:
   
-  Version is done
+  Version is done. Possible: checking README and style, docs etc.
 
 Whether merged:
 
-  Merged at aiogram and telethon, telebot. See: ChangeLog.
+  Merged at all versions: telebot, aiogram, telethon. See: [ChangeLog.txt](ChangeLog.txt).

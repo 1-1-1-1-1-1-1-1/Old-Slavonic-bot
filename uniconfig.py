@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# version: ALL:1.0.9
+# version: ALL:1.0.9+
 
 # This is a file to import it from config and load config, *uni*versal
 # for all bot version, i.e. libraries, with a help of which the bot is written.
 
 
-# === Set some general config, load variables from globalconfig ===============
+# === Set general config, load variables from globalconfig ====================
 # === and run load_dotenv there ===============================================
 
 
@@ -16,67 +16,8 @@ from typing import Optional
 
 import configparser
 
+from meta.utils.password import password
 from globalconfig import get, ON_HEROKU
-
-
-print("Parsing the beginning of configs' file...")
-# Log that this action is processing.
-
-
-def password(uid, time=None, *, test_mode=False) -> 'typing.Optional[str]':
-    """Generate a password. Dependes on time. Optionally, can choose time."""
-    import datetime  # *Only* locally used.
-
-    now = datetime.datetime.now()
-
-    if time is not None:
-        max_delta = 3*60
-
-        def number(s: str) -> int:
-            # '0..0number' -> number: int
-            zero = '0'
-            return int(_res) if (_res := s.lstrip(zero)) else 0
-
-        minute, second = map(number, time)
-        res_date = now.replace(  # timedelta
-            minute=minute, second=second)
-        # Not to let the password being static:
-        if not abs(
-            (res_date - now).total_seconds()
-        ) < max_delta and not test_mode:
-            return
-        now = res_date
-
-    secret_code = get('SECRET_CODE')
-    if not secret_code:
-        return
-
-    time_format = eval(get("SECRET_TIME_FORMAT"))
-    big_h, big_m, big_s, d, m, big_y = map(
-        int,
-        now.strftime(time_format).split()
-    )
-    res_0 = eval(secret_code).split(',')
-    space = {
-        'H': big_h,
-        'M': big_m,
-        'S': big_s,
-        'd': d,
-        'm': m,
-        'Y': big_y,
-        'uid': int(uid)
-    }
-
-    res_1 = map(lambda i: eval(i, globals(), space), res_0)
-    res_2 = list(res_1)
-    _res = [str(int(item)) for item in res_2]
-    s: int = int(eval(get('SECRET_S')))
-    res: str = ("".join(_res)[::s]*2)[:7]
-
-    if __name__ == '__main__':
-        print(res)  # Test
-    else:
-        return res
 
 
 _DATA = "data"
@@ -179,7 +120,7 @@ NAMES_REPLACE: dict[str, tuple] = eval(get('NAMES_REPLACE'))
 _DEFAULT_CACHE_TIME = 10
 # Note: setting small (or absent) cache time can give bigger variety of
 # different results.
-CACHE_TIME = 10
+CACHE_TIME = _DEFAULT_CACHE_TIME
 _SET_DEFAULT_ON_HEROKU = True  # Whether default cache time should be
                                # set when running at Heroku, in any case.
 if PROD:
@@ -199,9 +140,9 @@ del n, _SET_DEFAULT_ON_HEROKU
 
 UIDS_BASE = join(_DATA, 'users.txt')
 
-# Logging (dev. question: what?)
+# Logging at functions file
 LOGGING_ENABLED = True
-LOG_FILENAME = join("locals", "autologs.txt")
+LOG_FILENAME = join("locals", "!private-autologs.txt")
 
 # Logs via bot to the Telegram chat: data
 LOGGING_CHATS = {

@@ -14,13 +14,13 @@
 # The code is FREE FOR COPY, CHANGE, AND THE CODE's SHARING.  (?) **QUESTION**
 #
 # =============================================================================
-# Main file, written preferably with PEP8, required modules/libraries
+# This is main file. Written preferably with PEP8. Required modules/libraries
 # are in requirements.txt.
 # 
-# **PLEASE NOTE:** The `version: lib:v_name` is important at the beginning of
-# this file. It is parsed while writing this file to the root in order to get
-# the most recent information about what version of app is used and write it 
-# to the "current-version.txt" immediately.
+# **PLEASE NOTE:** The `version: lib:v_name` is *important* at the
+# *beginning* of this file. It is parsed while writing this file to the root
+# in order to get the most recent information about what version of app is used
+# and write it to the "current-version.txt" immediately.
 #
 # -----------------------------------------------------------------------------
 # See also:
@@ -64,7 +64,7 @@
 # - Marked with TODO, question[s].
 # - Merge TODO, questions etc. from everywhere.
 # - Test: triggers to start, words, BotException (see comments)
-# - TODO from "../TODO".
+# - TODO from "<root>/../TODO".
 #
 # Meta
 # ----

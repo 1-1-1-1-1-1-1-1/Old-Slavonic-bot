@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# version: aiogram:1.0.9
+# version: aiogram:1.1.0
 
 # <COMMENT:general:aiogram>
 
@@ -73,16 +73,20 @@ HTML = ParseMode.HTML
 MARKDOWN_V2 = ParseMode.MARKDOWN_V2
 
 
-edit_note = "aiogram:1.0.9"
+edit_note = "aiogram:1.1.0"
 # ^ Dummy, to check for updates while running.
 
 
-# Since v1.0.9.
-async def bot_send_message(text, chat_id=LOGGING_CHAT, type_=None, **kwargs):
-    """Send a text message via bot to chat with chat_id, if it is required."""
+# Since v1.1.0.
+async def bot_send_message(text, chat_id=LOGGING_CHAT, type_=None, **kwargs) \
+    -> types.Message:
+    """Send a text message via bot to chat with chat_id, if it is required.
+
+    Return the sent message.
+    """
     if type_ is not None and type_ not in CHAT_LOGS_MODE_ALL:
         return
-    await bot.send_message(chat_id, text, **kwargs)
+    return await bot.send_message(chat_id, text, **kwargs)
 
 
 # Since v1.0.9.
@@ -933,7 +937,7 @@ async def _make_move(message, letter: str, mentioned: Iterable) \
         pass
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 async def make_move(message) -> typing.NoReturn:
     """Make a move at game "words". If it's the bot's move, perform the move.
     Otherwise rule the game:
@@ -984,7 +988,7 @@ async def make_move(message) -> typing.NoReturn:
             ((reply := get_reply_message(message)) and
              reply.from_user.id == order[current - 1])
         ):
-            # Message is neither a reply, nor a message with expected pattern.
+            # Message is neither a reply, nor a message with expected text.
             return
 
         if n != order[current]:
@@ -1187,7 +1191,7 @@ async def test_start_message(message: types.Message):
     return "Success"
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 @dp.message_handler(regexp=commands('do') + '.*')
 async def do_action(message: types.Message):
     """Eval or exec the command.
@@ -1202,14 +1206,16 @@ async def do_action(message: types.Message):
     ACTION  `eval` or `exec`
     IS_CORO true | false | yes | no
     """
-    # examples for it:
+    # Usage examples:
     # /do -password=pw -action=eval code
     # /do -password=pw -time=mm:ss -action=eval code
-    # exact example:
-    # /do -password={some_password} 1+2 (it gives 3)
+    # /do -action=exec print("Hello from the bot!")
+    # /do -action=exec -is_coro=yes await message.reply("Hello!")
+    # Exact example:
+    # `/do -password={some_password} 1+2` | <- it gives 3
 
     # **NOTE**:
-    # Some imports are made exactly here,
+    # Some imports may be made exactly here,
     # as this function's call is uncommon.
 
     sid = message.from_user.id  # Sender's id
@@ -1241,7 +1247,7 @@ async def do_action(message: types.Message):
         + r"(?: {1,2}-password=(" + r'\S+' + r"))?"  # Password
         + r"(?:\s+-time=(\d{,2}:\d{,2}))?"  # Time
         + r"(?:\s+-action=(exec|eval))?"  # Type of action
-        + r"(?:\s+-is_coro=(true|yes|false|no)?)"  # Whether is coroutine
+        + r"(?:\s+-is_coro=(true|yes|false|no))?"  # Whether is coroutine
         + r"\s+(.+)"  # The code
     )
     string = message.text
@@ -1265,6 +1271,7 @@ async def do_action(message: types.Message):
     action, is_coro, code = other
 
     # Set defaults.
+    
     if action is None:
         action = 'eval'
     if is_coro is None:
@@ -1474,7 +1481,7 @@ async def send_meaning(message):
     await message.reply(meaning)
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 @dp.message_handler(regexp=commands('words') + ".*")
 async def react_game_words(message):
     """React the triggers at game "words"."""
@@ -1597,10 +1604,18 @@ async def react_game_words(message):
         await bot.send_chat_action(chat.id, 'typing')
         mark_item_point = ' `-` '  # OR: '◽️'
         msg = f"""\
+__Обычные правила:__
+Слова — игра, в которой игрокам следует называть слова так, чтобы слово, \
+сказанное следующим, начиналось с той же буквы, которой окончено предыдущее
+слово\.
+
+Здесь при этом бот по возможности называет слова из словаря со \
+старославянскими словами\.
+
 🔸_Начало игры_
 В личной переписке: /words `[начать|start]` `[single]` \(`single` — игра \
-самому\);
-В группе: `/words пользователь\_1 ...`
+самому\)\.
+В группе: `/words пользователь\_1 ...`\.
 {mark_item_point}Имена пользователей — упоминанием;
 {mark_item_point}Если своё имя не указывать, оно первое в очереди\.
 
@@ -1613,7 +1628,7 @@ async def react_game_words(message):
 🔸_Другие:_
 `/words pause``|``приостановить` — остановка игры;
 `/words stop``|``delete|хватит|удалить игру` — прекратить игру и удалить;
-`/words skip` — пропуск хода или, _заодно, постановка обнуления первой \
+`/words skip` — пропуск хода _или, заодно, постановка обнуления первой \
 буквы в случае чего_;
 `/words order``|``очередь|порядок` — порядок ходов, текущий игрок;
 `/words help``|``правила|инструкция|команды` — это сообщение;

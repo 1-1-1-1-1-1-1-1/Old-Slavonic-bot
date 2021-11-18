@@ -16,7 +16,7 @@ import typing
 from typing import Optional, Union, NoReturn, Literal
 from pathlib import Path
 import configparser  # See the tracker of files changes made.
-                     # That is a file _change_trange.py or like it.
+                     # That is a file _changed_tracker.py or like it.
 import time
 from copy import copy
 
@@ -113,7 +113,7 @@ c.read(tracker_config_filename, encoding='utf-8')
 
 
 def _disable_tracker():
-    """Disable tracker, see _changed_tracker.py or like that."""
+    """Disable tracker, see the _changed_tracker.py or like that."""
     if not c.has_section('main'):
         return
     c['main']['requires_set_defaults'] = 'true'
@@ -259,6 +259,20 @@ Writes files {', '.join(files)} to the root folder.
     v_info: tuple[str, Optional[str]] = parse_version(full_name)[1:]
     name = '-'.join(filter(lambda i: i,
                     v_info))
+    version_number: str = v_info[0]
+
+    pattern = r'(.+)\+'
+
+    def assert_form(s: str) -> bool:
+        _result = re.fullmatch(pattern, s)
+        return bool(_result)
+
+    if assert_form(version_number):
+        msg = (
+            "version number at {0} is not strict, ".format(main_file)
+            + "be careful"
+        )
+        warnings.warn(msg)
 
     # Warn about the version difference, if required.
     if not version_is_undefined and warn_about_v_difference_enabled:
@@ -266,8 +280,7 @@ Writes files {', '.join(files)} to the root folder.
             # Whether file, marked with another version, exists.
             # Return 0 if the answer is yes, None otherwise.
 
-            version_number: str = v_info[0]
-
+            nonlocal pattern
             for fname in set(files) - {main_file}:
                 with open(fname, encoding=encoding) as f:
                     lines_: list[str] = f.readlines()
@@ -279,10 +292,9 @@ Writes files {', '.join(files)} to the root folder.
                         if line.startswith(part):
                             full_name_local = line.split(part)[1].strip()
                             v_number_local = parse_version(full_name_local)[1]
-                            pattern = r'(.+)\+'
                             match = re.fullmatch(pattern, v_number_local)
                             if match:
-                                # Ignore match failture when v_number_local
+                                # Ignore match failure when v_number_local
                                 # ends with '+' end it's a "<v_local_>+",
                                 # v_local_ >= version_number.
 
@@ -293,12 +305,8 @@ Writes files {', '.join(files)} to the root folder.
 
                                 pattern = r'[0-9]+\.[0-9]+\.(?:[0-9]+)?'
 
-                                def local_assert(s: str) -> bool:
-                                    _result = re.fullmatch(pattern, s)
-                                    return bool(_result)
-
-                                if local_assert(version_number) \
-                                and local_assert(v_number_local_):
+                                if assert_form(version_number) \
+                                and assert_form(v_number_local_):
                                     tuple_initial = version_number.split('.')
                                     tuple_initial = tuple(map(int,
                                                               tuple_initial))
@@ -382,4 +390,4 @@ Writes files {', '.join(files)} to the root folder.
 
 if __name__ == '__main__':
     files = DEFAULT_ALL_FILES
-    main(version if None else "telebot", files)
+    main(version, files)

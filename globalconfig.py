@@ -4,6 +4,7 @@
 #   Added env. variables at 2021-02-17T21:05.
 
 import os
+from typing import NoReturn
 
 
 get = os.environ.get
@@ -13,7 +14,8 @@ ON_HEROKU = get('ON_HEROKU', False)
 INITIAL_FILE = "worker.py"  # Is used at script: `_write_files._script`.
 
 
-def load_env(name=""):
+def load_env(name="") -> NoReturn:
+    """Load the environment variables from file with given name."""
     if not ON_HEROKU:
         from dotenv import load_dotenv
 

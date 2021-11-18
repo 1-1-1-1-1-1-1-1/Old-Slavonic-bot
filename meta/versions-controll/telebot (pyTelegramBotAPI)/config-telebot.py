@@ -24,14 +24,14 @@ _THUMB_CONFIG = {
 COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 
 
-# Logging & bot settings =====================================================
+# Logging & bot settings ======================================================
 
 # Set logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize the bot.
+# Initialise the bot
 bot = telebot.TeleBot(TOKEN)
 
-# Now the bot is connected, get some data.
-BOT_ID = int(TOKEN[:TOKEN.index(':')])
-BOT_USERNAME = bot.get_me().username
+# Now the bot is connected, get some data
+BOT_ID: int = int(TOKEN[:TOKEN.index(':')])
+BOT_USERNAME: str = bot.get_me().username

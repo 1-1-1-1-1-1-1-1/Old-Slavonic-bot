@@ -2,7 +2,7 @@
 # version: aiogram:1.0.9+
 
 
-# ==== Imports +load config from uniconfig ===================================
+# ==== Imports +load config from uniconfig ====================================
 
 import asyncio
 import logging
@@ -13,7 +13,7 @@ from uniconfig import *
 from globalconfig import get
 
 
-# === Inline settings ========================================================
+# === Inline settings =========================================================
 
 _THUMB_CONFIG = {
     'common': {
@@ -25,18 +25,18 @@ _THUMB_CONFIG = {
 COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 
 
-# Logging & bot settings =====================================================
+# Logging & bot settings ======================================================
 
 # Set logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize the bot and dispatcher
+# Initialise the bot and dispatcher
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-# Now the bot is connected, get some data.
+# Now the bot is connected, get some data
 bot_data = asyncio.get_event_loop().run_until_complete(
     bot.get_me()
 )
-BOT_ID = bot_data.id
-BOT_USERNAME = bot_data.username
+BOT_ID: int = bot_data.id
+BOT_USERNAME: str = bot_data.username

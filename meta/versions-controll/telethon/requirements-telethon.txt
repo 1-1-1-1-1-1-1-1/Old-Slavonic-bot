@@ -1,3 +1,6 @@
+#dotenv
+# dotenv should not be at requirements file if running on Heroku,
+# but should be if it is run locally to load data from .env.
 Telethon
 requests
 configparser

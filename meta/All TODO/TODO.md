@@ -29,7 +29,7 @@
 **TODO:**
 
  * [ ] Numbers' transliteration
-     + [ ] Transliterating to Glagolitic — ?. Was strange, see at [/media/extra]([/media/extra]).
+     + [ ] Transliterating to Glagolitic — ?. Was strange, see at [~/meta/media/extra]([/media/extra]).
      + [ ] Transliterating to Cyryllic.
          - [ ] [Optional] Add tranliterating using parts of symbols for 10^5, ..., 9 (?).
          - [x] [Optional] Add: `от` instead of `омега`, putting titlo only at some cases.
@@ -37,7 +37,7 @@
 
 **Maybe TODO:**
 
-- Add several dictionary transliterations.
+- [ ] Add several dictionary transliterations.
 
 ### Mixed
 <a id="tr_mixed"></a>
@@ -45,19 +45,19 @@
 **Possible features:**
 
  * [availaible] translation with no transliteration
- * [availailbe] with just the transliteration
+ * [availaible] with just the transliteration
      - transliteration of numbers
          + [availaible] with no numbers transliteration
          + [availaible] with the transliteration of numbers
-      - to the scripts of the Old Slavonic language:
-          + [availaible] Cyryllic
-          + [availaible] Glagolitic
-* Do translation or a transliteration action, when initial language is not Russian. Possible strategy: the text can be translated to Russian firstly, then a normal action with a translated text can be done; see other code parts to view what the normal action is.
+     - to the scripts of the Old Slavonic language:
+         + [availaible] Cyryllic
+         + [availaible] Glagolitic
+ * Do translation or a transliteration action, when initial language is not Russian. Possible strategy: the text can be translated to Russian firstly, then a normal action with a translated text can be done; see other code parts to view what the normal action is.
 
 **Notes:**
 
- * Translating mix of numbers and letters — ?
- * The correct/sufficient/suitable translation generally — ?
+ * [ ] Translating mix of numbers and letters — ?
+ * [ ] The correct/sufficient/suitable translation generally — ?
 
 ***References***
 
@@ -69,7 +69,7 @@
 This is a part describing some 'features / TODO' connected directly with the bot.
 
  - [ ] Make great commands. See notes from https://core.telegram.org/bots/api#june-25-2021.
- - [ ] [Optional] Set commands maybe+ at chats individually. Can use Bot API.
+ - [ ] \[Optional] Set commands maybe+ at chats individually. Can use Bot API.
 
 ## Documentation, code, style
 <a id="docs"></a>
@@ -102,17 +102,14 @@ This is a part describing some 'features / TODO' connected directly with the inl
 ## Game 'words'
 <a id="game"></a>
 
-**Possible TODO:**
+**TODO:**
 
- * Add transliterating at phrases. [What is it?]
- * Add the support of dash (can be different?) at words. Can other be? Should be?
- * Add an ability to teach a word (if not found at any dictionary).
+ * [Possible] Add transliterating at phrases. (What is it? "Only in specified phrases?")
+ * [ ] [Possible] Add the support of dash (can be different?) at words. Can other be? Should be?
+ * [ ] [Possible] Add an ability to teach a word (if not found at any dictionary).
  * ...
  * ... + transliterate.
-
-**Notes:**
-
- * What is the best way to perform bot's moves in a row (if it is put in order twice in a row)? Or should it be even? How to react then?
+ * [ ] Solve: What is the best way to perform bot's moves in a row (if it is put in order twice in a row)? Or should it be even? How to react then?
 
 ## Hosting & deploying
 <a id="hosting"></a>
@@ -131,35 +128,32 @@ File `tokens.py` (see earlier/pretty first versions) may be added in a such way,
 
  * Restricting user in group requires enough rights.
  * Permission to use functions/commands: mind it! E.g., command "do".
- * Is it on the best way?
- * Parse at folder '_2 col' and find all there.
- * Exceptions at code: what it the better part and better at all?
- * See file `.env-todo` at commit `181e106`.
-     - All values changed there, beside a single.
-     - Single not changed: `NAMES_REPLACE`.
 
 **TODO**:
 
+ * [ ] Solve: Is this program on the best way?
+ * [ ] Parse at folder '\_2 col' and find all there.
+ * [ ] Solve: Exceptions at code: what it the better part and better at all?
  * [ ] Solve all TODO at worker.py and other.
  * [ ] Test all, which do requires the test.
  * [ ] There may be some issues with the correct work of things, connected with hidden via gitignore files, writing files or doing stuff, special to Heroku, meaning "but common for usage via PC (was done at least on some Windows)". Fix them all, if any such issues do exist.
  * [ ] [Possible] At the auto-insert of random example with inline button:
  add the change of query's query on, i.e. after, the click on it.
  * [ ] [Possible] Realise some of this as things at DB, not as files *at* the project. E.g., storing users' IDs or storing the data of game "words".
- * [ ] [Possible] [Is partially availailbe by default] Add ability to make `е/ё` equal at:
-     - [Is partially availaible by default] game "words"
-     - translating
+ * [ ] [Possible] [Is partially availaible by default] Add an ability to make `е/ё` equal at:
+     - [ ] [Is partially availaible by default] game "words"
+     - [ ] translating
  * [x] Add a base for storing `help` messages for any chat (e.g. at `.json`).
      - Made as a store at `.json` file.
  * [ ] Write all meta-parts.
- * [ ] Finish writing the telebot version, if required.
 
+-----------------------------------------------------------------------
 
 <a id="cite-simple"></a>
 
-> Everything should be made as simple as possible, but no simpler
+> Everything should be made as simple as possible, but no simpler.
 
-*Albert Einstein’s*
+*Albert Einstein*
 
 > Сделай настолько просто, насколько это возможно, но не проще.
 

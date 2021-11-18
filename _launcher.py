@@ -15,6 +15,7 @@ some lines/code parts (required the `tkinter`) and launch the app again.""")
 import os
 import re
 import json
+from typing import NoReturn
 import subprocess
 from tkinter import Tk, Button, Checkbutton, Frame, Label
 from tkinter import BooleanVar
@@ -39,12 +40,14 @@ WORKTIME_SCHEDULE = {
     'Thu': ('10:00', '22:00'),
     'Sun': ('10:00', '22:00'),
     'Sat': ('18:00', '21:00')
-    }
+}
 
 
 c = configparser.ConfigParser()
 c.read(DATA)
-def set_defaults(section='meta'):
+
+
+def set_defaults(section='meta') -> NoReturn:
     if section == 'meta':
         c.set('meta', 'dyno', '')
         c.set('meta', 'time',
@@ -53,6 +56,7 @@ def set_defaults(section='meta'):
         NotImplemented
     with open(DATA, 'w') as f:
         c.write(f)
+
 
 if not c.has_section('meta') or not c.has_option('section', 'dyno'):
     if not c.has_section('meta'):
@@ -66,56 +70,62 @@ with open(DATA, 'w') as f:
     c.write(f)
 
 
-def stop_prev(dyno):
+def stop_prev(dyno: str) -> NoReturn:
     if not dyno:
         return
     cmd = f"heroku stop {dyno} -a {APP_NAME}"
     os.system(cmd)
 
-def get_p(command):
-    p = subprocess.Popen(command, universal_newlines=True, 
+
+def get_p(command) -> subprocess.Popen:
+    p = subprocess.Popen(
+        command, universal_newlines=True, 
         shell=True, stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE)
+        stderr=subprocess.PIPE
+    )
     return p
 
-def info_json():
+
+def info_json() -> dict:
     command = f"heroku apps:info {APP_NAME} --json"
 
     p = get_p(command)
     text = p.stdout.read()
 
-    text = json.loads(text)
+    text_data = json.loads(text)
 
-    return text
+    return text_data
 
-def prev_data():
+
+def prev_data() -> dict:
     assert c.has_section('meta')
-    dyno = c['meta']['dyno']
-    time = c.get('meta', 'time')
-    time = datetime.strptime(time, TIME_FORMAT)
-    res = {
-    'dyno': dyno,
-    'time': time
+    dyno: str = c['meta']['dyno']
+    time: str = c.get('meta', 'time')
+    time: datetime = datetime.strptime(time, TIME_FORMAT)
+    result = {
+        'dyno': dyno,
+        'time': time
     }
-    return res
+    return result
 
-def update(case=None, space=None):
+
+def update(case=None, space=None) -> dict:
     if case is None:
         case = "all_dynos[-1] != name"
     delta = datetime.now() - datetime.utcnow()
     data = info_json()['dynos']
     if data:
         data = data[0]
-        t0_string = data["created_at"]
-        t0 = datetime.strptime(t0_string, TIME_FORMAT)
+        t0_string: str = data["created_at"]
+        t0: datetime = datetime.strptime(t0_string, TIME_FORMAT)
         t0 += delta
         name = data['name']
     else:
         d = prev_data()
         t0, name = d['time'], d['dyno']  # set_defaults()
     d = {
-    'time': t0,
-    'dyno': name
+        'time': t0,
+        'dyno': name
     }
 
     c['meta']['dyno'] = name
@@ -133,7 +143,9 @@ def update(case=None, space=None):
 
     return d
 
+
 def launch(dyno: "?" = None, stop=True):
+    # :param dyno: Deprecated.
     if stop:
         dyno = prev_data()['dyno']
         stop_prev(dyno)
@@ -150,7 +162,8 @@ def work():
     print('[', now.isoformat(), '] ', sep='', end='')  # test
     delta = now - t0
     delta = delta.total_seconds()
-    def is_at_worktime(obj: datetime):
+
+    def is_at_worktime(obj: datetime) -> bool:
         schedule = WORKTIME_SCHEDULE
         for k in schedule:
             schedule[k] = tuple(map(int, schedule[k].split(':')))
@@ -160,19 +173,23 @@ def work():
         time = schedule[day]
         current_time = tuple(map(int, obj.strftime("%H:%M").split(':')))
         return time[0] <= current_time <= time[1]
+    
     if dyno and t0 >= now + timedelta(hours=2):
-        if delta > 22 * 3600 or not is_atworktime(t0
-            + timedelta(days=1, hours=-2)) or not is_atworktime(t0
-            + timedelta(hours=2)):
+        cases: tuple = (delta > 22 * 3600,
+        is_atworktime(t0 + timedelta(days=1, hours=-2)),
+        is_atworktime(t0 + timedelta(hours=2)))
+        if not all(cases):
             stop_prev(dyno)
 
     p_launched = launch(dyno, stop=False)
     retcode = p_launched.wait()
-    print(retcode)  # test
+    print(retcode)  # Test
     update(case="retcode == 0", space={'retcode': retcode})
 
-# ====
+
+# =============
 # --- window
+
 
 window = Tk()
 window.title(f'Launcher for the bot: app {APP_NAME}')
@@ -195,7 +212,8 @@ other.pack()
 
 label = Label(other, text="")
 
-def config_label(repeat=True):
+
+def config_label(repeat=True) -> NoReturn:
     dyno = update()['dyno']
     if not dyno: dyno = repr(None)
     wait_for = 120  # seconds
@@ -204,10 +222,12 @@ def config_label(repeat=True):
     if repeat:
         label.after(wait_for*1_000, config_label)
 
+
 config_label()
 label.pack()
 
-def relaunch():
+
+def relaunch() -> NoReturn:
     value = v1.get()
     p = launch(stop=value)
     a = "not touched" if not value else "stopped"
@@ -219,15 +239,18 @@ def relaunch():
 (previous dyno: {a}). \
 Status code: {c}.")
 
+
 button['command'] = relaunch
 
-def loop_launcher():
+
+def loop_launcher() -> NoReturn:
     work()
     config_label(repeat=False)
     _ms = datetime.now() - prev_data()['time']
     ms = 3_600_000 - _ms.total_seconds()
     ms = max(0, int(ms))
     window.after(ms, loop_launcher)
+
 
 window.after(0, loop_launcher)
 

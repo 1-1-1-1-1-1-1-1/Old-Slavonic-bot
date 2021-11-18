@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# version: telethon:1.0.9
+# version: telethon:1.1.0
 
 # <COMMENT:general:telethon>
 
@@ -35,6 +35,7 @@ from telethon.tl.types import (
     InputMessageEntityMentionName
 )
 from telethon import events
+from telethon.tl import types
 from telethon.events.inlinequery import InlineQuery
 
 from config import (
@@ -75,16 +76,20 @@ WORDS_GAME_PRIVATE_PATTERN = WORDS_GAME_PATTERNS["private"]
 WORDS_GAME_PATTERN = WORDS_GAME_PATTERNS["general"]
 
 
-edit_note = "telethon:1.0.9"
+edit_note = "telethon:1.1.0"
 # ^ Dummy, to check for updates while running.
 
 
-# Since v1.0.9.
-async def bot_send_message(text, entity=LOGGING_CHAT, type_=None, **kwargs):
-    """Send a text message via bot to entity, if required."""
+# Since v1.1.0.
+async def bot_send_message(text, entity=LOGGING_CHAT, type_=None, **kwargs) \
+    -> types.Message:
+    """Send a text message via bot to entity, if required.
+
+    Return the sent message.
+    """
     if type_ is not None and type_ not in CHAT_LOGS_MODE_ALL:
         return
-    await bot.send_message(entity, text, **kwargs)
+    return await bot.send_message(entity, text, **kwargs)
 
 
 # Since v1.0.9.
@@ -483,9 +488,9 @@ def get_info_by_rule(pattern: str, kid: Any,
         return k, meaning
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 async def get_word_and_meaning(pattern: Union[str, dict],
-                               message: events.NewMessage,
+                               message: types.Message,
                                mentioned: Iterable = ()) \
     -> Optional[tuple[str, str]]:
     r"""Get a word, which matches pattern, and meaning of a word.
@@ -982,7 +987,7 @@ async def perform_bots_move() -> typing.NoReturn:
 del some_code
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 async def make_move(event) -> typing.NoReturn:
     """Make a move at game "words". If it's the bot's move, perform the move.
     Otherwise rule the game:
@@ -1033,7 +1038,7 @@ async def make_move(event) -> typing.NoReturn:
             ((reply := await get_reply_message(event)) and
              reply.sender_id == order[current - 1])
         ):
-            # Message is neither a reply, nor a message with expected pattern.
+            # Message is neither a reply, nor a message with expected text.
             return
 
         if n != order[current]:
@@ -1246,7 +1251,7 @@ async def test_start_message(event):
     return "Success"
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 @bot.on(events.NewMessage(pattern=commands('do')))
 async def do_action(event):
     """Eval or exec the command.
@@ -1261,14 +1266,16 @@ async def do_action(event):
     ACTION  `eval` or `exec`
     IS_CORO true | false | yes | no
     """
-    # examples for it:
+    # Usage examples:
     # /do -password=pw -action=eval code
-    # /do -password=pw -time=mm:ss -action=exec code
-    # exact example:
-    # /do -password={some_password} 1+2 (it gives 3)
-    
+    # /do -password=pw -time=mm:ss -action=eval code
+    # /do -action=exec print("Hello from the bot!")
+    # /do -action=exec -is_coro=yes await message.reply("Hello!")
+    # Exact example:
+    # `/do -password={some_password} 1+2`  # sends '3' to the chat
+
     # **NOTE**:
-    # Some imports are made exactly here,
+    # Some imports may be made exactly here,
     # as this function's call is uncommon.
 
     sid = event.sender_id
@@ -1300,7 +1307,7 @@ async def do_action(event):
         + r"(?: {1,2}-password=(" + r'\S+' + r"))?"  # Password
         + r"(?:\s+-time=(\d{,2}:\d{,2}))?"  # Time
         + r"(?:\s+-action=(exec|eval))?"  # Type of action
-        + r"(?:\s+-is_coro=(true|yes|false|no)?)"  # Whether is coroutine
+        + r"(?:\s+-is_coro=(true|yes|false|no))?"  # Whether is coroutine
         + r"\s+(.+)"  # The code
     )
     string = event.text
@@ -1324,6 +1331,7 @@ async def do_action(event):
     action, is_coro, code = other
 
     # Set defaults.
+
     if action is None:
         action = 'eval'
     if is_coro is None:
@@ -1517,7 +1525,7 @@ async def send_meaning(event):
     await event.reply(meaning)
 
 
-# Since v1.0.9.
+# Since v1.1.0.
 @bot.on(events.NewMessage(pattern=commands('words')))
 async def react_game_words(event):
     """React the triggers at game "words"."""
@@ -1639,22 +1647,31 @@ async def react_game_words(event):
         bot.action(chat.id, 'typing')
         mark_item_point = ' `-` '  # '◽️'
         msg = f"""\
+__Обычные правила:__
+Слова — игра, в которой игрокам следует называть слова так, чтобы слово, \
+сказанное следующим, начиналось с той же буквы, которой окончено предыдущее
+слово.
+
+Здесь при этом бот по возможности называет слова из словаря со \
+старославянскими словами.
+
 🔸__Начало игры__
-В личной переписке: /words `[начать|start]` `[single]` (`single` — игра самому)
-В группе: `/words пользователь_1 ...`
+В личной переписке: /words `[начать|start]` `[single]` (`single` — игра самому).
+В группе: `/words пользователь_1 ...`.
 {mark_item_point}Имена пользователей — упоминанием;
 {mark_item_point}Если своё имя не указывать, оно первое в очереди.
 
 🔸__Хода__
- `-` В личной переписке: `!слово` либо `слово`
- `-` В группе: либо `!слово`, либо `слово` в ответ на сообщение того, кто ходил прошлым.
+ `-` В личной переписке: `!слово` либо `слово`;
+ `-` В группе: либо `!слово`, либо `слово` в ответ на сообщение того, \
+кто ходил прошлым.
  `>` Иногда бот может медлить, ожидая секунд 5; это нормально.
 
 🔸__Другие:__
 `/words pause``|``приостановить` — остановка игры;
 `/words stop``|``delete|хватит|удалить игру` — прекратить игру __и удалить__;
-`/words skip` — пропуск хода или, __заодно, постановка обнуления первой буквы в \
-случае чего__;
+`/words skip` — пропуск хода __или, заодно, постановка обнуления первой буквы \
+в случае чего__;
 `/words order``|``очередь|порядок` — порядок ходов, текущий игрок;
 `/words help``|``правила|инструкция|команды` — это сообщение;
 `/words continue``|``продолжить` — продолжение игры (после `pause`).
@@ -1731,7 +1748,7 @@ async def react_game_words(event):
             # then the message via bot is send, if enabled, or when entity
             # is surely not a mention of user.
             # Expectable entity types to receive:
-            # - MessageEntityUnknown,  # what?
+            # - MessageEntityUnknown,  # What is it?
             # - MessageEntityMention,
             # - MessageEntityMentionName,
             # - InputMessageEntityMentionName

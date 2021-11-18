@@ -15,7 +15,7 @@ Table of contents
 Meta notes
 ==========
 
-This file uses the syntax of mixed pseudo-ReST and Markdown.
+> This file uses the syntax of mixed pseudo-ReST and Markdown.
 
 General about
 =============

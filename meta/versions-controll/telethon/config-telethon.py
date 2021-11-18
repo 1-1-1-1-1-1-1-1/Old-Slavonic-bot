@@ -29,26 +29,26 @@ COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 
 # === Logging and bot settings ================================================
 
-# Set logging.
+# Set logging
 logformat = '[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s'
 logging.basicConfig(format=logformat,
                     level=logging.WARNING)
 
-# Set bot configurations: session name, api_id and api_hash.
+# Set bot configurations: session name, api_id and api_hash
 session_name = 'translator-bot' if not TEST_MODE else 'translator-bot-test'
 api_id = eval(get('API_ID'))
 api_hash = get('API_HASH')
 
 # Prevent the situation when another client was already connected.
-# **Caution**: Doing this action will end the previous client session.
+# **Caution**: Doing this action ends the previous client session.
 disconnect()
 
-# Connect to Telegram.
+# Connect to Telegram
 bot = TelegramClient(
     session_name, api_id, api_hash
-).start(bot_token=TOKEN_INIT)
+).start(bot_token=TOKEN)
 
-# Now it is connected, get some data.
+# Now it is connected, get some data
 bot_data = bot.get_me()
-BOT_ID = bot_data.id
-BOT_USERNAME = bot_data.username
+BOT_ID: int = bot_data.id
+BOT_USERNAME: str = bot_data.username

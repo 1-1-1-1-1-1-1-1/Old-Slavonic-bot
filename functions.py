@@ -69,17 +69,24 @@ def run_test(func=None, ifmain=True, print_=True, d=-1):
     if func is None:
         func = list(globals().keys())[d]
         assert func != '__builtins__'
-        func = eval(func)
+        if func == 'func':
+            # Rename not to cause the name collapse
+            _func = eval(func)
+            func = _func
+        else:
+            func = eval(func)
+        
     def call_with_args(*args, **kwargs):
         res = func(*args, **kwargs)
         if print_:
             print(res)
         return res
+
     return call_with_args
 
 
 def log_info(info, *, filename=LOG_FILENAME):
-    """Logger for the actions."""
+    """Log anything."""
     if not LOGGING_ENABLED:
         return
     
@@ -111,7 +118,7 @@ with open(DATAFILE, encoding='utf8') as f:
 
 
 def exc_action(e, line):
-    log_info(f"Line: {line}\nError: {e}")
+    return log_info(f"Line: {line}\nError: {e}")
 
 
 data0 = data

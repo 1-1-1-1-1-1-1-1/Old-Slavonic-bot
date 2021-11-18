@@ -60,8 +60,8 @@ Several changes made. Change version at aiogram.
 
         * Introducing fixes at versions aiogram, telethon, telebot. All versions tested. Some feature may appear.
         * Command to get meaning changes:
-            + Add the message reply in the case, when word's meaning was not found.
-            + Fix implementations of `get_word_and_meaning`.
+            + Added the message reply in the case, when word's meaning was not found.
+            + Fixed implementations of `get_word_and_meaning`.
         * Some things may be additionally signed as "Since v<v_name>" or similar mark. It is about the version, when it was edited last time.
         * Lots of changes may be introduced, strict list of changes may be not given here.
 
@@ -97,7 +97,7 @@ Several changes made. Change version at aiogram.
         * Added: docstrings for some other functions at functions.py.
         * [BREAKING CHANGE] Added parameter `transliterate_number[s]` at several functions at functions.py.
         * Added the chat to log inline queries callback.
-        * Added the inline queries callback handler at telebot and aiogram versions.
+        * Added the inline queries callback handler at telebot and aiogram versions. telethon version is presented without that.
         * Added the constant `INITIAL_FILE` at globalconfig.py.
         * Added annotations at several places.
 
@@ -115,5 +115,54 @@ Several changes made. Change version at aiogram.
         * aiogram version is considered to be quite like a telethon version, but less complete.
         * telebot version is considired to be quite like a telethon version.
 
-1.1.0
------
+[1.1.0] - 2021-11-18
+--------------------
+
+> This list is full.
+
+**Fixed**
+
+        * Some TODO and docstrings view.
+        * Several annotations.
+        * File template for .env: availaible variables at SECRET_CODE.
+        * Bug at functions.py#DEF:run_test when previous global function, which is called, is `func`. Motivation: code `func = eval("func")` may work strange at that case.
+        * Used to start the bot always with `bot_token=TOKEN_INIT` at telethon version, now starts with `bot_token=TOKEN`.
+        * Added an ability to skip parameter `-is_coro` at /do command, just moved the "?" symbol from one place to another.
+
+**Changed**
+        
+        * Several docstrings and comments. Maybe, also annotations.
+        * Beautified .gitignore.
+        * Changed README. Beautified README.
+        * Beautified <root>/meta/NOTES.md.txt file.
+        * Code style a bit.
+        * The help message for game `words`.
+        * Runtime (Python) version at runtime.txt. 
+          - See: https://devcenter.heroku.com/articles/python-support#supported-runtimes.
+        * Moved function `password` to utils folder.
+        * Removed log "file configurations is being parsed" at config file.
+        * Modified function `disconnect` at _disconnect.py: added optional arguments api_id, api_hash, client, session_name. Changed global name 'session_name' at that file to 'default_session_name'.
+        * Changed at _disconnector.py: replaced `from globalconfig import ...` with `import globalconfig`.
+        * Changed at _disconnector.py:
+        at the definition of function `disconnect`, put snippet
+        ```
+        if client is None:
+            client = TelegramClient(session_name, api_id, api_hash)
+        client.log_out()
+        ```
+        instead of previous
+        ```
+        TelegramClient(session_name, api_id, api_hash).log_out()
+        ```
+        * Changed logic at _write_files.py.
+        * May be: several other less more significant modifications.
+
+**Added**
+        
+        * Several labels at README.
+        * Annotations at several places of code.
+        * Added examples for command's /do call at comments.
+        * Added docstring for functions at files globalconfig.py and _disconnector.py.
+        * Added typing for functions at globalconfig.py and _disconnector.py.
+        * Added log `print("Disconnected from Telegram")` at _disconnector.py#DEF:disconnect.
+        
