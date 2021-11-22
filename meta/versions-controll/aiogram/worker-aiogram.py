@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# version: aiogram:1.1.0
+# version: aiogram:1.1.1
+# Since v1.1.0 there are no changes at this file exc. these three
+# lines, which are noting version.
 
 # <COMMENT:general:aiogram>
 
@@ -73,7 +75,7 @@ HTML = ParseMode.HTML
 MARKDOWN_V2 = ParseMode.MARKDOWN_V2
 
 
-edit_note = "aiogram:1.1.0"
+edit_note = "aiogram:1.1.1.post0"
 # ^ Dummy, to check for updates while running.
 
 

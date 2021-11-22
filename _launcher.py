@@ -1,6 +1,9 @@
-# Util to help with launching the bot.  Used 1-ly at telebot version, other --
-# yet untested.
+# Util to help the bot being launched.
 # ============================================================================
+# Required:
+#  - Tk/tcl (tkinter),
+#  - bot.env with APP_NAME=<APP_NAME> (insert name at the place of <APP_NAME>).
+
 
 from datetime import datetime, timedelta
 try:
@@ -10,7 +13,7 @@ except ImportError:
 ------------------------------------------------------------------------------
 NOTE: Consider this error may be caused by the impossibility of this module's
 existing in the Python's lib on your OS.  This code may work partially still
-without the tkinter module, only with limited responsibilites.  Try commenting
+without the tkinter module, only with limited responsibilities.  Try commenting
 some lines/code parts (required the `tkinter`) and launch the app again.""")
 import os
 import re
@@ -71,6 +74,7 @@ with open(DATA, 'w') as f:
 
 
 def stop_prev(dyno: str) -> NoReturn:
+    """Run command to stop previous dyno, return None."""
     if not dyno:
         return
     cmd = f"heroku stop {dyno} -a {APP_NAME}"
@@ -87,11 +91,17 @@ def get_p(command) -> subprocess.Popen:
 
 
 def info_json() -> dict:
+    """Return the info about app, from data in json."""
     command = f"heroku apps:info {APP_NAME} --json"
 
     p = get_p(command)
     text = p.stdout.read()
 
+    if not text:
+        # Output is empty.
+        data = {}
+        return data
+    
     text_data = json.loads(text)
 
     return text_data
@@ -113,7 +123,7 @@ def update(case=None, space=None) -> dict:
     if case is None:
         case = "all_dynos[-1] != name"
     delta = datetime.now() - datetime.utcnow()
-    data = info_json()['dynos']
+    data = info_json().get('dynos')
     if data:
         data = data[0]
         t0_string: str = data["created_at"]
@@ -144,8 +154,8 @@ def update(case=None, space=None) -> dict:
     return d
 
 
-def launch(dyno: "?" = None, stop=True):
-    # :param dyno: Deprecated.
+def launch(stop=True) -> subprocess.Popen:
+    """Launch the app via cmd, stopping previous is required."""
     if stop:
         dyno = prev_data()['dyno']
         stop_prev(dyno)
@@ -154,12 +164,12 @@ def launch(dyno: "?" = None, stop=True):
     return p
 
 
-def work():
+def work() -> NoReturn:
     pdata = prev_data()
     dyno = pdata['dyno']
     t0 = pdata['time']
     now = datetime.now()
-    print('[', now.isoformat(), '] ', sep='', end='')  # test
+    print('[', now.isoformat(), '] ', sep='', end='')  # Test
     delta = now - t0
     delta = delta.total_seconds()
 
@@ -167,7 +177,7 @@ def work():
         schedule = WORKTIME_SCHEDULE
         for k in schedule:
             schedule[k] = tuple(map(int, schedule[k].split(':')))
-        for k in ['Tue', 'Wed', 'Fri']:
+        for k in ('Tue', 'Wed', 'Fri'):
             schedule[k] = schedule['Mon']
         day = obj.strftime('%a')
         time = schedule[day]
@@ -175,13 +185,15 @@ def work():
         return time[0] <= current_time <= time[1]
     
     if dyno and t0 >= now + timedelta(hours=2):
-        cases: tuple = (delta > 22 * 3600,
-        is_atworktime(t0 + timedelta(days=1, hours=-2)),
-        is_atworktime(t0 + timedelta(hours=2)))
+        cases: tuple = (
+            delta > 22 * 3600,
+            is_atworktime(t0 + timedelta(days=1, hours=-2)),
+            is_atworktime(t0 + timedelta(hours=2))
+        )
         if not all(cases):
             stop_prev(dyno)
 
-    p_launched = launch(dyno, stop=False)
+    p_launched = launch(stop=False)
     retcode = p_launched.wait()
     print(retcode)  # Test
     update(case="retcode == 0", space={'retcode': retcode})
@@ -202,9 +214,11 @@ button.pack(side='left')
 
 v1 = BooleanVar(value=False)
 
-qo_stop_prev = Checkbutton(field_1, text='Останавливать предыдущего '
+qo_stop_prev = Checkbutton(
+    field_1, text='Останавливать предыдущего '
     'dyno перед запуском кнопкой',
-    variable=v1)
+    variable=v1
+)
 qo_stop_prev.pack(side='left')
 
 other = Frame(window)
@@ -218,7 +232,7 @@ def config_label(repeat=True) -> NoReturn:
     if not dyno: dyno = repr(None)
     wait_for = 120  # seconds
     label['text'] = f"Последний работавший dyno \
-(не более чем {wait_for} сек. назад): {dyno}"
+(обновление внесено не более чем {wait_for} сек. назад): {dyno}"
     if repeat:
         label.after(wait_for*1_000, config_label)
 

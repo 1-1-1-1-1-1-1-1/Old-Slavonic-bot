@@ -1,10 +1,14 @@
-> This file uses the syntax of Markdown & Sphinx-related code.
+This file uses the syntax of Markdown & Sphinx-related code.
 
 ------------------------------------------------------------------------------
 
 **This describes the version of file at root.**
 
-> *NOTE*: The files of versions (files, which do exist at meta/version-controll/&lt;lib_name&gt;/: worker, config, requirements.txt; '`lib_name`': one of containing telebot, aiogram, Telethon; see [#version-files](#version-files)) should be modified at *that* folder, not at the root. Also, they can be modified at root, but not in a main stream.
+> *NOTE*: The files of versions (files, which do exist at
+  meta/version-controll/&lt;lib_name&gt;/: worker, config, requirements.txt;
+  '`lib_name`': one of containing telebot, aiogram, Telethon; see
+  [#version-files](#version-files)) should be modified at *that* folder, not
+  at the root. Also, they can be modified at root, but not in a main stream.
 
 version
 -------
@@ -12,7 +16,7 @@ version
 .. version::
 
     :type: at telethon
-    :name: 1.1.0
+    :name: 1.1.1
 
 version files
 -------------

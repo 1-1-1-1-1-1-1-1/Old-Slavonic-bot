@@ -1,6 +1,8 @@
-#dotenv
-# dotenv should not be at requirements file if running on Heroku,
-# but should be if it is run locally to load data from .env.
+#python-dotenv
+# Can be imported as module dotenv.
+# python-dotenv should not be at requirements file if running on Heroku, but
+# **should** be in case the program is running locally
+# (to be able to load data from *.env).
 pyTelegramBotAPI
 requests
 configparser

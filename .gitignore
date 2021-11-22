@@ -151,12 +151,18 @@ do_logs.log
 \!private-logs.log
 tracker.ini
 
+# Virtual environment
+venv/
+
 # Optional one, if store tokens there
 tokens.py
 
 # Appeared when running the telethon version
 *.session
 *.session-journal
+
+# MacOS files
+.DS_Store
 
 # PyCharm project files
 .idea/

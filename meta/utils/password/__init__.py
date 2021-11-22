@@ -2,7 +2,7 @@
 
 
 def password(uid, time=None, *, test_mode=False) -> 'typing.Optional[str]':
-    """Generate a password. Dependes on time. Optionally, can choose time."""
+    """Generate a password. Depends on time. Optionally, can choose time."""
     import datetime  # *Only* locally used.
 
     now = datetime.datetime.now()

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Tool to write files of the exact version to the root.
 #
-# Running as a tool at cmd line, requires `argparse`; that thing is not at Python
-# stdlib. Can install it via `pip install argparse` on Windows.
+# Running as a tool at cmd line, requires `argparse`; that thing is absent at
+# Python stdlib. It can be installed it via:
+#  - `pip install argparse` on Windows.
 
 
 allow_run_as_script = True
@@ -16,7 +17,7 @@ import typing
 from typing import Optional, Union, NoReturn, Literal
 from pathlib import Path
 import configparser  # See the tracker of files changes made.
-                     # That is a file _changed_tracker.py or like it.
+                     # That is a file _changed_tracker.py.
 import time
 from copy import copy
 
@@ -63,9 +64,12 @@ def choose_version(v_name: _VERSION_NAME_TYPE = None) \
     -> NoReturn:
     """A utility to choose version.
 
-    Usage: pass a pattern, applying to the start of searched version,
-    at the v_name. Only one version should match that pattern.
-    Pass None to choose nothing.
+    Usage
+    -----
+
+     - Pass a pattern, applying to the start of searched version,
+       at the v_name. Only one version should match that pattern.
+     - Pass None to choose nothing.
     """
     global version
     if not v_name:
@@ -113,7 +117,7 @@ c.read(tracker_config_filename, encoding='utf-8')
 
 
 def _disable_tracker():
-    """Disable tracker, see the _changed_tracker.py or like that."""
+    """Disable the tracker. See: _changed_tracker.py."""
     if not c.has_section('main'):
         return
     c['main']['requires_set_defaults'] = 'true'
@@ -123,9 +127,7 @@ def _disable_tracker():
 
 
 def _allow_reload_tracker_defaults():
-    """Allow the tracker being reloaded.
-    See _changed_tracker.py or like that.
-    """
+    """Allow the tracker being reloaded. See: _changed_tracker.py."""
     if not c.has_section('main'):
         return
     c['main']['requires_set_defaults'] = 'true'
@@ -142,6 +144,7 @@ def main(v_name=None, files=[], *,
 
     Additional stuff
     ----------------
+
     Update content of current-version.txt and ensure that versions
     at `files` do correspond to versions at `INITIAL_FILE`; if not,
     make a corresponding mark / note.
@@ -244,15 +247,15 @@ Writes files {', '.join(files)} to the root folder.
         else:
             version_is_undefined = True
             full_name = ':'.join(
-                    (
-                        v_name,
-                        "undefined"
-                    )
+                (
+                    v_name,
+                    "undefined"
                 )
+            )
     print(
         "📚Read version full name from {0}. ".format(main_file)
         + "Name of version: {0}".format(full_name)
-        )
+    )
     library = v_name
 
     # Get version info as a tuple.
@@ -346,10 +349,10 @@ Writes files {', '.join(files)} to the root folder.
     # Get `data` and `lines`.
     with open(current_version_fname, encoding=encoding) as f:
         data: list[str] = f.readlines()
-        data_copy = copy(data)
+        data_copy: list[str] = copy(data)
 
-        started = False
-        lines = []  # List of integer numbers.
+        started: bool = False
+        lines: list[int] = []
         # `lines` is a list of possible lines' indexes to change.
         i = 0
         while data_copy:

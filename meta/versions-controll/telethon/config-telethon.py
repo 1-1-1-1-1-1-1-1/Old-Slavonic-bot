@@ -32,7 +32,7 @@ COMMON_THUMB_CONFIG = _THUMB_CONFIG['common']
 # Set logging
 logformat = '[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s'
 logging.basicConfig(format=logformat,
-                    level=logging.WARNING)
+    level=logging.WARNING)
 
 # Set bot configurations: session name, api_id and api_hash
 session_name = 'translator-bot' if not TEST_MODE else 'translator-bot-test'

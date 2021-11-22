@@ -15,22 +15,22 @@ Table of contents
 Meta notes
 ==========
 
-> This file uses the syntax of mixed pseudo-ReST and Markdown.
+ > This file uses the syntax of mixed *pseudo-ReST* and *Markdown*.
 
 General about
 =============
 
-versions appear since the 14's commit.
+**Versions appear since the 14's commit.**
 
-1.0.0 -- telebot basic version finished, already existed versions at
+**1.0.0** -- telebot basic version finished, already existed versions at
 telethon and aiogram, maybe undone and untested.
 
-files
+Files
 =====
 
 Here are files of versions.
 
-.. required-files:: syntax "+`libname.<ext>` for each"
+.. required-files:: syntax "+`libname.ext` for each"
 
     config, requirements, worker
 
@@ -39,7 +39,7 @@ Here are files of versions.
     README-libname[.md][.*]
 
 
-changelog
+Changelog
 =========
 
 See [ChangeLog.txt](ChangeLog.txt).

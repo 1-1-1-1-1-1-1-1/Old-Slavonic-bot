@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# version: telebot:1.1.0
+# version: telebot:1.1.1
+# Since v1.1.0 there are no changes at this file exc. these three
+# lines, which are noting version.
 
 # <COMMENT:general:telebot>
 
@@ -64,7 +66,7 @@ HTML = 'html'
 MARKDOWN_V2 = 'MarkdownV2'
 
 
-edit_note = "telebot:1.1.0"
+edit_note = "telebot:1.1.1.post0"
 # ^ Dummy, to check for updates while running.
 
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# version: telethon:1.1.0
+# version: telethon:1.1.1
+# Since v1.1.0 there are no changes at this file exc. these three
+# lines, which are noting version.
 
 # <COMMENT:general:telethon>
 
@@ -76,7 +78,7 @@ WORDS_GAME_PRIVATE_PATTERN = WORDS_GAME_PATTERNS["private"]
 WORDS_GAME_PATTERN = WORDS_GAME_PATTERNS["general"]
 
 
-edit_note = "telethon:1.1.0"
+edit_note = "telethon:1.1.1.post0"
 # ^ Dummy, to check for updates while running.
 
 

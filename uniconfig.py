@@ -32,8 +32,8 @@ TOKEN_INIT = get('TOKEN_INIT')
 if not TOKEN_TEST or not TOKEN_INIT:
     raise SystemExit("No tokens found.")
 
-# Here PROD is "whether the production version":
-_IS_UNSAFE_TESTS_MODE = True  # ! Unsafe: for tests
+# Here PROD is "whether the production version"
+_IS_UNSAFE_TESTS_MODE = True  # ! Unsafe: set `True` for tests **only**.
 PROD_UNDEPLOYED = _IS_UNSAFE_TESTS_MODE
 PROD = ON_HEROKU or PROD_UNDEPLOYED
 
@@ -101,7 +101,7 @@ INLINE_EXAMPLES = [
     "Тестовая фраза. Если можно, иди делать доброе дело.",
     '"1 в поле не воин."',
     "7 раз отмерь, 1 раз отреж. Успехов."
-    ]
+]
 
 A_CYRYLLIC = \
     "https://i.ibb.co/N9Vznhx/F67-C56-DB-732-C-468-B-BC4-B-81-FCCBEEE37-D.jpg"
@@ -130,12 +130,12 @@ if ON_HEROKU and CACHE_TIME < n:
     warnings.warn(
         f"Cache time for inline query is set for less then {n} "
         "seconds. Be careful."
-        )
+    )
     if _SET_DEFAULT_ON_HEROKU:
         CACHE_TIME = _DEFAULT_CACHE_TIME
         print("Default CACHE_TIME set: {0}"
               .format(_DEFAULT_CACHE_TIME)
-              )
+        )
 del n, _SET_DEFAULT_ON_HEROKU
 
 UIDS_BASE = join(_DATA, 'users.txt')
@@ -169,10 +169,13 @@ TEST_CHAT = -1001341084640  # The test chat
 SPEAK_CHAT = -1001370491506  # The chat: place of speaking at group 
 HEAD_CHAT = -1001172242526  # The initial, main chat of a group/course
 # *Note:* Actually, the bot was written for a thing, connected with an exact
-# course of that language (Old Slavonic), so the word 'course' appears here.
+# course of that language (Old Slavonic), so the word 'course' is here.
+
+# Updated:
+HEAD_CHAT_2 = -1001725899621  # Course at 2 sem. of 2021-2022 stud. year.
 
 HELP_URL = "https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28"
-# Url to the help message about **this** whole thing. The thing is the bot.
+# Url to the help message about **this** whole thing, the bot.
 
 # Greeting's settings ========================================================
 # Greeting of a new chat member: settings

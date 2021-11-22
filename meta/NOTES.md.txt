@@ -1,24 +1,33 @@
 Files
 -----
 
-* Procfile is a file for the deploy (launch) from GitHub to Heroku. *This file is optional, see Procfile-template.*
+ * Procfile is a file for the deploy (launch) from GitHub to Heroku.
+   *This file is optional, see Procfile-template.*
     - See: https://devcenter.heroku.com/articles/procfile.
-* runtime.txt is a file for the deploy (launch) from GitHub to Heroku. Python version: version 3.8+ is required, as using `:=`.
+ * runtime.txt is a file for the deploy (launch) from GitHub to Heroku.
+   Python version:
+    - version >=3.8 is required to allow the use of `:=`.
+    - version >=3.9 is required to allow Generic Alias Type usage.
     - See: https://devcenter.heroku.com/articles/python-runtimes.
     - Supported runtimes: https://devcenter.heroku.com/articles/python-support#supported-runtimes.
 
-Some commands, were availaible at the Heroku CLI
-------------------------------------------------
+Some commands, were availaible via the Heroku CLI
+-------------------------------------------------
 
-> Here `APP_NAME` is the name of app at the Heroku.
+> Here `APP_NAME` is the name of app at the Heroku. '[part]' -- Optional part.
 
- - Deploy an app: `heroku run:detached python worker.py (-a|--app=)APP_NAME` (see also: file log.log).
+ - Deploy an app: `heroku run:detached python worker.py (-a|--app=)APP_NAME`
+   See also: file log.log.
  - Stop the bot (any app) running: `heroku stop DYNO --app APP_NAME`.
  - Check the logs: `heroku logs --app APP_NAME [--dyno DYNO]`.
    Example: `DYNO` is `run.5741`.
-   > Note: `DYNO` can be found after the launch via `heroku run:detached`, or at json input on `heroku apps:info APP_NAME --json`.
+  > Note: `DYNO` can be found after the launch via `heroku run:detached`,
+      or at json input on `heroku apps:info APP_NAME --json`.
  - Set the config variable at Heroku:
    `heroku config:set VAR_NAME=VAR_VALUE VAR_2_NAME=VAR_2_VALUE ...`.
    OR: `heroku config:set VAR_NAME="VAR_VALUE" ...`.
+ - View Heroku config vars:
+   `heroku config [-a=APP_NAME]`.
+   See: `heroku config -h`.
  - Install dependencies: `pip install -r requirements.txt`.
      + Note: deploying from GitHub to Heroku it runs *automatically*.

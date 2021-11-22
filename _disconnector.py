@@ -8,6 +8,7 @@ from typing import NoReturn
 from telethon.sync import TelegramClient
 
 import globalconfig  # Run `load_dotenv`
+del globalconfig
 
 
 _get = os.environ.get

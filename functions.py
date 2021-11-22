@@ -19,12 +19,12 @@ Supported actions
  * `do_translate`
  * `_translation`
  * Directly transliterating to Glagolic
-     - `glagolitic_translate_number`
+     - `glagolitic_transliterate_number`
      - `_glagolitic_transliterate`: transliterate a part of the text from
         Russian to Old Slavonic, Glagolitic script
      - `glagolitic_transliterate`
  * Directly transliterating to Cyryllic
-     - `cyryllic_translate_number`
+     - `cyryllic_transliterate_number`
      - `_cyryllic_transliterate`
      - `cyryllic_transliterate`
  * `translation`
@@ -302,7 +302,7 @@ def _translation(text):  # Nice?
 # === Section: Glagolitic transliteration =====================================
 
 
-def glagolitic_translate_number(string: str, allow_not_arabic=False) \
+def glagolitic_transliterate_number(string: str, allow_not_arabic=False) \
     -> str:
     if not allow_not_arabic:
         try:
@@ -319,7 +319,7 @@ def glagolitic_translate_number(string: str, allow_not_arabic=False) \
         # If `string` == "0...0", this happens
         return ""
     if string[0] == '0':
-        return '0' + glagolitic_translate_number(word[1:])
+        return '0' + glagolitic_transliterate_number(word[1:])
     n = int(string)
     if n >= 3000:
         return string
@@ -353,7 +353,7 @@ def _glagolitic_transliterate(word: str, transliterate_number=True) -> str:
         return ""
     if re.fullmatch(r'[0-9]+', word):
         if transliterate_number:
-            result = glagolitic_translate_number(word)
+            result = glagolitic_transliterate_number(word)
             return result
         # Otherwise `word` represents number,
         # no transliteration is required for it.
@@ -371,6 +371,7 @@ def _glagolitic_transliterate(word: str, transliterate_number=True) -> str:
         return result
     except:
         d = data["glagolitic"]["letters"]
+
         def func(i):
             orig_letter = word0[i]
             letter = word[i]
@@ -378,14 +379,14 @@ def _glagolitic_transliterate(word: str, transliterate_number=True) -> str:
             if is_lower(orig_letter):
                 res = res.lower()
             return res
+        
         return "".join(map(func, range(len(word))))
 
 
 def glagolitic_transliterate(text: str, transliterate_numbers=True) -> str:
     """Write the Russian text at the Glagolitic script."""
     pattern = r"([А-ЯЁа-яё]+)|([0-9]+)"
-    repl = lambda match: \
-    _glagolitic_transliterate(
+    repl = lambda match: _glagolitic_transliterate(
         match.group(),
         transliterate_number=transliterate_numbers
     )
@@ -397,7 +398,7 @@ def glagolitic_transliterate(text: str, transliterate_numbers=True) -> str:
 # === Section: Cyryllic transliteration =======================================
 
 
-def cyryllic_translate_number(number: str) -> str:
+def cyryllic_transliterate_number(number: str) -> str:
     """Transliterate the number (given as :obj:`str`) to Cyryllic."""
     if not number:
         # Case of `number == "0...0"` goes here.
@@ -407,7 +408,7 @@ def cyryllic_translate_number(number: str) -> str:
     
     zero = '0'
     if number[0] == zero:
-        return zero + cyryllic_translate_number(number[1:])
+        return zero + cyryllic_transliterate_number(number[1:])
 
     if int(number) > 999_999_999_999:
         return number
@@ -473,6 +474,7 @@ def cyryllic_translate_number(number: str) -> str:
         pos = 1
 
     counted = 0
+
     def do_local():
         nonlocal pos, counted
         ans = res[-pos:].count((mdot, ""))
@@ -481,6 +483,7 @@ def cyryllic_translate_number(number: str) -> str:
             pos += 1
             return 1
         return 0
+
     while pos < len(res):
         if do_local() == 0:
             break
@@ -520,7 +523,7 @@ def _cyryllic_transliterate(word: str, transliterate_number=True) -> str:
     """Preliminary transliterate the word to Cyryllic."""
     if re.fullmatch(r'[0-9]+', word):
         if transliterate_number:
-            result = cyryllic_translate_number(word)
+            result = cyryllic_transliterate_number(word)
             return result
         return word
     
@@ -561,7 +564,7 @@ def _cyryllic_transliterate(word: str, transliterate_number=True) -> str:
             _transliterate_func(parts[0])
             + parts[1]
             + _transliterate_func(parts[2])
-            )
+        )
         return res
 
     res = []
@@ -618,11 +621,10 @@ def _cyryllic_transliterate(word: str, transliterate_number=True) -> str:
     return "".join(res)
 
 
-def cyryllic_transliterate(text, transliterate_numbers=True):
+def cyryllic_transliterate(text: str, transliterate_numbers=True):
     """Implement the transliteration from Russian to Cyryllic."""
     pattern = r'(?i)[-–а-яё0-9]+'
-    repl = lambda match: \
-    _cyryllic_transliterate(
+    repl = lambda match: _cyryllic_transliterate(
         match.group(),
         transliterate_number=transliterate_numbers
     )

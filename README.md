@@ -45,7 +45,7 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 
 В версии 1.0.0 некоторые файлы отдельно вынесены [в папку контроля версий](meta/versions-controll) с удалением этих файлов в корне.
 
-Начиная с момента появления нумерованных версий (1.0.0+, [commit 16](https://github.com/1-1-1-1-1-1-1-1/Old-Slavonic-bot/commit/88eeaa768d4f2a382de0583ef23f162b91b60302) в GitHub) есть три версии, записываемые в папке [meta/versions-controll](meta/versions-controll): в библиотеках `telebot`, `aiogram`, `telethon`. Файлы/данные, записанные или подтвержденные до этого момента, приоритетно считать не столь авторитетными, как те, которые записаны или подтверджены во время, начиная с него.
+Начиная с момента появления нумерованных версий (1.0.0+, [commit 16](https://github.com/1-1-1-1-1-1-1-1/Old-Slavonic-bot/commit/88eeaa768d4f2a382de0583ef23f162b91b60302) в GitHub) есть три версии, записываемые в папке [meta/versions-controll/](meta/versions-controll): в библиотеках `telebot`, `aiogram`, `telethon`. Файлы/данные, записанные или подтвержденные до этого момента, приоритетно считать не столь авторитетными, как те, которые записаны или подтверджены во время, начиная с него.
 
 Причина создания нескольких версий:
 
@@ -53,7 +53,7 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
  - в `telebot` код простой и похож на код в `aiogram`, но не все вещи легко сделать;
  - в `aiogram` некоторое может быть писать удобнее, чем в `telebot`.
 
-История изменений по номерам версий: [ChangeLog.txt](meta/versions-controll/ChangeLog.txt).
+*История изменений* по номерам версий: [ChangeLog.txt](meta/versions-controll/ChangeLog.txt).
 
 * * *
 
@@ -67,8 +67,8 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 
 \[1]: Подробно о функциях перевода: см., например,
 
- - [определение функции перевода вместе с транслитерацией](functions.py#L637),
- - [определение функции транслитерации на глаголическое письмо](functions.py#L349).
+ - [определение функции перевода вместе с транслитерацией](functions.py#L640),
+ - [определение функции транслитерации на глаголическое письмо](functions.py#L350).
 
 Пример перевода слова или текста в режиме [inline](https://core.telegram.org/bots/inline):
 
@@ -87,9 +87,9 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 ## Файлы и папки
 <a id="files"></a>
 
-* Папка с файлами, специфическими при написании бота с различными библиотеками: `telebot`, `aiogram`, `telethon`.
-* Некоторые данные: в папке [data](data/).
-* Файл с определением функций перевода и транслитерации: [functions.py](functions.py).
+ * Папка с файлами, специфическими при написании бота с различными библиотеками: `telebot`, `aiogram`, `telethon`.
+ * Некоторые данные: в папке [data/](data/).
+ * Файл с определением функций перевода и транслитерации: [/functions.py](functions.py).
 
 ## References (литература; документация; ссылки)
 <a id="references"></a>
@@ -97,13 +97,13 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 ### Функции перевода и транслитерации, их работа
 <a id="func-refs"></a>
 
- * Схема переводов: в [meta/Scheme.txt](meta/Scheme.txt).
+ * Схема переводов: в [/meta/Scheme.txt](meta/Scheme.txt).
  * Работа функций транслитерации:
      - https://www.ponomar.net/files/gama2/p002.htm (Название: "§2. Употребление и произношение букв")
  * Про числа:
      - Общие сведения: http://lukianpovorotov.narod.ru/Folder_Pravoslavie/tserkovnoslavyanskiye_chisla.html
      - Подробности: http://konorama.ru/servisy/slacy/
-     - Программа для конвертации чисел: http://info-7.ru/Titlo/Titlo.shtml (link to this was at Wikipedia, see prev. source)
+     - Программа для конвертации чисел: http://info-7.ru/Titlo/Titlo.shtml (ссылка на это было в Википедии, см. прошлый (-е) ресурс (-ы))
 
 ### Работа бота
 <a id="bot-refs"></a>
@@ -127,13 +127,13 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 #### Telethon API
 <a id="telethon-api-refs"></a>
 
-* Ссылка на Telethon API: https://tl.telethon.dev/.
-* Bot API vs MTProto: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html.
-* Также: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html?highlight=API#what-is-mtproto.
-* Про Telethon API: https://docs.telethon.dev/en/latest/concepts/full-api.html
-    + Часть текста про Telethon API:
-    > While you have access to this, you should always use the friendly methods listed on  [Client Reference](https://docs.telethon.dev/en/latest/quick-references/client-reference.html#client-ref) unless you have a better reason not to, like a method not existing or you wanting more control.
-* О переходе от `aiogram`/`telebot` к `telethon`: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html#botapi.
+ * Ссылка на Telethon API: https://tl.telethon.dev/.
+ * Bot API vs MTProto: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html.
+ * Также: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html?highlight=API#what-is-mtproto.
+ * Про Telethon API: https://docs.telethon.dev/en/latest/concepts/full-api.html
+     + Часть текста про Telethon API:
+       > While you have access to this, you should always use the friendly methods listed on [Client Reference](https://docs.telethon.dev/en/latest/quick-references/client-reference.html#client-ref) unless you have a better reason not to, like a method not existing or you wanting more control.
+ * О переходе от `aiogram`/`telebot` к `telethon`: https://docs.telethon.dev/en/latest/concepts/botapi-vs-mtproto.html#botapi.
 
 #### Telegram Bot API
 <a id="telegram-bot-api-refs"></a>
@@ -142,15 +142,15 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
 
 > **Замечание**: Библиотеки `aiogram` и `telebot` являются реализацией этого API. Библиотека `telethon` написана с применением [другого](https://tl.telethon.dev/) (собственного) API.
 
- * Про требуемую для действия inline-кнопок вещь (как пример в `/help`; `InlineKeyboardMarkup`):
- > Note: This will only work in Telegram versions released after 9 April, 2016.
+ * Про требуемую для действия inline-кнопок базу (как пример в `/help`; `InlineKeyboardMarkup`):
+   > Note: This will only work in Telegram versions released after 9 April, 2016.
 
- (*from the [Telegram Bot API]*)
+ (*из [Telegram Bot API]*)
 
- * Текст inline-запроса (через `@<bot_username> text`):
+ * Текст inline-запроса (через `@<bot_username> текст`):
  > Text of the query (up to 256 characters)
 
- (*from the [Telegram Bot API]*)
+ (*из [Telegram Bot API]*)
 
 ### Другое
 <a id="other-refs"></a>
@@ -167,15 +167,16 @@ https://telegra.ph/Perevodchik-na-staroslavyanskij-02-28.
  * Документация к `telethon` (`pip`: `Telethon`): https://docs.telethon.dev/en/latest/.
  * Документация к `aiogram`: https://docs.aiogram.dev/en/latest/.
  * Документация к `telebot` (`pip`: `pyTelegramBotAPI`):
-   + https://github.com/eternnoir/pyTelegramBotAPI#pytelegrambotapi;
-   + https://pypi.org/project/pyTelegramBotAPI/.
+     + https://github.com/eternnoir/pyTelegramBotAPI#pytelegrambotapi;
+     + https://pypi.org/project/pyTelegramBotAPI/.
 
 [Telegram Bot API]: https://core.telegram.org/bots/api
 
 ## See also
 <a id="see-also"></a>
 
- * История изменений, нумерация по версиям: [meta/versions-controll/ChangeLog.txt](meta/versions-controll/ChangeLog.txt).
- * Некоторые заметки: [meta/NOTES.md.txt](meta/NOTES.md.txt).
+ * Папка с версиями в библиотеках `telebot`, `aiogram`, `telethon`: [/meta/versions-controll/](meta/versions-controll/).
+ * История изменений, нумерация по версиям: [/meta/versions-controll/ChangeLog.txt](meta/versions-controll/ChangeLog.txt).
+ * Некоторые заметки: [/meta/NOTES.md.txt](meta/NOTES.md.txt).
  
 [К началу страницы](#top)

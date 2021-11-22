@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Written at 2021-08-03
 
 # This file is an utility to track, whether the files of versions, written to
@@ -17,8 +18,9 @@ import tkinter
 import tkinter.messagebox as mbox
 from textwrap import dedent  # for code's readability
 import datetime  # tracking time
-import os  # join path
+from os.path import join  # join path
 import warnings
+from typing import NoReturn, Optional
 
 import configparser  # To have an option to disable tracker
                      # while rewriting files manually.
@@ -27,8 +29,8 @@ import configparser  # To have an option to disable tracker
 TIME_FORMAT = '%d.%m.%YT%TZ'
 
 
-config_filename = os.path.join("locals", 'tracker.ini')
-del os
+config_filename = join("locals", 'tracker.ini')
+del join
 
 
 c = configparser.ConfigParser()
@@ -44,20 +46,21 @@ files = [
     "worker.py",
     "config.py",
     "requirements.txt"
-    ]
+]
 
 
 now = datetime.datetime.now
 
 
-def set_defaults():
+def set_defaults() -> NoReturn:
     global old_texts, firstly_edited, warns_info
     global started_at
 
     # Config some data
+
     old_texts = {
         fname: None for fname in files
-        }
+    }
 
     firstly_edited = {
         fname: None for fname in files
@@ -69,7 +72,7 @@ def set_defaults():
 
     # Config time of the track's beginning.
     # NOTE: This time changed when the tracker's code is "reloaded" via
-    # the worker function at `_write_files.py` or like that.
+    #       the worker function at `_write_files.py` or like that.
     started_at = now().strftime(TIME_FORMAT)
 
 
@@ -81,21 +84,21 @@ w = tkinter.Tk()
 # Config window
 w.title("Tool to track changed files")
 
-# Choose window type.
+# Choose window type
 window_type = [
     'common',
     '->common_window',  # same as 'common'
     'tool',
     'toolwindow',  # same as 'tool'
     'hidden'
-    ]
+]
 
 # Should be changed when the respective changes at given types are done.
 supported_types = {
     'common_window',
     'toolwindow',
     'hidden'
-    }
+}
 
 prefix = '->'
 
@@ -116,7 +119,7 @@ elif mode == 'common':
 if mode not in supported_types:
     warnings.warn(
         "Unsupported mode of `window_type` passed. Treated as common."
-        )
+    )
 
 if mode == 'toolwindow':
     w.wm_attributes('-toolwindow', True)
@@ -124,7 +127,7 @@ if mode == 'toolwindow':
 elif mode == 'hidden':
     w.wm_attributes('-alpha', 0)
 else:
-    # Supposed to be mode `common`.
+    # Treated as mode 'common'.
     pass
 
 
@@ -167,28 +170,28 @@ for fname in files:
     button.config(command=command)
     button_{button_id}.pack()
     """
-    code = dedent(code)
+    code: str = dedent(code)
     exec(code, globals())
-    del code  # It was quite a big string.
+    del code  # It was quite big.
 
     fname = eval(fname)  # Go back from repr(...).
 
-    s = eval(f"button_{button_id}")
+    s: tkinter.Button = eval(f"button_{button_id}")
     buttons[fname] = s
 
 
-def _pre_script(fname):
+def _pre_script(fname) -> NoReturn:
     global old_texts, firstly_edited
-    obj = buttons[fname]
+    obj: Optional[tkinter.Button] = buttons[fname]
 
-    old_text = old_texts[fname]
+    old_text: Optional[bytes] = old_texts[fname]
     with open(fname, 'rb') as f:
-        new_text = f.read()
+        new_text: bytes = f.read()
 
     # Get variable value: of variable `requires_set_defaults`
     c.read(config_filename)
     try:
-        requires_set_defaults = c.getboolean('main', 'requires_set_defaults')
+        requires_set_defaults: bool = c.getboolean('main', 'requires_set_defaults')
     except configparser.NoOptionError:
         requires_set_defaults = False
 
@@ -211,8 +214,8 @@ def _pre_script(fname):
                 warning_msg = \
                 f"File {fname} has been just changed!"
                 mbox.showwarning("Warning", warning_msg,
-                                 parent=obj  # optional
-                                 )
+                    parent=obj  # optional
+                )
 
                 warns_info[fname] = ctime
 
@@ -227,18 +230,18 @@ def _pre_script(fname):
 _track = _pre_script
 
 
-def _script():
+def _script() -> NoReturn:
     for fname in files:
         button_id = id(fname)
-        code = f"""
+        code = f"""\
         func = lambda: _track({repr(fname)})
         button_{button_id}.after(0, func)
         """
-        code = dedent(code)
+        code: str = dedent(code)
         exec(code)
 
 
-def _track_and_set_defaults():
+def _track_and_set_defaults() -> NoReturn:
     global requires_set_defaults
     global can_reload
 
@@ -248,13 +251,13 @@ def _track_and_set_defaults():
     
     # Var. `can_reload` set.
     try:
-        can_reload = c.getboolean('main', 'can_reload')
+        can_reload: bool = c.getboolean('main', 'can_reload')
     except configparser.NoOptionError:
         can_reload = False
 
     # Var. `requires_set_defaults` set and config.
     try:
-        requires_set_defaults = c.getboolean('main', 'requires_set_defaults')
+        requires_set_defaults: bool = c.getboolean('main', 'requires_set_defaults')
     except configparser.NoOptionError:
         requires_set_defaults = False
         c.set('main', 'requires_set_defaults', 'false')
